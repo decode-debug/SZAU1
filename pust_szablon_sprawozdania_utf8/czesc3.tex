@@ -1,0 +1,103 @@
+\chapter{Numeryczny regulator rozmyty typu SL}
+\section{Algorytm i ograniczenia}
+W rozmytym algorytmie FDMC--SL jeden model liniowy opisuje przewidywaną odpowiedź obiektu w danej chwili $k$. Zastosowano konstrukcję z materiałów wykładowych \emph{Regulatory rozmyte}, s.~161--162, wzory (4.96)--(4.105).\footnote{Rozszerzenie FDMC o warunki stabilizujące opisują P.~M.~Marusak i P.~Tatjewski, \emph{Effective Dual-Mode Fuzzy DMC Algorithms with On-Line Quadratic Optimization and Guaranteed Stability}, 2009. \href{https://doi.org/10.2478/v10006-009-0012-8}{DOI 10.2478/v10006-009-0012-8}.} Przed symulacją wyznaczono lokalne odpowiedzi $s^{(i)}_j$ poziomu $h_2$ na jednostkowy skok $\uvar$ dla czterech linearyzacji z części~2. Próbka $j$ odpowiada chwili $jT_s$. Opóźnienie 200~s daje dziesięć początkowych próbek równych zeru.
+
+W chwili $k$ regulator oblicza z pomiaru $h_2(k)$ wagi dostrojonego modelu TS. Następnie uśrednia osobno każdą rzędną lokalnych odpowiedzi
+\begin{equation}
+ \widetilde s_j(k)=\sum_{i=1}^4\widetilde w_i(k)s^{(i)}_j,\qquad
+ \widetilde w_i(k)=\frac{\mu_i(h_2(k))}{\sum_{\ell=1}^4\mu_\ell(h_2(k))},
+ \quad j=1,\ldots,D .
+\end{equation}
+Wagi pozostają stałe na horyzoncie bieżącej predykcji. Z tych samych rzędnych powstają macierz dynamiczna $M_k$ i macierz wpływu wcześniejszych ruchów $M_k^P$.
+\begin{align}
+ (M_k)_{pj}&=\widetilde s_{p-j+1}(k), &
+ (M_k^P)_{pj}&=\widetilde s_{p+j}(k)-\widetilde s_j(k),\\
+ Y^0&=h_2(k)\mathbf 1+M_k^P\Delta U^P, &
+ Y&=Y^0+M_k\Delta U .
+\end{align}
+Przyjęto $\widetilde s_r=0$ dla $r\leq0$ i $\widetilde s_r=\widetilde s_D$ dla $r>D$. Wektor $\Delta U^P$ zawiera $D-1$ poprzednich przyrostów w kolejności od najnowszego. Wpływ zakłócenia $F_D$ regulator obserwuje przez pomiar poziomu.
+
+Dla $\Delta U=[\Delta u(k),\ldots,\Delta u(k+N_u-1)]^{\mathsf T}$ funkcja \texttt{quadprog} rozwiązuje zadanie
+\begin{align}
+ \min_{\Delta U}\quad J&=\lVert Y_{\mathrm{cel}}(k)-Y^0-M_k\Delta U\rVert_2^2
+                         +\lambda\lVert\Delta U\rVert_2^2,\\
+ -30\mathbf 1\leq\Delta U&\leq30\mathbf 1,\qquad
+ 0\mathbf 1\leq u(k-1)\mathbf 1+L\Delta U\leq200\mathbf 1 .
+\end{align}
+Dolnotrójkątna macierz jedynek $L$ sumuje przyrosty. Ograniczenia w $\jednprzep$ obejmują wszystkie planowane ruchy i wartości dopływu. W wariantach bez filtru $Y_{\mathrm{cel}}(k)=h_{2,\mathrm{zad}}(k)\mathbf 1$. W wariancie po strojeniu zastosowano przyczynowy filtr pierwszego rzędu $r_f(k)=\alpha r_f(k-1)+(1-\alpha)h_{2,\mathrm{zad}}(k)$ dla $\alpha=\exp(-T_s/T_f)$ oraz $Y_{\mathrm{cel}}(k)=r_f(k)\mathbf 1$, który korzysta wyłącznie z bieżącej wartości zadanej. Regulator wykonuje pierwszy ruch i powtarza obliczenia po kolejnym pomiarze.
+
+\section{Porównanie z regulatorem analitycznym i strojenie SL}
+Wszystkie regulatory sterowały tym samym nieliniowym obiektem przy $T_s=20$~s, $D=250$ i jednakowych ograniczeniach. W porównaniu początkowego PDC z pierwszym wariantem FDMC--SL przyjęto identyczne $N=50$, $N_u=1$, $\lambda=\num{0.05}$, $T_f=0$ i funkcje przynależności. PDC wyznacza wtedy oddzielny dopuszczalny ruch dla każdej reguły i uśrednia ruchy. FDMC--SL najpierw uśrednia odpowiedzi skokowe i rozwiązuje jedno wspólne zadanie. Wariant SL przed strojeniem ma $N=50$, $N_u=5$, $\lambda=\num{0.2}$, $T_f=0$, a wariant SL po strojeniu $N=20$, $N_u=3$, $\lambda=\num{0.005}$ oraz $T_f=160$~s. W dostrojonym PDC zastosowano wagi regulatora z rozdziału~5.
+
+\begin{table}[H]
+\centering
+\caption{IAE po skoku zadania i zakłócenia łącznie w czterech próbach projektowych [cm$\cdot$s].}
+\small
+\begin{tabular}{lrrrrr}\toprule
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC strojony & SL o nast. PDC & SL przed str. & SL po str.\\\midrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & 2082 & 1861 & 2085 & 1919 & 1676\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & 4568 & 4250 & 4566 & 4159 & 3572\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & 9285 & 8718 & 9181 & 8325 & 6867\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & 3601 & 3478 & 3656 & 3516 & 3685\\\midrule
+Suma & 19535 & 18309 & 19488 & 17919 & 15800\\\bottomrule
+\end{tabular}
+\label{tab:sl-control}
+\end{table}
+IAE obliczono jako $T_s\sum_k |h_{2,\mathrm{zad}}(k)-h_2(k)|$. Skok zadania nastąpił w 400~s, a zakłócenia w 3200~s. Tab.~\ref{tab:sl-metrics} rozdziela reakcje na oba wymuszenia oraz podaje aktywność sterowania, maksymalne cofnięcie na dojściu do zadania i przeregulowanie.
+
+\begin{table}[H]
+\centering
+\caption{Jakość regulacji i aktywność sterowania w czterech próbach projektowych.}
+\small
+\begin{tabular}{lrrrrrr}\toprule
+Regulator & IAE zad. & IAE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Cofnięcie & Przereg.\\
+ & [cm$\cdot$s] & [cm$\cdot$s] & [$\jednprzep$] & [$\jednprzep$] & [cm] & [cm]\\\midrule
+PDC                 & 10295 & 9240 & \num{226.1} & \num{30.0} & \num{0.000} & \num{0.000}\\
+PDC strojony        &  9297 & 9012 & \num{234.3} & \num{30.0} & \num{0.177} & \num{0.175}\\
+SL o nastawach PDC  & 10310 & 9178 & \num{228.2} & \num{30.0} & \num{0.000} & \num{0.000}\\
+SL przed strojeniem &  9658 & 8260 & \num{279.1} & \num{15.6} & \num{0.575} & \num{0.073}\\
+SL po strojeniu     & 10329 & 5471 & \num{310.1} & \num{11.7} & \num{0.066} & \num{0.000}\\\bottomrule
+\end{tabular}
+\label{tab:sl-metrics}
+\end{table}
+
+Przy jednakowych nastawach początkowy PDC i SL dają zbliżone przebiegi, a łączny IAE wersji SL jest niższy o \num{0.24}\%. Wariant SL przed strojeniem ($N=50$, $N_u=5$, $\lambda=\num{0.2}$) obniża łączny IAE o \num{2.13}\% względem dostrojonego PDC, lecz przy podnoszeniu poziomu wykazuje wyraźne cofnięcie przed osiągnięciem wartości zadanej (do \num{0.575}~cm w próbie $+8$~cm, między 1160 a 1560~s). Wynika ono ze zmiany wag modelu TS wraz ze wzrostem przekroju zbiornika $3C_2h_2^2$ przy długim horyzoncie predykcji $N=50$ i opóźnieniu transportowym 200~s: regulator zbyt wcześnie redukuje dopływ po początkowym spiętrzeniu.
+
+Skrócenie horyzontu predykcji do $N=20$ (dziesięć próbek po opóźnieniu transportowym), przyjęcie $N_u=3$ i $\lambda=\num{0.005}$ oraz łagodne wprowadzanie skoku zadania filtrem $T_f=160$~s obniżają łączny IAE do 15\,800~cm$\cdot$s, czyli o \num{11.82}\% względem SL przed strojeniem i o \num{13.70}\% względem dostrojonego PDC. Błąd całkowy po skoku zakłócenia maleje o \num{33.76}\% (z 8260 do 5471~cm$\cdot$s), a maksymalny uchyb po skoku $F_D=+30\ \jednprzep$ spada z \num{4.904} do \num{3.947}~cm (rys.~\ref{fig:sl-tuning}). Przeregulowanie zostaje całkowicie wyeliminowane (\num{0.000}~cm), a maksymalne cofnięcie maleje niemal dziewięciokrotnie, do \num{0.066}~cm (w próbie $+8$~cm dwudziestopięciokrotnie, do \num{0.023}~cm). Największy pojedynczy ruch sterowania spada do \num{11.72}~$\jednprzep$, a we wszystkich badanych regulatorach dopływ pozostaje w przedziale od \num{50.42} do \num{149.58}~$\jednprzep$.
+
+\begin{table}[H]
+\centering
+\caption{Weryfikacja trzech wariantów SL na dodatkowych próbach walidacyjnych [cm$\cdot$s].}
+\small
+\begin{tabular}{lrrr}\toprule
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & SL o nast. PDC & SL przed str. & SL po str.\\\midrule
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & 2309 & 2148 & 2018\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & 2282 & 2139 & 2010\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & 4223 & 3892 & 3781\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & 3479 & 3343 & 3291\\\midrule
+Suma IAE (zadanie + zakłócenie)   & 12292 & 11523 & 11100\\
+Maks. cofnięcie / przereg. [cm]   & \num{0.000} / \num{0.000} & \num{0.457} / \num{0.070} & \num{0.058} / \num{0.000}\\\bottomrule
+\end{tabular}
+\label{tab:sl-validation}
+\end{table}
+
+Na czterech próbach walidacyjnych o pośrednich amplitudach i przeciwnych znakach skoku zadania oraz zakłócenia (tab.~\ref{tab:sl-validation}) dostrojony SL uzyskuje najniższy IAE w każdym scenariuszu. Łączny IAE spada o \num{3.67}\% względem wariantu przed strojeniem (z 11\,523 do 11\,100~cm$\cdot$s, przy spadku IAE zakłócenia z 3965 do 2879~cm$\cdot$s), przeregulowanie wynosi \num{0.000}~cm, a maksymalne cofnięcie maleje niemal ośmiokrotnie (z \num{0.457} do \num{0.058}~cm).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc3/strojenie_SL.png}
+\caption{Porównanie wariantu SL przed strojeniem i po strojeniu w próbie $+8\ \mathrm{cm} / +30\ \jednprzep$: eliminacja cofnięcia na dojściu do zadania (lewy panel) oraz szybsze tłumienie zakłócenia (prawy panel).}
+\label{fig:sl-tuning}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_wyjsc.png}
+\caption{Poziom $h_2$ i wartość zadana w czterech próbach regulacji.}
+\label{fig:sl-outputs}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_sterowan.png}
+\caption{Dopływ sterujący dla przebiegów z rys.~\ref{fig:sl-outputs}.}
+\label{fig:sl-controls}
+\end{figure}

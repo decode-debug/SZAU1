@@ -1,0 +1,16 @@
+\chapter{Model obiektu}
+Zbadano odpowiedzi układu dwóch zbiorników, wyznaczono model liniowy w punkcie pracy i sprawdzono działanie konwencjonalnego regulatora DMC. Wyjściem jest poziom $h_2$, sterowaniem dopływ $\uvar$, a zakłóceniem dopływ $F_D$.
+
+\section{Model nieliniowy i punkt pracy}
+Model opisują bilanse objętości oraz zależności geometryczne:
+\begin{align}
+\dot V_1&=\uvar(t-\tau)+F_D-\alpha_1\sqrt{h_1},\\
+\dot V_2&=\alpha_1\sqrt{h_1}-\alpha_2\sqrt{h_2},\\
+V_1&=A_1h_1,\qquad V_2=C_2h_2^3.
+\end{align}
+Przyjęto $A_1=560\ \mathrm{cm^2}$, $C_2=\num{0.6}$, $\alpha_1=29$, $\alpha_2=33$ oraz $\tau=200\ \mathrm{s}$. W punkcie pracy $\uop=100\ \jednprzep$ i $F_{D,0}=20\ \jednprzep$. Warunek równowagi daje
+\begin{equation}
+h_{1,0}=\left(\frac{120}{29}\right)^2\approx\num{17.1225}\ \mathrm{cm},\qquad
+h_{2,0}=\left(\frac{120}{33}\right)^2\approx\num{13.2231}\ \mathrm{cm}.
+\end{equation}
+Wszystkie próby rozpoczynano od tego samego punktu równowagi. Zastosowano okres próbkowania $T_s=20\ \mathrm{s}$; opóźnienie sterowania odpowiada 10 próbkom. Zakłócenie $F_D$ działa bez tego opóźnienia.

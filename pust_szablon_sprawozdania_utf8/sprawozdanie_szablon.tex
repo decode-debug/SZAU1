@@ -1,0 +1,76 @@
+% !TEX encoding = UTF-8
+% !TEX program = pdflatex
+\documentclass[a4paper,titlepage,11pt,floatssmall]{mwrep}
+\usepackage[left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx,float,booktabs,array}
+\usepackage{xcolor,listings}
+\usepackage{siunitx}
+\sisetup{output-decimal-marker={,},group-separator={\,},group-minimum-digits=5,group-digits=integer}
+\usepackage[hidelinks,unicode]{hyperref}
+\hypersetup{pdftitle={Sztuczna Inteligencja w Automatyce -- części 1--3: układ zbiorników},pdfauthor={Mikołaj Wróbel, Wojciech Zieliński},pdfsubject={Projekt, semestr zimowy 2026/2027}}
+\definecolor{szary}{rgb}{0.96,0.96,0.96}
+\lstdefinestyle{custommatlab}{language=Matlab,basicstyle=\footnotesize\ttfamily,
+  backgroundcolor=\color{szary},frame=single,breaklines=true,
+  showstringspaces=false,keywordstyle=\color{blue!60!black},
+  commentstyle=\color{green!35!black},columns=fullflexible}
+\renewcommand{\figurename}{Rys.}
+\renewcommand{\tablename}{Tab.}
+\newcommand{\jednprzep}{\mathrm{cm^3/s}}
+\newcommand{\uop}{F_{1\mathrm{in},0}}
+\newcommand{\uvar}{F_{1\mathrm{in}}}
+% Wczytywanie wierszy tabel bez haków plikowych wewnątrz tabular.
+\makeatletter
+\let\tableinput\@@input
+\makeatother
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\floatpagefraction}{0.65}
+\begin{document}
+\frenchspacing
+\raggedbottom
+\setlength{\intextsep}{8pt}
+\pagestyle{uheadings}
+\hypersetup{pageanchor=false}
+\begin{titlepage}
+\begin{center}
+{\LARGE\bfseries Politechnika Warszawska\par}
+\vspace{0.4cm}
+{\Large Wydział Elektroniki i Technik Informacyjnych\par}
+\vspace{3.3cm}
+{\LARGE\bfseries Sztuczna Inteligencja w Automatyce\par}
+\vspace{0.7cm}
+{\Large Projekt -- semestr zimowy 2026/2027\par}
+\vspace{1.2cm}
+{\LARGE\bfseries Sprawozdanie -- części 1--3\par}
+\vspace{0.6cm}
+{\Large Układ zbiorników (zadanie 1)\par}
+\vspace{0.4cm}
+{\large Model nieliniowy i liniowy, modele Takagiego--Sugeno\par
+oraz analityczny i numeryczny rozmyty regulator DMC\par}
+\vspace{2cm}
+{\large Mikołaj Wróbel, nr indeksu 337021\par}
+\vspace{0.4cm}
+{\large Wojciech Zieliński, nr indeksu 337000\par}
+\vfill
+{\large Warszawa, 2026\par}
+\end{center}
+\end{titlepage}
+\hypersetup{pageanchor=true}
+\pagenumbering{arabic}
+\input{wstep}
+\input{wzory}
+\input{tabele}
+\input{rysunki}
+\input{uwagi}
+\input{czesc2}
+\input{czesc3}
+\end{document}

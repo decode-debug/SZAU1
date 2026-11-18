@@ -1,0 +1,9 @@
+2026-11-14 15:10:05,062+0100 INFO  pdftotext - this process (33624) started by powershell in directory C:\Users\mikol\OneDrive\Politechnika\SZAU with command line: C:\Users\mikol\AppData\Local\Programs\MiKTeX\miktex\bin\x64\pdftotext.exe -layout "main (50).pdf" zadanie_tekst.txt
+2026-11-14 15:10:05,062+0100 INFO  pdftotext - running on Windows 10.0.26200
+2026-11-14 15:10:05,068+0100 INFO  pdftotext - this process (33624) finishes with exit code 1
+2026-11-14 15:10:05,080+0100 ERROR pdftotext.core - Odmowa dostępu.
+
+2026-11-14 15:10:05,080+0100 ERROR pdftotext.core - Function: RegCreateKeyExW
+2026-11-14 15:10:05,080+0100 ERROR pdftotext.core - Result: 5
+2026-11-14 15:10:05,080+0100 ERROR pdftotext.core - Data: path="Software\MiKTeX.org\MiKTeX\2.9\Setup"
+2026-11-14 15:10:05,080+0100 ERROR pdftotext.core - Source: Libraries\MiKTeX\Core\win\winRegistry.cpp:207

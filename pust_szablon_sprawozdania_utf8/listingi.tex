@@ -1,0 +1,25 @@
+\chapter{Implementacja i odtwarzanie wyników}
+\section{Organizacja obliczeń}
+Całość symulacji zawiera plik \texttt{run\_part1.m}. W strukturze \texttt{P} zapisano parametry fizyczne, punkt równowagi i model liniowy. Funkcja \texttt{tank\_rhs} oblicza bilans objętości, a \texttt{volume\_step} całkuje go w jednym okresie próbkowania. Funkcja \texttt{simulate\_nonlinear} realizuje testy otwartej pętli, natomiast \texttt{simulate\_dmc} prowadzi zamkniętą pętlę dla wybranego wariantu obiektu.
+
+Regulator korzysta z historii $D-1=249$ poprzednich przyrostów sterowania. Początkowo są one zerowe. W każdej próbce wykonywany jest pomiar wyjścia, obliczana jest odpowiedź swobodna, wyznaczany jest pierwszy optymalny przyrost i aktualizowana historia. Dopiero później obiekt jest symulowany do następnej próbki. Fragment implementacji rozwiązania analitycznego przedstawiono poniżej:
+\begin{lstlisting}[style=custommatlab]
+K = (M'*M + lambda*eye(Nu))\M';
+% Obliczenia powtarzane w kazdej probce:
+free = y(k) + freeMatrix*pastDu;
+du = K(1,:)*(ref(k)-free);
+u(k) = previousU + du;
+pastDu = [du; pastDu(1:end-1)];
+\end{lstlisting}
+Zakłada się brak znajomości przyszłych zmian wartości zadanej. W szczególności regulator zaczyna reagować na skok zadania dopiero w chwili $400\ \mathrm{s}$. Ten sam warunek dotyczy obu porównywanych pętli.
+
+\section{Instrukcja uruchomienia}
+Należy otworzyć katalog projektu w MATLAB-ie i wykonać polecenie:
+\begin{lstlisting}[style=custommatlab]
+run_part1
+\end{lstlisting}
+Wymagany jest Control System Toolbox; nie jest wymagany Simulink. Parametry fizyczne znajdują się na początku pliku, amplitudy testów otwartej pętli w tablicy \texttt{steps}, a pary skoków zadania i zakłócenia w tablicy \texttt{scenarios}. Nastawy DMC zapisano w zmiennych \texttt{D}, \texttt{N}, \texttt{Nu} i \texttt{lambda}. Do odtworzenia wszystkich wyników tego sprawozdania nie trzeba zmieniać żadnych parametrów.
+
+Skrypt wyświetla tabele wyników i zapisuje w katalogu \texttt{wyniki\_czesc1} cztery wykresy PNG, trzy tabele CSV oraz plik \texttt{dane\_sprawozdanie.mat} z przebiegami i parametrami. Wektory czasów zawierają próbkę początkową; sterowanie pętli zamkniętej opisuje 400 kolejnych przedziałów próbkowania, a wyjście 401 chwil pomiarowych.
+
+W sprawozdaniu wykorzystano rysunki wektorowe PDF utworzone z tych samych zapisanych próbek przez skrypt \texttt{przygotuj\_rysunki.py}. Skrypt ten nie wykonuje ponownie symulacji, lecz przerysowuje dane i tworzy pliki tabel LaTeX. Wymaga pakietów NumPy, SciPy i Matplotlib. Sterowanie, zakłócenie i zadanie przedstawiono schodkowo, a poziom cieczy linią łączącą próbki. Przebiegi liniowy i nieliniowy zachowują jednakowe osie czasu. Dokument należy kompilować poleceniem \texttt{pdflatex}, co najmniej dwukrotnie dla aktualizacji spisu treści i odsyłaczy.

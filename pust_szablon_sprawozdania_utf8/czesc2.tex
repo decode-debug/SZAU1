@@ -1,0 +1,129 @@
+\chapter{Modele rozmyte Takagiego--Sugeno}
+\section{Zmienna reguł i modele lokalne}
+Zmienną przesłanek jest mierzony poziom $h_2$. Jej wybór wynika ze zmiennej pojemności różniczkowej drugiego zbiornika $B_2(h_2)=3C_2h_2^2$. Zakres $h_2\in[\num{4.500},\num{26.538}]\ \mathrm{cm}$ odpowiada przy $F_D=20\ \jednprzep$ zmianom $\uvar$ od 50 do 150~$\jednprzep$, a więc $\pm50\%$ względem punktu pracy. Początkowo podzielono ten zakres równomiernie na 2, 3, 4 i 5~węzłów. Funkcje przynależności są trójkątne, z ramionami na brzegach, i sumują się do jedności.
+
+Dla węzła $h_{2,i}$ wyznaczono punkt równowagi $q_i=\alpha_2\sqrt{h_{2,i}}$, $h_{1,i}=(q_i/\alpha_1)^2$ oraz linearyzację lokalną
+\begin{align}
+f_i(h,u,d)&=A_i(h-h_i)+B(u+d-q_i),\\
+A_i&=\begin{bmatrix}-k_{1,i}/A_1&0\\k_{1,i}/B_{2,i}&-k_{2,i}/B_{2,i}\end{bmatrix},\quad
+B=\begin{bmatrix}1/A_1\\0\end{bmatrix},\\
+k_{1,i}&=\frac{\alpha_1}{2\sqrt{h_{1,i}}},\quad
+k_{2,i}=\frac{\alpha_2}{2\sqrt{h_{2,i}}},\quad B_{2,i}=3C_2h_{2,i}^2.
+\end{align}
+Pochodną stanu wyznaczono jako sumę ważoną lokalnych pochodnych
+\[
+ \dot h=\sum_i\mu_i(h_2)f_i(h,u,d).
+\]
+Taką agregację opisują wzory (4.34)--(4.36) na s.~132 materiałów wykładowych. Funkcja \texttt{trimf} wyznacza stopnie przynależności. Dopływ sterujący $u$ dociera po 200~s, a $F_D=d$ działa bez opóźnienia transportowego. Każdą próbę rozpoczęto w punkcie równowagi obiektu nieliniowego z części~1.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{rysunki/czesc2/funkcje_przynaleznosci.png}
+\caption{Początkowe, równomiernie rozmieszczone funkcje przynależności dla 2--5 reguł.}
+\label{fig:ts-mf}
+\end{figure}
+
+\section{Porównanie jakości modeli}
+Sprawdzono skoki $\Delta\uvar=\pm10,\pm25,\pm50\ \jednprzep$ i $\Delta F_D=\pm2,\pm5,\pm10\ \jednprzep$. RMSE obliczono po wszystkich próbkach 12 odpowiedzi, porównując każdy model z nieliniowym modelem obiektu. Model liniowy części~1 jest punktem odniesienia.
+\begin{table}[H]
+\centering
+\caption{Jakość modeli na 12 skokach z punktu pracy.}
+\begin{tabular}{lrr}\toprule
+Model & RMSE [cm] & Maksymalny błąd [cm]\\\midrule
+Liniowy & \num{0.878} & \num{2.296}\\
+TS, 2 reguły & \num{2.213} & \num{3.834}\\
+TS, 3 reguły & \num{0.771} & \num{2.490}\\
+TS, 4 reguły & \num{0.220} & \num{1.224}\\
+TS, 5 reguł & \num{0.129} & \num{0.703}\\\bottomrule
+\end{tabular}
+\label{tab:ts-quality}
+\end{table}
+Model pięcioregułowy ma najmniejszy łączny RMSE. Do dalszych badań wybrano cztery reguły. Dodanie czwartej reguły zmniejsza RMSE o \num{0.552}~cm, a dodanie piątej o kolejne \num{0.091}~cm. W tab.~\ref{tab:ts-amplitude} każdy wiersz obejmuje dodatni i ujemny skok obu wejść, odniesiony do ich własnych wartości nominalnych.
+\begin{table}[H]
+\centering
+\caption{RMSE poziomu $h_2$ [cm] według amplitudy skoku, przed strojeniem.}
+\begin{tabular}{crrrrr}\toprule
+Amplituda & Liniowy & TS 2 & TS 3 & TS 4 & TS 5\\\midrule
+10\% & \num{0.060} & \num{2.303} & \num{0.918} & \num{0.200} & \num{0.116}\\
+25\% & \num{0.373} & \num{2.472} & \num{0.789} & \num{0.254} & \num{0.180}\\
+50\% & \num{1.472} & \num{1.812} & \num{0.566} & \num{0.201} & \num{0.063}\\\bottomrule
+\end{tabular}
+\label{tab:ts-amplitude}
+\end{table}
+Przy skokach 10\% najlepiej wypada linearyzacja w nominalnym punkcie pracy. Przy 50\% model liniowy coraz słabiej odtwarza zmianę poziomu, a RMSE modelu TS z pięcioma regułami jest około 23 razy mniejszy. Znaczenie ma także kierunek zmiany. Dla $\Delta\uvar=-25$ i $+25~\jednprzep$ RMSE modelu czteroregułowego wynosi odpowiednio \num{0.476} i \num{0.034}~cm.
+
+Wszystkie modele uwzględniają to samo opóźnienie dopływu sterującego. Przed upływem 200~s obiekt nieliniowy przy skoku samego $\uvar$ zachowuje $h_2=\num{13.223}$~cm. W tym samym czasie TS z dwiema regułami samoczynnie obniża poziom o \num{1.854}~cm, a TS z czterema o \num{0.066}~cm. Taki sam dryf występuje przy stałych dopływach. Wynika z uśredniania lokalnych linearyzacji wokół różnych równowag. Nominalny stan obiektu leży między węzłami i suma lokalnych pochodnych w tym stanie może być różna od zera.
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc2/modele_2_5.png}
+\caption{Przykładowe odpowiedzi modelu nieliniowego, liniowego i modeli TS z 2--5 regułami.}
+\label{fig:ts-models}
+\end{figure}
+
+\section{Strojenie funkcji przynależności modelu}
+W modelu czteroregułowym przesunięto dwa wewnętrzne węzły co $\num{1.5}\ \mathrm{cm}$ w zakresie od $-3$ do $+3\ \mathrm{cm}$. Końce zakresu i lokalne macierze $A_i$ pozostały stałe. Węzły początkowe i dostrojone wynoszą odpowiednio
+\begin{align*}
+c_{\mathrm{przed}}&=[\num{4.500},\num{11.846},\num{19.192},\num{26.538}]\ \mathrm{cm},\\
+c_{\mathrm{po}}&=[\num{4.500},\num{10.346},\num{19.192},\num{26.538}]\ \mathrm{cm}.
+\end{align*}
+RMSE na 12 próbach spadło z $\num{0.220}$ do $\num{0.185}\ \mathrm{cm}$, czyli o około 16\%.
+
+Najwięcej zyskała grupa skoków 50\%, dla której RMSE spadło z \num{0.201} do \num{0.122}~cm. Na czterech dodatkowych skokach, pominiętych przy wyborze węzłów ($\Delta\uvar=\pm40$, $\Delta F_D=\pm7\ \jednprzep$), RMSE wzrosło z $\num{0.167}$ do $\num{0.175}\ \mathrm{cm}$. Dostrojenie poprawiło więc odwzorowanie zestawu projektowego kosztem niewielkiego pogorszenia na odrębnych próbach.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{rysunki/czesc2/porownanie_modeli_TS.png}
+\caption{Wybrany model czteroregułowy przed i po zmianie funkcji przynależności.}
+\label{fig:ts-tuned}
+\end{figure}
+
+\chapter{Rozmyty regulator predykcyjny}
+\section{Analityczny algorytm PDC i ograniczenia}
+Zgodnie z podejściem PDC (materiały wykładowe, s.~142 i 148--149) każdemu z czterech modeli lokalnych przyporządkowano regulator DMC z własną odpowiedzią skokową $s_i$. W wersji analitycznej z ograniczeniami zastosowano $N=50$, $D=250$, $N_u=1$, $\lambda=\num{0.05}$ i $T_s=20\ \mathrm{s}$. Przy jednym optymalizowanym przyroście jawne minimum lokalnego zadania kwadratowego można rzutować na przedział dopuszczalny.
+\begin{align}
+Y_i^0(k)&=y(k)\mathbf 1+F_i\Delta u_{\mathrm{hist}},\\
+\Delta u_i^*&=\frac{g_i^{\mathsf T}(Y_{\mathrm{zad}}-Y_i^0)}{g_i^{\mathsf T}g_i+\lambda},\qquad
+g_i=[s_i(1),\ldots,s_i(N)]^{\mathsf T},\\
+L(k)&=\max(-\Delta u_{\max},u_{\min}-u(k-1)),\\
+H(k)&=\min(\Delta u_{\max},u_{\max}-u(k-1)),\\
+\Delta u_i&=\min\{H(k),\max[L(k),\Delta u_i^*]\},\\
+\Delta u(k)&=\sum_i\mu_i(h_2(k))\Delta u_i.
+\end{align}
+Przyjęto $0\leq\uvar\leq200\ \jednprzep$ oraz $|\Delta\uvar|\leq30\ \jednprzep$ na próbkę. Każdy lokalny ruch należy do tego samego przedziału $[L,H]$, więc ich suma ważona także spełnia ograniczenia. Ograniczenia odnoszą się do bieżącego sterowania i jego przyrostu; nie narzucono ograniczeń wyjścia. Początkowe funkcje przynależności regulatora są identyczne jak w wybranym modelu obiektu (PDC).
+
+Do porównania przygotowano liniowy DMC z tymi samymi $N,D,N_u,\lambda$ i ograniczeniami. Dodatkowo pokazano konwencjonalny DMC z części~1, dla którego $N_u=10$ i nie narzucono ograniczeń. Wszystkie regulatory sprawdzano na tym samym obiekcie nieliniowym.
+
+\section{Porównanie układów regulacji i strojenie}
+Próby rozpoczynają się od punktu pracy. Skok zadania występuje w $400\ \mathrm{s}$, a skok $F_D$ w $3200\ \mathrm{s}$. Wskaźnik IAE dla zadania liczono od 400 do 3200~s, a dla zakłócenia od 3200 do 6400~s. Strojenie regulatora obejmowało wyostrzenie znormalizowanych wag $\mu_i^\gamma/\sum_j\mu_j^\gamma$ i przesunięcie dwóch wewnętrznych węzłów \emph{tylko w regulatorze}. Lokalne odpowiedzi skokowe i model obiektu nie zmieniły się. Najlepszy wynik na czterech próbach dało $\gamma=\num{1.5}$ i węzły $[\num{4.500},\num{12.346},\num{21.192},\num{26.538}]\ \mathrm{cm}$.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{rysunki/czesc2/strojenie_regulatora.png}
+\caption{Funkcje przynależności regulatora przed i po strojeniu.}
+\label{fig:ts-controller-mf}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Suma IAE zadania i zakłócenia w każdej próbie [cm$\cdot$s].}
+\small
+\begin{tabular}{lrrrr}\toprule
+Skoki: zadanie / $F_D$ & DMC cz.~1 & Liniowy ogr. & PDC & Rozmyty strojony\\\midrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & 1633 & 1890 & 2082 & 1861\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & 3937 & 4425 & 4568 & 4250\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & 9285 & 10148 & 9285 & 8718\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & 4378 & 4953 & 3601 & 3478\\\midrule
+Suma & 19232 & 21416 & 19535 & 18309\\\bottomrule
+\end{tabular}
+\label{tab:ts-control}
+\end{table}
+
+Dostrojenie regulatora obniżyło sumę IAE o 6,3\% względem początkowego PDC i o 14,5\% względem liniowego DMC z tymi samymi ograniczeniami. Największy spadek IAE względem początkowego PDC, o 566~cm$\cdot$s, wystąpił w próbie $+8$~cm. Dla skoku $+2$~cm konwencjonalny DMC z części~1 osiągnął najmniejszy IAE. W sumie czterech prób dostrojony PDC uzyskał wynik o 4,8\% lepszy od DMC z części~1, przy różnych horyzontach sterowania. W próbach $\pm8$~cm regulator z części~1 wykonał ruch \num{31.12}~$\jednprzep$, podczas gdy ograniczone regulatory dochodziły do dopuszczalnych $30~\jednprzep$. Korzyść ze strojenia regulatora dotyczy czterech scenariuszy użytych do wyboru wag.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc2/regulacja_porownanie.png}
+\caption{Odpowiedzi na zmianę wartości zadanej i zakłócenia: DMC z części~1, liniowy DMC z ograniczeniami, PDC i regulator rozmyty po strojeniu.}
+\label{fig:ts-control}
+\end{figure}
+
+\smallskip
+{\small Źródła: treść zadania \texttt{main (50).pdf}; skrypty \texttt{run\_part1.m} i \texttt{run\_part2.m}; T.~Takagi, M.~Sugeno, ``Fuzzy identification of systems and its applications to modeling and control'', \emph{IEEE Transactions on Systems, Man, and Cybernetics}, 1985.}

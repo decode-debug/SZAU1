@@ -1,0 +1,15 @@
+\section{Model liniowy}
+Zlinearyzowano równania względem poziomów w punkcie pracy. Dla $x=[\Delta h_1,\Delta h_2]^{\mathsf T}$ otrzymano
+\begin{equation}
+\dot x=
+\begin{bmatrix}-\num{0.00625744}&0\\\num{0.01113379}&-\num{0.01441700}\end{bmatrix}x+
+\begin{bmatrix}1/560&1/560\\0&0\end{bmatrix}
+\begin{bmatrix}\Delta u(t-200)\\\Delta d(t)\end{bmatrix},\quad
+\Delta y=\begin{bmatrix}0&1\end{bmatrix}x,
+\end{equation}
+gdzie $\Delta u=\uvar-100$, $\Delta d=F_D-20$ oraz $\Delta y=h_2-h_{2,0}$. Transmitancje mają postać
+\begin{equation}
+G_u(s)=\frac{\num{0.220386}\,e^{-200s}}{(\num{159.81}s+1)(\num{69.36}s+1)},\qquad
+G_d(s)=G_u(s)e^{200s}.
+\end{equation}
+Model liniowy ma dwie inercje i dodatnie wzmocnienie statyczne. Różnica między torami sterowania i zakłócenia polega na opóźnieniu.

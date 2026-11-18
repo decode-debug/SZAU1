@@ -1,0 +1,102 @@
+--- STRONA 1 ---
+Sztuczna Inteligencja w Automatyce – projekt
+semestr zimowy 2026/2027
+1. (maksimum 5 punktów)
+Na podstawie otrzymanego modelu obiektu proszę: zasymulować działanie obiektu w Ma-
+tlabie i eksperymentalnie przeanalizować jego działanie. Następnie proszę otrzymać model
+liniowy obiektu regulacji we wskazanym punkcie pracy i porównać działanie modelu li-
+niowego z działaniem modelu nieliniowego (odpowiedzi na skoki zmiennych wejściowych
+o różnych wielkościach i kierunkach, startując z podanego punktu równowagi), wskazując
+różnice i podobieństwa, przeprowadzić dyskusję na temat jakości przybliżenia liniowego w
+zależności od wielkości zmian sygnałów wejściowych.
+Proszę uzasadnić, dlaczego, w przypadku tego obiektu regulacji, wskazane jest zastosowa-
+nie w układzie sterowania algorytmu regulacji predykcyjnej. Na podstawie otrzymanego
+modelu liniowego proszę zaprojektować konwencjonalny (nierozmyty) algorytm regulacji
+predykcyjnej w wersji analitycznej.
+2. (maksimum 10 punktów)
+Proszę: opracować modele rozmyte Takagi–Sugeno obiektu z dwoma, trzema, czterema i
+pięcioma modelami lokalnymi, zakładając początkowy kształt funkcji przynależności oparty
+na równomiernym podziale wybranej zmiennej (sterowania lub wyjścia – uzasadnić wybór)
+na zbiory rozmyte. Następnie, proszę porównać działanie modeli rozmytych z działaniem
+modeli liniowego i nieliniowego wskazując różnice i podobieństwa, przeprowadzić dyskusję
+na temat jakości modeli rozmytych, w zależności od wielkości zmian sygnałów wejściowych.
+Proszę wybrać model rozmyty do dalszych badań a następnie poprawić jakość tego modelu
+rozmytego manipulując kształtem funkcji przynależności i opisać korzyści wynikające z tej
+poprawy.
+Następnie proszę zaprojektować rozmyty algorytm regulacji predykcyjnej w wersji anali-
+tycznej z uwzględnianiem ograniczeń, zakładając początkowo kształt funkcji przynależności
+taki sam, jak w modelu obiektu (podejście PDC). Proszę dokonać analizy pracy układu re-
+gulacji obejmującej porównanie działania układu regulacji z regulatorem konwencjonalnym
+(z punktu 1.) z układem regulacji z regulatorem rozmytym. Proszę następnie przeprowadzić
+eksperymenty ze zmianami kształtu funkcji przynależności w regulatorze, mające na celu
+poprawę jakości regulacji. Proszę przedstawić wyniki porównania działania układu regulacji
+przed i po strojeniu oraz dodać swój komentarz.
+3. (maksimum 5 punktów)
+Proszę zaprojektować numeryczny, rozmyty algorytm regulacji predykcyjnej typu SL, z
+uwzględnianiem ograniczeń sterowania i dokonać dokładnego porównania pracy układów
+regulacji z rozmytymi regulatorami predykcyjnymi numerycznym i analitycznym.
+(4. Zadanie dla chętnych – maksimum 5 dodatkowych punktów)
+Proszę zaprojektować numeryczny, rozmyty algorytm regulacji predykcyjnej typu NPL, z
+uwzględnianiem ograniczeń sterowania i dokonać dokładnego porównania pracy tego regu-
+latora z regulatorami zaprojektowanymi w poprzednich punktach.
+Termin wykonania projektu upływa 25 listopada 2026 r. Sprawozdanie powinno
+być wysłane na adres prowadzącego: Piotr.Marusak@pw.edu.pl do godz. 18.00 w
+jednym pliku ZIP o rozmiarze nie przekraczającym 5 MB.
+1
+
+--- STRONA 2 ---
+Uwagi:
+— Oddanie sprawozdania po terminie wiąże się z odjęciem 1 punktu za każdą rozpoczętą dobę
+spóźnienia.
+— Podczas testowania modeli należy sprawdzać ich działanie w szerokim zakresie zmian war-
+tości sygnałów wejściowych (co najmniej +/ −50 % wartości z punktu pracy).
+— Podczas projektowania regulatorów oraz ich porównywania należy sprawdzać odpowiedzi
+układów regulacji zarówno na zmiany wartości zadanej jak i zakłócenia FD, w szerokim
+zakresie wartości.
+— Nadrzędnym celem projektu jest zademonstrowanie korzyści wynikających z zastosowa-
+nia modelu rozmytego podczas syntezy regulatorów. Należy zaobserwować i pokazać w
+sprawozdaniu, że regulatory bazujące na modelu rozmytym działają lepiej od regulatorów
+opartych na modelu liniowym.
+— Oprócz sprawozdania proszę przysłać pliki służące do symulowania układów regulacji oraz
+ich dokumentację (z informacją, który plik i z jakimi parametrami powinien być wywołany,
+aby otrzymać odpowiedzi poszczególnych układów regulacji opisanych w sprawozdaniu na
+poszczególne wymuszenia).
+2
+
+--- STRONA 3 ---
+Układ zbiorników
+(zadanie 1)
+Dopływ wody do zbiornika (F1) i dopływ zakłócający (FD).
+
+
+
+
+
+
+
+
+
+
+
+
+
+dV1
+dt = F1 + FD −F2(h1)
+dV2
+dt = F2(h1) −F3(h2)
+F2(h1) = α1
+√h1,
+F3(h2) = α2
+√h2,
+V1(h1) = A1 · h1,
+V2(h2) = C2 · h3
+2,
+F1(t) = F1in(t −τ),
+Stałe:
+A1 = 560 cm2, C2 = 0,6, α1 = 29, α2 = 33;
+Punkt pracy:
+F1 = 100 cm3/s, FD = 20 cm3/s, τ = 200 s;
+Wielkość regulowana: h2;
+Wielkości sterująca: F1in.
+Regulacja przy zmianach wartości zadanych i zakłóceń.
+3
