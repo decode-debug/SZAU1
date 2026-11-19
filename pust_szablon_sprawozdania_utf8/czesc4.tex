@@ -1,0 +1,41 @@
+\chapter{Regulator FDMC--NPL}
+W zadaniu 4 zastosowano tę samą bazę czterech lokalnych odpowiedzi skokowych i znormalizowane wagi TS co w części 3 (materiały wykładowe, s.~132--134). Zgodnie z opisem FDMC--NPL na s.~166--168, wzory (4.108)--(4.117), macierz dynamiczną $M_k$ tworzy się z wag wyznaczonych z aktualnego pomiaru. Zmianie podlega trajektoria swobodna.
+ 
+Niech $U_{i,0}=q_i-F_{D,0}$ oznacza nominalne sterowanie lokalnej linearyzacji, a $h_{2,i}$ jej poziom równowagi. Przy zerowych przyszłych przyrostach lokalne prognozy można zapisać w równoważnej postaci splotowej
+\[
+ z_{i,p}=h_{2,i}+\sum_{j=1}^{D}(s^{(i)}_j-s^{(i)}_{j-1})
+        (u_{\min(k+p-j,k-1)}-U_{i,0}),\qquad s^{(i)}_0=0.
+\]
+Przed początkiem próby przyjęto $u=u_0$. Błąd bieżącego modelu $d_k$ pozostaje stały w obrębie jednej predykcji. Kolejne poziomy i wagi wyznacza się rekurencyjnie:
+\[
+ d_k=y(k)-\sum_i w_i(y(k-1))z_{i,0},\qquad y^0_0=y(k),\qquad
+ y^0_p=d_k+\sum_i w_i(y^0_{p-1})z_{i,p},\quad p=1,\ldots,N .
+\]
+W pierwszej próbce za poprzedni poziom przyjęto poziom nominalny. W każdej próbce \texttt{quadprog} minimalizuje $\|Y_{\rm zad}-Y^0-M_k\Delta U\|^2+\lambda\|\Delta U\|^2$ z ograniczeniami $0\le u\le200$ i $|\Delta u|\le30$ dla całego planu. Wykonywany jest pierwszy ruch. Regulator korzysta z pomiaru poziomu oraz historii sterowania. Skok zakłócenia podawany jest na obiekt.
+
+\section{Porównanie układów}
+Dla NPL przyjęto identyczne nastawy jak w dostrojonym SL: $N=20$, $N_u=3$, $D=250$, $\lambda=\num{0.005}$ i $T_f=160$~s. Wszystkie regulatory pracowały na tym samym obiekcie nieliniowym. IAE liczono względem pierwotnego zadania, osobno od 400~s do skoku zakłócenia w 3200~s i od tego skoku do końca próby.
+
+\begin{center}\small
+\begin{tabular}{lrrr}\toprule
+Regulator & IAE zadania & IAE po zakłóceniu & IAE łącznie [cm$\cdot$s]\\\midrule
+DMC z części 1 & 10602 & 8631 & 19232\\
+DMC ograniczony & 11472 & 9944 & 21416\\
+PDC & 10295 & 9240 & 19535\\
+PDC strojony & 9297 & 9012 & 18309\\
+SL o nastawach PDC & 10310 & 9178 & 19488\\
+SL przed strojeniem & 9658 & 8260 & 17919\\
+SL po strojeniu & 10329 & 5471 & 15800\\
+NPL & 9876 & 5772 & 15647\\\bottomrule
+\end{tabular}\end{center}
+Sumy zaokrąglono po agregacji. DMC z części 1 pracuje bez narzuconych ograniczeń. NPL obniżył łączny IAE o około \num{0.97}\% względem dostrojonego SL. Suma błędów po zmianie zadania zmalała o \num{4.4}\%, a po zakłóceniu wzrosła o \num{5.5}\%. W próbach $+2$, $+4$, $+8$ i $-8$~cm całkowity IAE dla NPL wyniósł odpowiednio 1637, 3526, 6673 i 3812~cm$\cdot$s. W ostatniej próbie korzystniejszy był dostrojony SL (3685~cm$\cdot$s).
+
+Przy zadaniu $+8$~cm NPL osiąga mniejszy błąd całkowy, ale przed skokiem zakłócenia poziom cofa się o \num{1.266}~cm wobec \num{0.023}~cm dla SL. Suma bezwzględnych przyrostów sterowania w czterech próbach wzrasta z około 310 do 370~$\jednprzep$. Gdy ważniejsze jest łagodne dojście do zadania, wyniki przemawiają za SL. 
+\begin{figure}[H]\centering
+\includegraphics[width=\textwidth]{../wyniki_czesc4/NPL_y.png}
+\caption{Poziom w czterech próbach. Porównanie NPL, dostrojonych SL i PDC oraz DMC z części 1.}
+\end{figure}
+\begin{figure}[H]\centering
+\includegraphics[width=\textwidth]{../wyniki_czesc4/NPL_u.png}
+\caption{Sterowanie w tych samych próbach.}
+\end{figure}

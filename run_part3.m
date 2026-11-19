@@ -50,7 +50,7 @@ for j = 1:size(allCases,1)
         cfg = ctrl;
         cfg.N = predictionHorizons(v);
         cfg.lambda = lambdaSL(v);
-        [y,u,decisionTime] = simulate_sl(P,localSteps,modelTuned.centers, ...
+        [y,u,decisionTime] = simulate_fdmc(P,localSteps,modelTuned.centers, ...
             cfg,horizons(v),referenceTime(v),ref,dist,options);
         allSL(j,v).y = y;
         allSL(j,v).u = u;
@@ -102,58 +102,6 @@ save(fullfile(outdir,'dane_czesc3.mat'),'P','modelTuned','ctrl','controlCases', 
     'totalIAE','validationCases','validationTraces','validationSummary');
 
 %% Funkcje pomocnicze
-function [y,u,decisionTime] = simulate_sl(P,localSteps,centers,ctrl,Nu,Tf,reference,disturbance,options)
-    n = numel(reference)-1;
-    y = zeros(n+1,1); y(1) = P.h0(2);
-    u = zeros(n,1);
-    decisionTime = zeros(n,1);
-    h = P.h0;
-    pastDu = zeros(ctrl.D-1,1);
-    cumulative = tril(ones(Nu));
-    Aineq = [cumulative;-cumulative];
-    lb = -ctrl.duMax*ones(Nu,1);
-    ub = ctrl.duMax*ones(Nu,1);
-    target = reference(1);
-    alpha = 0;
-    if Tf>0, alpha = exp(-P.Ts/Tf); end
-
-    for k = 1:n
-        if k==1, previousU=P.u0; else, previousU=u(k-1); end
-        started = tic;
-
-        % (4.97): kazda rzedna jest suma wazona lokalnych rzednych skoku.
-        weights = ts_memberships(y(k),centers);
-        s = localSteps*weights.';
-        [M,freeMatrix] = dmc_matrices(s,ctrl.N,Nu);
-        free = y(k)+freeMatrix*pastDu;
-
-        H = 2*(M'*M+ctrl.lambda*eye(Nu));
-        % Filtr przyczynowy. Regulator zna tylko biezaca wartosc zadana.
-        target = alpha*target+(1-alpha)*reference(k);
-        f = -2*M'*(target-free);
-        bineq = [(ctrl.uMax-previousU)*ones(Nu,1); ...
-                 (previousU-ctrl.uMin)*ones(Nu,1)];
-        [moves,~,exitflag] = quadprog(H,f,Aineq,bineq,[],[], ...
-                                      lb,ub,zeros(Nu,1),options);
-        if exitflag<=0
-            error('quadprog nie rozwiazal probki k=%d (exitflag=%d).',k,exitflag);
-        end
-        if any(Aineq*moves>bineq+1e-8) || any(moves<lb-1e-8 | moves>ub+1e-8)
-            error('Plan sterowania narusza ograniczenia w probce k=%d.',k);
-        end
-        decisionTime(k) = toc(started);
-
-        du = moves(1);
-        u(k) = previousU+du;
-        pastDu = [du;pastDu(1:end-1)];
-        if k>P.delay, actualU=u(k-P.delay); else, actualU=P.u0; end
-        h = rk4_step(@(state) tank_rhs(P,state,actualU,disturbance(k)), ...
-                     h,P.Ts,5);
-        h = max(h,0.05);
-        y(k+1) = h(2);
-    end
-end
-
 function metrics = case_metrics(P,y,u,ref,taskMask,distMask)
     err = y-ref;
     direction = sign(ref(end)-ref(1));
@@ -163,24 +111,6 @@ function metrics = case_metrics(P,y,u,ref,taskMask,distMask)
     du = diff([P.u0;u]);
     metrics = [P.Ts*sum(abs(err(taskMask))),P.Ts*sum(abs(err(distMask))), ...
         min(u),max(u),max(abs(du)),sum(abs(du)),retreat,overshoot,max(abs(err(distMask)))];
-end
-
-function dh = tank_rhs(P,h,u,d)
-    f2 = P.a1*sqrt(max(h(1),0));
-    f3 = P.a2*sqrt(max(h(2),0));
-    cap2 = 3*P.C2*max(h(2),0.05)^2;
-    dh = [(u+d-f2)/P.A1;(f2-f3)/cap2];
-end
-
-function state = rk4_step(rhs,state,T,n)
-    dt = T/n;
-    for j = 1:n
-        a = rhs(state);
-        b = rhs(state+dt*a/2);
-        c = rhs(state+dt*b/2);
-        d = rhs(state+dt*c);
-        state = state+dt*(a+2*b+2*c+d)/6;
-    end
 end
 
 function plot_comparison(t,traces,slTraces,cases,names,refStart,distStart,outdir)
