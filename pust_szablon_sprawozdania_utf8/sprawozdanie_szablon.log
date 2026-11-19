@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  18 NOV 2026 21:23
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  19 NOV 2026 22:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**./pust_szablon_sprawozdania_utf8/sprawozdanie_szablon.tex
-(pust_szablon_sprawozdania_utf8/sprawozdanie_szablon.tex
+**./sprawozdanie_szablon.tex
+(sprawozdanie_szablon.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/mwcls\mwrep.cls
@@ -26,17 +26,13 @@ File: mw11.clo 2025/09/14 v0.77 A document class size option (MW)
 \abovecaptionskip=\skip49
 \belowcaptionskip=\skip50
 \bibindent=\dimen149
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.sty
 Package: geometry 2026/03/07 v6.0 Page Geometry
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/graphics\keyval.sty
 Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
 \KV@toks@=\toks17
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifvtex.sty
 Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/iftex\iftex.sty
 Package: iftex 2024/12/12 v1.0g TeX engine tests
 ))
@@ -52,12 +48,10 @@ Package: iftex 2024/12/12 v1.0g TeX engine tests
 \Gm@layouthoffset=\dimen156
 \Gm@layoutvoffset=\dimen157
 \Gm@dimlist=\toks18
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/geometry\geometry.cfg))
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
 Package: fontenc 2025/07/18 v2.1d Standard LaTeX package
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\lmodern.sty
 Package: lmodern 2015/05/01 v1.6.1 Latin Modern Fonts
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/cmr/m/n --> OT1/lmr/m/n on input line 22.
@@ -91,34 +85,27 @@ LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
 (Font)                  OT1/cmr/bx/it --> OT1/lmr/bx/it on input line 37.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
 (Font)                  OT1/cmtt/m/n --> OT1/lmtt/m/n on input line 38.
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/base\inputenc.sty
 Package: inputenc 2024/02/08 v1.3d Input encoding file
 \inpenc@prehook=\toks19
 \inpenc@posthook=\toks20
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/polski\polski.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/polski\polski.sty
 Package: polski 2021/08/25 v1.3.6 Polish language package
-
    Inputenc package detected. Catcodes not changed.
 ) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsmath.sty
 Package: amsmath 2025/07/09 v2.17z AMS math features
 \@mathmargin=\skip51
-
 For additional information on amsmath, use the `?' option.
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amstext.sty
 Package: amstext 2024/11/17 v2.01 AMS text
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks21
 \ex@=\dimen158
-))
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
+)) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 \pmbraise@=\dimen159
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsmath\amsopn.sty
 Package: amsopn 2022/04/08 v2.04 operator names
 )
 \inf@bad=\count287
@@ -168,10 +155,8 @@ LaTeX Info: Redefining \Relbar on input line 970.
 \mathdisplay@stack=\toks25
 LaTeX Info: Redefining \[ on input line 2950.
 LaTeX Info: Redefining \] on input line 2951.
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amssymb.sty
 Package: amssymb 2013/01/14 v3.01 AMS font symbols
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\amsfonts.sty
 Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
 \symAMSa=\mathgroup4
@@ -182,10 +167,8 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphicx.st
 y
 Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/graphics\graphics.sty
 Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/graphics\trig.sty
 Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
 )
@@ -207,8 +190,7 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \float@box=\box55
 \@float@everytoks=\toks27
 \@floatcapt=\box56
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/booktabs\booktabs.sty
 Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \heavyrulewidth=\dimen169
 \lightrulewidth=\dimen170
@@ -227,8 +209,7 @@ Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
 \@thisruleclass=\count302
 \@lastruleclass=\count303
 \@thisrulewidth=\dimen181
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/tools\array.sty
 Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
 \col@sep=\dimen182
 \ar@mcellbox=\box57
@@ -237,10 +218,8 @@ Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
 \extratabsurround=\skip54
 \backup@length=\skip55
 \ar@cellbox=\box58
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/xcolor\xcolor.sty
 Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/graphics-cfg\color.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
@@ -270,14 +249,12 @@ Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
 \lst@maxwidth=\dimen187
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstpatch.sty
 File: lstpatch.sty 2025/11/14 1.11b (Carsten Heinz)
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/listings\lstmisc.sty
 File: lstmisc.sty 2025/11/14 1.11b (Carsten Heinz)
 \c@lstnumber=\count310
 \lst@skipnumbers=\count311
 \lst@framebox=\box60
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/listings\listings.cfg
 File: listings.cfg 2025/11/14 1.11b listings configuration
 ))
 Package: listings 2025/11/14 1.11b (Carsten Heinz)
@@ -306,7 +283,6 @@ Package: siunitx 2026-11-06 v3.6.7 A comprehensive (SI) units package
 ns.sty
 Package: translations 2022/02/05 v1.12 internationalization of LaTeX2e packages
  (CN)
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/etoolbox\etoolbox.sty
 Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
 \etb@tempcnta=\count324
@@ -319,8 +295,7 @@ Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/infwarerr\infwarerr.s
 ty
 Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
-)
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
+) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/ltxcmds\ltxcmds.sty
 Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
 )
 Package pdftexcmds Info: \pdf@primitive is available.
@@ -361,7 +336,6 @@ Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
 Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
 ) (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2025-06-21 v2.57 Cross-referencing by name of section
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/refcount\refcount.sty
 Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 )
@@ -382,7 +356,7 @@ Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
 \@linkdim=\dimen193
 \Hy@linkcounter=\count329
 \Hy@pagecounter=\count330
- (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
+(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\pd1enc.def
 File: pd1enc.def 2025-07-12 v7.01o Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
@@ -390,7 +364,7 @@ Now handling font encoding PD1 ...
 Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
 )
 \Hy@SavedSpaceFactor=\count331
- (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
+(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\puenc.def
 File: puenc.def 2025-07-12 v7.01o Hyperref: PDF Unicode definition (HO)
 Now handling font encoding PU ...
 ... no UTF-8 mapping file for font encoding PU
@@ -404,14 +378,12 @@ Package hyperref Info: Backreferencing OFF on input line 4215.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4462.
 \c@Hy@tempcnt=\count332
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/url\url.sty
 \Urlmuskip=\muskip18
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 4801.
 \XeTeXLinkMargin=\dimen194
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/generic/bitset\bitset.sty
 Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
 
@@ -435,7 +407,6 @@ Package hyperref Info: PDF/A mode OFF on input line 6108.
 \c@Hfootnote=\count336
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\hpdftex.def
 File: hpdftex.def 2025-07-12 v7.01o Hyperref driver for pdfTeX
 \Fld@listcount=\count337
@@ -458,7 +429,6 @@ Package translations Info: No language package found. I am going to use `englis
 h' as default language. on input line 37.
 LaTeX Font Info:    Trying to load font information for T1+lmr on input line 37
 .
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -466,9 +436,7 @@ File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 tex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count339
-)
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\spraw
-ozdanie_szablon.aux)
+) (sprawozdanie_szablon.aux)
 \openout1 = `sprawozdanie_szablon.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 37.
@@ -489,7 +457,6 @@ LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 37.
 LaTeX Font Info:    ... okay on input line 37.
 LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 37.
 LaTeX Font Info:    ... okay on input line 37.
-
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -560,23 +527,17 @@ nslations-basic-dictionary')
 Package translations Info: loading dictionary `translations-basic-dictionary' f
 or `english'. on input line 37.
 Package hyperref Info: Link coloring OFF on input line 37.
-
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\spraw
-ozdanie_szablon.out)
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\spraw
-ozdanie_szablon.out)
+(sprawozdanie_szablon.out) (sprawozdanie_szablon.out)
 \@outlinefile=\write3
 \openout3 = `sprawozdanie_szablon.out'.
 
 Package hyperref Info: Option `pageanchor' set `false' on input line 42.
- [1
+[1
 
 {C:/Users/mikol/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/miko
 l/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}]
-Package hyperref Info: Option `pageanchor' set `true' on input line 67.
-
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\wstep
-.tex
+Package hyperref Info: Option `pageanchor' set `true' on input line 65.
+(wstep.tex
 Rozdzia\PlPrIeC {\l } 1.
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
 .
@@ -585,19 +546,16 @@ File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
 .
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
 2.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
 2.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -608,24 +566,18 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 2.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 2.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 LaTeX Font Info:    Trying to load font information for U+msb on input line 2.
-
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-))
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\wzory
-.tex
+)) (wzory.tex
 LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 
 2.
- (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmss.fd
+(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\ot1lmss.fd
 File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-))
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\tabel
-e.tex [1
+)) (tabele.tex [1
 
 {C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}
 {C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/
@@ -648,13 +600,9 @@ File: rysunki/czesc1/skoki_FD.pdf Graphic file (type pdf)
 <use rysunki/czesc1/skoki_FD.pdf>
 Package pdftex.def Info: rysunki/czesc1/skoki_FD.pdf  used on input line 12.
 (pdftex.def)             Requested size: 409.71692pt x 202.24553pt.
-)
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\rysun
-ki.tex [2
+) (rysunki.tex [2
 
- <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/rysu
-nki/czesc1/skoki_F1in.pdf> <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szab
-lon_sprawozdania_utf8/rysunki/czesc1/skoki_FD.pdf>]
+ <./rysunki/czesc1/skoki_F1in.pdf> <./rysunki/czesc1/skoki_FD.pdf>]
 Rozdzia\PlPrIeC {\l } 3.
 <rysunki/czesc1/DMC_scenariusz_1.pdf, id=152, 470.95901pt x 311.96503pt>
 File: rysunki/czesc1/DMC_scenariusz_1.pdf Graphic file (type pdf)
@@ -664,54 +612,44 @@ e 17.
 (pdftex.def)             Requested size: 427.93057pt x 283.47446pt.
 [3
 
- <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/rysu
-nki/czesc1/DMC_scenariusz_1.pdf>]
+ <./rysunki/czesc1/DMC_scenariusz_1.pdf>]
 <rysunki/czesc1/DMC_scenariusz_2.pdf, id=176, 470.95901pt x 311.96503pt>
 File: rysunki/czesc1/DMC_scenariusz_2.pdf Graphic file (type pdf)
 <use rysunki/czesc1/DMC_scenariusz_2.pdf>
 Package pdftex.def Info: rysunki/czesc1/DMC_scenariusz_2.pdf  used on input lin
 e 28.
 (pdftex.def)             Requested size: 427.93057pt x 283.47446pt.
- [4
+[4
 
- <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/rysu
-nki/czesc1/DMC_scenariusz_2.pdf>]
+ <./rysunki/czesc1/DMC_scenariusz_2.pdf>]
 <rysunki/czesc1/DMC_scenariusz_3.pdf, id=198, 470.95901pt x 311.96503pt>
 File: rysunki/czesc1/DMC_scenariusz_3.pdf Graphic file (type pdf)
 <use rysunki/czesc1/DMC_scenariusz_3.pdf>
 Package pdftex.def Info: rysunki/czesc1/DMC_scenariusz_3.pdf  used on input lin
 e 37.
 (pdftex.def)             Requested size: 455.24411pt x 301.56798pt.
-
 [5
 
- <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/rysu
-nki/czesc1/DMC_scenariusz_3.pdf>]
+ <./rysunki/czesc1/DMC_scenariusz_3.pdf>]
 <rysunki/czesc1/DMC_scenariusz_4.pdf, id=219, 470.95901pt x 311.96503pt>
 File: rysunki/czesc1/DMC_scenariusz_4.pdf Graphic file (type pdf)
 <use rysunki/czesc1/DMC_scenariusz_4.pdf>
 Package pdftex.def Info: rysunki/czesc1/DMC_scenariusz_4.pdf  used on input lin
 e 47.
 (pdftex.def)             Requested size: 455.24411pt x 301.56798pt.
- [6
+[6
 
- <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/rysu
-nki/czesc1/DMC_scenariusz_4.pdf>]
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\dane/
-DMC_wskazniki.tex))
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\uwagi
-.tex
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 8
-.
- (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-))
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\czesc
-2.tex [7
+ <./rysunki/czesc1/DMC_scenariusz_4.pdf>] (dane/DMC_wskazniki.tex)) (uwagi.tex)
+(czesc2.tex [7
 
 ]
 Rozdzia\PlPrIeC {\l } 4.
-<rysunki/czesc2/funkcje_przynaleznosci.png, id=249, 775.54744pt x 494.59781pt>
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
+7.
+(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+<rysunki/czesc2/funkcje_przynaleznosci.png, id=248, 775.54744pt x 494.59781pt>
 File: rysunki/czesc2/funkcje_przynaleznosci.png Graphic file (type png)
 <use rysunki/czesc2/funkcje_przynaleznosci.png>
 Package pdftex.def Info: rysunki/czesc2/funkcje_przynaleznosci.png  used on inp
@@ -719,8 +657,7 @@ ut line 21.
 (pdftex.def)             Requested size: 418.82375pt x 267.10147pt.
 [8
 
-] [9 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/
-rysunki/czesc2/funkcje_przynaleznosci.png (PNG copy)>]
+] [9 <./rysunki/czesc2/funkcje_przynaleznosci.png (PNG copy)>]
 <rysunki/czesc2/modele_2_5.png, id=265, 701.92238pt x 563.706pt>
 File: rysunki/czesc2/modele_2_5.png Graphic file (type png)
 <use rysunki/czesc2/modele_2_5.png>
@@ -732,10 +669,8 @@ File: rysunki/czesc2/porownanie_modeli_TS.png Graphic file (type png)
 Package pdftex.def Info: rysunki/czesc2/porownanie_modeli_TS.png  used on input
  line 74.
 (pdftex.def)             Requested size: 432.48051pt x 271.31873pt.
- [10 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/
-rysunki/czesc2/modele_2_5.png (PNG copy)>] [11 <C:/Users/mikol/OneDrive/Politec
-hnika/SZAU/pust_szablon_sprawozdania_utf8/rysunki/czesc2/porownanie_modeli_TS.p
-ng (PNG copy)>]
+[10 <./rysunki/czesc2/modele_2_5.png (PNG copy)>] [11 <./rysunki/czesc2/porowna
+nie_modeli_TS.png (PNG copy)>]
 Rozdzia\PlPrIeC {\l } 5.
 <rysunki/czesc2/strojenie_regulatora.png, id=277, 775.54744pt x 494.59781pt>
 File: rysunki/czesc2/strojenie_regulatora.png Graphic file (type png)
@@ -752,11 +687,8 @@ File: rysunki/czesc2/regulacja_porownanie.png Graphic file (type png)
 Package pdftex.def Info: rysunki/czesc2/regulacja_porownanie.png  used on input
  line 123.
 (pdftex.def)             Requested size: 455.24411pt x 387.869pt.
- [13 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/
-rysunki/czesc2/strojenie_regulatora.png (PNG copy)>])
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\czesc
-3.tex [14 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_
-utf8/rysunki/czesc2/regulacja_porownanie.png (PNG copy)>]
+[13 <./rysunki/czesc2/strojenie_regulatora.png (PNG copy)>]) (czesc3.tex [14 <.
+/rysunki/czesc2/regulacja_porownanie.png (PNG copy)>]
 Rozdzia\PlPrIeC {\l } 6.
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <9> on input line 3.
@@ -787,13 +719,9 @@ File: rysunki/czesc3/porownanie_sterowan.png Graphic file (type png)
 Package pdftex.def Info: rysunki/czesc3/porownanie_sterowan.png  used on input 
 line 100.
 (pdftex.def)             Requested size: 455.24411pt x 372.20265pt.
- [17 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_sprawozdania_utf8/
-rysunki/czesc3/strojenie_SL.png (PNG copy)>]) [18 <C:/Users/mikol/OneDrive/Poli
-technika/SZAU/pust_szablon_sprawozdania_utf8/rysunki/czesc3/porownanie_wyjsc.pn
-g (PNG copy)>] [19 <C:/Users/mikol/OneDrive/Politechnika/SZAU/pust_szablon_spra
-wozdania_utf8/rysunki/czesc3/porownanie_sterowan.png (PNG copy)>]
-(C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawozdania_utf8\spraw
-ozdanie_szablon.aux)
+[17 <./rysunki/czesc3/strojenie_SL.png (PNG copy)>]) [18 <./rysunki/czesc3/poro
+wnanie_wyjsc.png (PNG copy)>] [19 <./rysunki/czesc3/porownanie_sterowan.png (PN
+G copy)>] (sprawozdanie_szablon.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -802,13 +730,13 @@ Package rerunfilecheck Info: File `sprawozdanie_szablon.out' has not changed.
 (rerunfilecheck)             Checksum: A1134E5721384072B520AD38456F9FFD;4007.
  ) 
 Here is how much of TeX's memory you used:
- 17193 strings out of 467871
- 331469 string characters out of 5418376
- 723732 words of memory out of 5000000
- 45734 multiletter control sequences out of 15000+600000
- 743427 words of font info for 109 fonts, out of 8000000 for 9000
+ 17191 strings out of 467871
+ 330369 string characters out of 5418376
+ 723642 words of memory out of 5000000
+ 45733 multiletter control sequences out of 15000+600000
+ 743108 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,14n,80p,1056b,1058s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,14n,80p,1025b,1058s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.pf
 b><C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pf
 b><C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pf
@@ -827,8 +755,7 @@ ikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmss8.pfb><C:/Users/mi
 kol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/mi
 kol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/mik
 ol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb>
-Output written on C:\Users\mikol\OneDrive\Politechnika\SZAU\pust_szablon_sprawo
-zdania_utf8\sprawozdanie_szablon.pdf (20 pages, 1489272 bytes).
+Output written on sprawozdanie_szablon.pdf (20 pages, 1484816 bytes).
 PDF statistics:
  453 PDF objects out of 1000 (max. 8388607)
  88 named destinations out of 1000 (max. 500000)

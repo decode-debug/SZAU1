@@ -1,2 +1,3 @@
+.PHONY: all
 all:
-	pdflatex sprawozdanie_szablon.tex --shell-escape
+	python ../zbuduj_sprawozdanie.py

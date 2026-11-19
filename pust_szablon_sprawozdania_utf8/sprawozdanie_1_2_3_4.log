@@ -1,5 +1,6 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  19 NOV 2026 21:34
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.4.18)  19 NOV 2026 22:04
 entering extended mode
+ restricted \write18 enabled.
  %&-line parsing enabled.
 **./sprawozdanie_1_2_3_4.tex
 (sprawozdanie_1_2_3_4.tex
@@ -510,9 +511,6 @@ ii
 (C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/epstopdf-pkg\epstopdf-b
 ase.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
-
-Package epstopdf Warning: Shell escape feature is not enabled.
-
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 85.
 
@@ -539,7 +537,7 @@ Package hyperref Info: Option `pageanchor' set `false' on input line 42.
 
 {C:/Users/mikol/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}{C:/Users/miko
 l/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc}]
-Package hyperref Info: Option `pageanchor' set `true' on input line 67.
+Package hyperref Info: Option `pageanchor' set `true' on input line 65.
 (wstep.tex
 Rozdzia\PlPrIeC {\l } 1.
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 2
@@ -642,16 +640,17 @@ e 47.
 (pdftex.def)             Requested size: 455.24411pt x 301.56798pt.
 [6
 
- <./rysunki/czesc1/DMC_scenariusz_4.pdf>] (dane/DMC_wskazniki.tex)) (uwagi.tex
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 8
-.
-(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)) (czesc2.tex [7
+ <./rysunki/czesc1/DMC_scenariusz_4.pdf>] (dane/DMC_wskazniki.tex)) (uwagi.tex)
+(czesc2.tex [7
 
 ]
 Rozdzia\PlPrIeC {\l } 4.
-<rysunki/czesc2/funkcje_przynaleznosci.png, id=257, 775.54744pt x 494.59781pt>
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
+7.
+(C:\Users\mikol\AppData\Local\Programs\MiKTeX\tex/latex/lm\t1lmtt.fd
+File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+<rysunki/czesc2/funkcje_przynaleznosci.png, id=256, 775.54744pt x 494.59781pt>
 File: rysunki/czesc2/funkcje_przynaleznosci.png Graphic file (type png)
 <use rysunki/czesc2/funkcje_przynaleznosci.png>
 Package pdftex.def Info: rysunki/czesc2/funkcje_przynaleznosci.png  used on inp
@@ -748,11 +747,11 @@ Package rerunfilecheck Info: File `sprawozdanie_1_2_3_4.out' has not changed.
 (rerunfilecheck)             Checksum: 4A0AB2A11BF64328B1E75332AABB8369;4304.
  ) ) 
 Here is how much of TeX's memory you used:
- 17230 strings out of 467871
- 331369 string characters out of 5418376
- 723945 words of memory out of 5000000
- 45759 multiletter control sequences out of 15000+600000
- 743427 words of font info for 109 fonts, out of 8000000 for 9000
+ 17229 strings out of 467871
+ 331355 string characters out of 5418376
+ 723978 words of memory out of 5000000
+ 45758 multiletter control sequences out of 15000+600000
+ 743108 words of font info for 108 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  80i,14n,83p,1058b,1058s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx10.
@@ -773,7 +772,7 @@ s/mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmri9.pfb><C:/Users
 mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/
 mikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb><C:/Users/m
 ikol/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb>
-Output written on sprawozdanie_1_2_3_4.pdf (23 pages, 1781754 bytes).
+Output written on sprawozdanie_1_2_3_4.pdf (23 pages, 1777786 bytes).
 PDF statistics:
  478 PDF objects out of 1000 (max. 8388607)
  95 named destinations out of 1000 (max. 500000)
