@@ -4,18 +4,10 @@
 clear; close all; clc;
 
 %% Parametry obiektu (takie same jak w czesci 1)
-P.A1 = 560; P.C2 = 0.6; P.a1 = 29; P.a2 = 33;
-P.u0 = 100; P.d0 = 20; P.Ts = 20; P.tau = 200;
-P.delay = P.tau/P.Ts;
-P.q0 = P.u0+P.d0;
-P.h0 = [(P.q0/P.a1)^2; (P.q0/P.a2)^2];
+P = tank_parameters();
 
 outdir = fullfile(fileparts(mfilename('fullpath')),'wyniki_czesc2');
-if ~isfolder(outdir), mkdir(outdir); end
-set(groot,'defaultFigureColor','w','defaultAxesColor','w', ...
-    'defaultAxesXColor','k','defaultAxesYColor','k', ...
-    'defaultTextColor','k','defaultLegendColor','w', ...
-    'defaultLegendTextColor','k');
+plots = ResultPlots(outdir);
 
 %% Modele TS: od 2 do 5 modeli lokalnych
 % h2 jako zmienna reguly: jest mierzona i silnie zmienia pojemnosc V2'(h2).
@@ -44,10 +36,12 @@ modelRmse = zeros(numel(models),1);
 modelMaxError = zeros(numel(models),1);
 % Kolumny: liniowy, TS2, TS3, TS4, TS5 i wybrany TS4 po strojeniu.
 stepMse = zeros(size(openSteps,1),numel(models)+2);
+modelOutputs = zeros([size(truth),numel(models)]);
+linearOutputs = zeros(size(truth));
 linearErrors = zeros(size(truth));
 for j = 1:size(openSteps,1)
-    linearErrors(:,j) = simulate_step(P,linearModel,openSteps(j,:),nOpen) ...
-                      - truth(:,j);
+    linearOutputs(:,j) = simulate_step(P,linearModel,openSteps(j,:),nOpen);
+    linearErrors(:,j) = linearOutputs(:,j)-truth(:,j);
 end
 linearRmse = sqrt(mean(linearErrors(:).^2));
 linearMaxError = max(abs(linearErrors(:)));
@@ -56,6 +50,7 @@ for m = 1:numel(models)
     errors = zeros(size(truth));
     for j = 1:size(openSteps,1)
         yTS = simulate_step(P,models{m},openSteps(j,:),nOpen);
+        modelOutputs(:,j,m) = yTS;
         errors(:,j) = yTS-truth(:,j);
     end
     modelRmse(m) = sqrt(mean(errors(:).^2));
@@ -77,6 +72,8 @@ middle = modelInitial.centers(2:3);
 shifts = [-3 -1.5 0 1.5 3];
 bestRmse = inf;
 modelTuned = modelInitial;
+tunedOutputs = modelOutputs(:,:,selectedIndex);
+candidateOutputs = zeros(size(truth));
 for a = shifts
     for b = shifts
         candidateCenters = [hRange(1),middle(1)+a,middle(2)+b,hRange(2)];
@@ -88,6 +85,7 @@ for a = shifts
         for j = 1:size(openSteps,1)
             yTS = simulate_step(P,candidateModel,openSteps(j,:),nOpen);
             error = yTS-truth(:,j);
+            candidateOutputs(:,j) = yTS;
             candidateMse(j) = mean(error.^2);
         end
         rmse = sqrt(mean(candidateMse));
@@ -95,6 +93,7 @@ for a = shifts
         if rmse<bestRmse
             bestRmse = rmse;
             modelTuned = candidateModel;
+            tunedOutputs = candidateOutputs;
             stepMse(:,end) = candidateMse;
         end
     end
@@ -138,9 +137,12 @@ for j = 1:numel(driftModels)
 end
 
 %% Wykresy modeli i funkcji przynaleznosci
-plot_memberships(models,modelTuned,hRange,outdir);
-plot_model_responses(P,modelInitial,modelTuned,openSteps,truth,tOpen,outdir);
-plot_all_models(P,linearModel,models,openSteps,truth,tOpen,outdir);
+levels = linspace(hRange(1),hRange(2),500)';
+modelWeights = cellfun(@(m) ts_memberships(levels,m.centers),models,'UniformOutput',false);
+initialWeights = ts_memberships(levels,modelTuned.centers);
+plots.plot_memberships(levels,modelWeights,modelCounts,initialWeights);
+plots.plot_model_responses(modelOutputs(:,:,selectedIndex),tunedOutputs,openSteps,truth,tOpen);
+plots.plot_all_models(linearOutputs,modelOutputs,modelCounts,openSteps,truth,tOpen);
 
 %% Analityczny rozmyty DMC z ograniczeniami
 % Nu=1 pozwala wyznaczyc kazdy lokalny ruch analitycznie i ograniczyc go
@@ -173,12 +175,7 @@ gammaInitial = 1;
 gammaCandidates = [0.5 0.75 1 1.25 1.5 2 3];
 gammaScores = zeros(size(gammaCandidates));
 for g = 1:numel(gammaCandidates)
-    for j = 1:numel(testData)
-        [yTrial,~] = simulate_control(P,fuzzyDmc,modelTuned.centers, ...
-            gammaCandidates(g),testData{j}.ref,testData{j}.dist,ctrl,true);
-        gammaScores(g) = gammaScores(g) + ...
-            P.Ts*sum(abs(yTrial-testData{j}.ref));
-    end
+    gammaScores(g) = pdc_iae(P,fuzzyDmc,modelTuned.centers,gammaCandidates(g),testData,ctrl);
 end
 [~,bestGammaIndex] = min(gammaScores);
 gammaTuned = gammaCandidates(bestGammaIndex);
@@ -191,12 +188,7 @@ for firstShift = centerShifts
         candidateCenters(2:3) = candidateCenters(2:3) ...
                               + [firstShift,secondShift];
         if any(diff(candidateCenters)<=0), continue; end
-        score = 0;
-        for j = 1:numel(testData)
-            [yTrial,~] = simulate_control(P,fuzzyDmc,candidateCenters, ...
-                gammaTuned,testData{j}.ref,testData{j}.dist,ctrl,true);
-            score = score+P.Ts*sum(abs(yTrial-testData{j}.ref));
-        end
+        score = pdc_iae(P,fuzzyDmc,candidateCenters,gammaTuned,testData,ctrl);
         if score<bestControlScore
             bestControlScore = score;
             controllerCenters = candidateCenters;
@@ -207,8 +199,7 @@ end
 % Kolumny: scenariusz, regulator, IAE zadania, IAE zaklocenia, min/max u.
 controlResults = zeros(size(controlCases,1)*4,7);
 row = 0;
-fig = figure('Visible','off','Color','w','Position',[100 100 1100 900]);
-tiledlayout(2,2);
+
 for j = 1:numel(testData)
     ref = testData{j}.ref;
     dist = testData{j}.dist;
@@ -234,23 +225,8 @@ for j = 1:numel(testData)
             min(uCase),max(uCase),max(abs(diff([P.u0;uCase])))];
     end
 
-    nexttile;
-    plot(tControl,yPart1,'Color',[0.5 0.5 0.5],'LineWidth',1.15);
-    hold on;
-    plot(tControl,yLinear,'k--',tControl,yFuzzy,'b', ...
-         tControl,yTuned,'r-.',tControl,ref,'g:', ...
-         'LineWidth',1.15);
-    grid on; xlabel('t [s]'); ylabel('h_2 [cm]');
-    title(sprintf('Zadanie %+g cm, F_D %+g cm^3/s', ...
-          controlCases(j,1),controlCases(j,2)));
-    if j==1
-        legend('DMC czesc 1','liniowy z ograniczeniami', ...
-            'rozmyty PDC','rozmyty po strojeniu','zadana', ...
-            'Location','best');
-    end
 end
-exportgraphics(fig,fullfile(outdir,'regulacja_porownanie.png'),'Resolution',160);
-close(fig);
+plots.pdc(tControl,traces,controlCases);
 
 controlSummary = array2table(controlResults,'VariableNames', ...
     {'Scenariusz','Regulator','IAE_zadanie','IAE_zaklocenie', ...
@@ -262,8 +238,8 @@ fprintf('Suma IAE dla gamma = %s\n',mat2str(gammaScores,5));
 fprintf('Wezly regulatora po strojeniu = %s cm; suma IAE = %.1f cm*s\n', ...
         mat2str(controllerCenters,4),bestControlScore);
 
-plot_control_memberships(modelTuned.centers,controllerCenters, ...
-                         gammaTuned,hRange,outdir);
+controllerWeights = ts_memberships(levels,controllerCenters).^gammaTuned;
+plots.plot_control_memberships(levels,initialWeights,controllerWeights./sum(controllerWeights,2),gammaTuned);
 writetable(modelSummary,fullfile(outdir,'jakosc_modeli.csv'));
 writetable(amplitudeSummary,fullfile(outdir,'jakosc_modeli_amplitudy.csv'));
 writetable(controlSummary,fullfile(outdir,'jakosc_regulacji.csv'));
@@ -325,87 +301,6 @@ function dh = model_rhs(P,model,h,du,dd)
     end
 end
 
-function state = rk4_step(rhs,state,T,n)
-    dt = T/n;
-    for j = 1:n
-        a = rhs(state);
-        b = rhs(state+dt*a/2);
-        c = rhs(state+dt*b/2);
-        d = rhs(state+dt*c);
-        state = state+dt*(a+2*b+2*c+d)/6;
-    end
-end
-
-function plot_memberships(models,tuned,hRange,outdir)
-    x = linspace(hRange(1),hRange(2),500)';
-    fig = figure('Visible','off','Color','w');
-    tiledlayout(2,2);
-    for m = 1:numel(models)
-        nexttile;
-        plot(x,ts_memberships(x,models{m}.centers),'LineWidth',1.2);
-        title(sprintf('%d reguly',models{m}.count));
-        xlabel('h_2 [cm]'); ylabel('stopien przynaleznosci'); grid on;
-    end
-    exportgraphics(fig,fullfile(outdir,'funkcje_przynaleznosci.png'),'Resolution',160);
-    close(fig);
-
-    fig = figure('Visible','off','Color','w');
-    plot(x,ts_memberships(x,tuned.centers),'LineWidth',1.5);
-    title('Funkcje przynaleznosci po strojeniu modelu TS');
-    xlabel('h_2 [cm]'); ylabel('stopien przynaleznosci'); grid on;
-    exportgraphics(fig,fullfile(outdir,'funkcje_przynaleznosci_strojone.png'), ...
-                   'Resolution',160);
-    close(fig);
-end
-
-function plot_model_responses(P,initial,tuned,steps,truth,t,outdir)
-    % Cztery reprezentatywne odpowiedzi; pelne RMSE liczone jest dla 12 prob.
-    selected = [1,6,7,12];
-    fig = figure('Visible','off','Color','w');
-    tiledlayout(2,2);
-    for k = 1:numel(selected)
-        j = selected(k);
-        yInitial = simulate_step(P,initial,steps(j,:),numel(t)-1);
-        yTuned = simulate_step(P,tuned,steps(j,:),numel(t)-1);
-        nexttile;
-        plot(t,truth(:,j),'k',t,yInitial,'b--',t,yTuned,'r-.', ...
-             'LineWidth',1.2);
-        grid on; xlabel('t [s]'); ylabel('h_2 [cm]');
-        title(sprintf('Skok F1in %+g, FD %+g',steps(j,1),steps(j,2)));
-        if k==1
-            legend('nieliniowy','TS poczatkowy','TS po strojeniu', ...
-                   'Location','best');
-        end
-    end
-    exportgraphics(fig,fullfile(outdir,'porownanie_modeli_TS.png'),'Resolution',160);
-    close(fig);
-end
-
-function plot_all_models(P,linearModel,models,steps,truth,t,outdir)
-    % Porownanie odpowiedzi 2, 3, 4 i 5 regul z liniowym punktem odniesienia.
-    selected = [1,6,7,12];
-    fig = figure('Visible','off','Color','w','Position',[100 100 1100 850]);
-    tiledlayout(2,2);
-    colors = lines(numel(models));
-    for tile = 1:numel(selected)
-        j = selected(tile);
-        nexttile; hold on;
-        plot(t,truth(:,j),'k','LineWidth',1.7,'DisplayName','nieliniowy');
-        yLinear = simulate_step(P,linearModel,steps(j,:),numel(t)-1);
-        plot(t,yLinear,'k:','LineWidth',1.2,'DisplayName','liniowy');
-        for m = 1:numel(models)
-            yTS = simulate_step(P,models{m},steps(j,:),numel(t)-1);
-            plot(t,yTS,'Color',colors(m,:),'LineWidth',1.1, ...
-                 'DisplayName',sprintf('TS %d',models{m}.count));
-        end
-        grid on; xlabel('t [s]'); ylabel('h_2 [cm]');
-        title(sprintf('Skok F1in %+g, FD %+g',steps(j,1),steps(j,2)));
-        if tile==1, legend('Location','best'); end
-    end
-    exportgraphics(fig,fullfile(outdir,'modele_2_5.png'),'Resolution',160);
-    close(fig);
-end
-
 function controllers = design_dmc(P,model,ctrl,Nu)
     % Jeden lokalny analityczny DMC na kazda regule modelu TS.
     S = local_step_responses(P,model,ctrl.D);
@@ -414,6 +309,15 @@ function controllers = design_dmc(P,model,ctrl,Nu)
         gain = (M'*M+ctrl.lambda*eye(Nu))\M';
         controllers(rule).gain = gain(1,:);
         controllers(rule).freeMatrix = freeMatrix;
+    end
+end
+
+function score = pdc_iae(P,controllers,centers,gamma,testData,ctrl)
+    score = 0;
+    for j = 1:numel(testData)
+        trial = testData{j};
+        y = simulate_control(P,controllers,centers,gamma,trial.ref,trial.dist,ctrl,true);
+        score = score+P.Ts*sum(abs(y-trial.ref));
     end
 end
 
@@ -454,28 +358,4 @@ function [y,u] = simulate_control(P,controllers,centers,gamma,ref,dist,ctrl,limi
         h = max(h,0.05);
         y(k+1) = h(2);
     end
-end
-
-function plot_control_memberships(initialCenters,tunedCenters,gamma,hRange,outdir)
-    x = linspace(hRange(1),hRange(2),500)';
-    fig = figure('Visible','off','Color','w');
-    tiledlayout(1,2);
-    for panel = 1:2
-        nexttile; hold on;
-        if panel==1
-            exponent = 1;
-            centers = initialCenters;
-        else
-            exponent = gamma;
-            centers = tunedCenters;
-        end
-        values = ts_memberships(x,centers).^exponent;
-        values = values./sum(values,2);
-        plot(x,values,'LineWidth',1.3);
-        if panel==1, title('PDC: funkcje jak w modelu');
-        else, title(sprintf('Po strojeniu: gamma = %.2f',gamma)); end
-        xlabel('h_2 [cm]'); ylabel('waga reguly'); grid on;
-    end
-    exportgraphics(fig,fullfile(outdir,'strojenie_regulatora.png'),'Resolution',160);
-    close(fig);
 end

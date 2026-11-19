@@ -82,14 +82,3 @@ function dh = tank_rhs(P,h,u,d)
     cap2 = 3*P.C2*max(h(2),0.05)^2;
     dh = [(u+d-f2)/P.A1;(f2-f3)/cap2];
 end
-
-function state = rk4_step(rhs,state,T,n)
-    dt = T/n;
-    for j = 1:n
-        a = rhs(state);
-        b = rhs(state+dt*a/2);
-        c = rhs(state+dt*b/2);
-        d = rhs(state+dt*c);
-        state = state+dt*(a+2*b+2*c+d)/6;
-    end
-end
