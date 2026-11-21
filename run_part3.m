@@ -1,38 +1,41 @@
-%% SZAU, zadanie 1, czesc 3: numeryczny rozmyty DMC-SL
+%% SZAU, zadanie 1, czesc 3: numeryczny rozmyty regulator FGPC-SL
 % Najpierw uruchom run_part2, potem run_part3.
-% Wymaga Control System Toolbox, Fuzzy Logic Toolbox i Optimization Toolbox.
+% Algorytm zgodny ze skryptem SZAU (s. 162-163, wzory 4.103-4.105 i 4.107).
+% Wymaga Control System Toolbox i Optimization Toolbox (quadprog).
 clear; close all; clc;
 
 dataFile = fullfile('wyniki_czesc2','dane_czesc2.mat');
 if ~isfile(dataFile)
     error('Brak %s. Uruchom najpierw run_part2.',dataFile);
 end
-load(dataFile,'P','modelTuned','ctrl','controlCases','tControl','traces');
+load(dataFile,'P','modelTuned','ctrl','controlCases','tControl', ...
+    'refStart','distStart','traces');
 outdir = fullfile(fileparts(mfilename('fullpath')),'wyniki_czesc3');
 plots = ResultPlots(outdir);
 
-% Kolejno SL o nastawach PDC, poprzedni wariant i wariant po strojeniu.
-predictionHorizons = [ctrl.N,50,20];
-horizons = [1,5,3];
-lambdaSL = [ctrl.lambda,0.2,0.005];
-referenceTime = [0,0,160];   % [s] stala czasowa filtru wartosci zadanej
-localSteps = local_step_responses(P,modelTuned,ctrl.D);
+%% Nastawy numerycznego regulatora FGPC-SL (bez filtru wartosci zadanej!)
+% Badanie wplywu parametru lambda (jak w Przykladzie 4.18, Rys. 4.42-4.43).
+N_sl = 30;
+Nu_sl = 5;
+lambdaSL = [2.0, 1.0, 0.5, 0.2];
+selectedVariant = 3;  % lambda = 0.5: najlepszy kompromis jakosci i gladkosci sterowania
 options = optimoptions('quadprog','Algorithm','active-set','Display','off');
 
-% Dodatkowe amplitudy i przeciwne znaki zadania i zaklocenia.
+% Dodatkowe proby walidacyjne o posrednich amplitudach i przeciwnych znakach.
 validationCases = [3,-8; -3,12; 6,-10; -6,15];
 allCases = [controlCases;validationCases];
 nProject = size(controlCases,1);
-nVariants = numel(horizons);
-refStart = 400; distStart = 3200;
+nVariants = numel(lambdaSL);
 taskMask = tControl>=refStart & tControl<distStart;
 distMask = tControl>=distStart;
+
 metricNames = {'IAE_zadanie','IAE_zaklocenie','Min_u','Max_u','Maks_zmiana_u', ...
     'Suma_zmian_u','Cofniecie_cm','Przeregulowanie_cm','Maks_blad_po_FD_cm'};
-resultNames = [{'Scenariusz','Wariant','N','Nu','Lambda','Tf_s'},metricNames, ...
+resultNames = [{'Scenariusz','Wariant','N','Nu','Lambda'},metricNames, ...
     {'Sredni_czas_decyzji_s','Maks_czas_decyzji_s'}];
 results = zeros(size(allCases,1)*nVariants,numel(resultNames));
 allSL = struct([]);
+
 for j = 1:size(allCases,1)
     if j<=nProject
         ref = traces(j).ref;
@@ -43,31 +46,33 @@ for j = 1:size(allCases,1)
     end
     for v = 1:nVariants
         cfg = ctrl;
-        cfg.N = predictionHorizons(v);
+        cfg.N = N_sl;
         cfg.lambda = lambdaSL(v);
-        [y,u,decisionTime] = simulate_fdmc(P,localSteps,modelTuned.centers, ...
-            cfg,horizons(v),referenceTime(v),ref,dist,options);
+        [y,u,decisionTime] = simulate_fgpc(P,modelTuned,cfg,Nu_sl,ref,dist,options,false);
         allSL(j,v).y = y;
         allSL(j,v).u = u;
         allSL(j,v).decisionTime = decisionTime;
         metrics = case_metrics(P,y,u,ref,taskMask,distMask);
         row = (j-1)*nVariants+v;
-        results(row,:) = [j,v,cfg.N,horizons(v),cfg.lambda,referenceTime(v), ...
-            metrics,mean(decisionTime),max(decisionTime)];
+        results(row,:) = [j,v,N_sl,Nu_sl,lambdaSL(v),metrics, ...
+            mean(decisionTime),max(decisionTime)];
     end
 end
+
 allScores = array2table(results,'VariableNames',resultNames);
-main = allScores.Scenariusz<=nProject;
-slSummary = allScores(main,:);
+mainMask = allScores.Scenariusz<=nProject;
+slSummary = allScores(mainMask,:);
 slTraces = allSL(1:nProject,:);
 validationTraces = allSL(nProject+1:end,:);
-validationSummary = allScores(~main,:);
+validationSummary = allScores(~mainMask,:);
 validationSummary.Scenariusz = validationSummary.Scenariusz-nProject;
 validationSummary.Skok_zad_cm = validationCases(validationSummary.Scenariusz,1);
 validationSummary.Skok_FD = validationCases(validationSummary.Scenariusz,2);
 
-% Identyfikatory 1 i 2 to analityczne PDC z czesci 2, kolejne dotycza SL.
-methodNames = ["PDC";"PDC strojony";"SL o nastawach PDC";"SL przed strojeniem";"SL po strojeniu"];
+%% Zbiorcze porownanie: PDC (cz. 2) oraz FGPC-SL dla badanych wartosci lambda
+methodNames = ["PDC";"PDC strojony"; ...
+    "FGPC-SL (\lambda=2)";"FGPC-SL (\lambda=1)"; ...
+    "FGPC-SL (\lambda=0,5)";"FGPC-SL (\lambda=0,2)"];
 comparison = zeros(nProject*numel(methodNames),2+numel(metricNames));
 for j = 1:nProject
     first = (j-1)*numel(methodNames);
@@ -84,17 +89,21 @@ comparisonSummary = array2table(comparison,'VariableNames',[{'Scenariusz','Regul
 comparisonSummary.Nazwa = methodNames(comparisonSummary.Regulator);
 totalIAE = accumarray(comparisonSummary.Regulator, ...
     comparisonSummary.IAE_zadanie+comparisonSummary.IAE_zaklocenie);
-disp(table(methodNames,totalIAE,'VariableNames',{'Regulator','Suma_IAE'}));
+totalRef = accumarray(comparisonSummary.Regulator,comparisonSummary.IAE_zadanie);
+totalDist = accumarray(comparisonSummary.Regulator,comparisonSummary.IAE_zaklocenie);
+disp(table(methodNames,totalRef,totalDist,totalIAE, ...
+    'VariableNames',{'Regulator','IAE_zadanie','IAE_zaklocenie','Suma_IAE'}));
 
-plots.plot_comparison(tControl,traces,slTraces,controlCases,methodNames,refStart,distStart);
-plots.plot_tuning(tControl,traces,slTraces,controlCases,refStart,distStart);
+%% Wykresy i zapis wynikow
+plots.plot_comparison(tControl,traces,slTraces,controlCases,lambdaSL,selectedVariant,refStart,distStart);
+plots.plot_tuning(tControl,traces,slTraces,controlCases,lambdaSL,refStart,distStart);
 writetable(slSummary,fullfile(outdir,'wskazniki_SL.csv'));
 writetable(comparisonSummary,fullfile(outdir,'porownanie_regulatorow.csv'));
 writetable(validationSummary,fullfile(outdir,'walidacja_SL.csv'));
 save(fullfile(outdir,'dane_czesc3.mat'),'P','modelTuned','ctrl','controlCases', ...
-    'tControl','traces','slTraces','horizons','predictionHorizons','lambdaSL', ...
-    'referenceTime','refStart','distStart','localSteps','slSummary','comparisonSummary', ...
-    'totalIAE','validationCases','validationTraces','validationSummary');
+    'tControl','traces','slTraces','N_sl','Nu_sl','lambdaSL','selectedVariant', ...
+    'refStart','distStart','slSummary','comparisonSummary','totalIAE', ...
+    'validationCases','validationTraces','validationSummary');
 
 %% Funkcje pomocnicze
 function metrics = case_metrics(P,y,u,ref,taskMask,distMask)

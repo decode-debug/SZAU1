@@ -1,41 +1,98 @@
-\chapter{Regulator FDMC--NPL}
-W zadaniu 4 zastosowano tę samą bazę czterech lokalnych odpowiedzi skokowych i znormalizowane wagi TS co w części 3 (materiały wykładowe, s.~132--134). Zgodnie z opisem FDMC--NPL na s.~166--168, wzory (4.108)--(4.117), macierz dynamiczną $M_k$ tworzy się z wag wyznaczonych z aktualnego pomiaru. Zmianie podlega trajektoria swobodna.
- 
-Niech $U_{i,0}=q_i-F_{D,0}$ oznacza nominalne sterowanie lokalnej linearyzacji, a $h_{2,i}$ jej poziom równowagi. Przy zerowych przyszłych przyrostach lokalne prognozy można zapisać w równoważnej postaci splotowej
-\[
- z_{i,p}=h_{2,i}+\sum_{j=1}^{D}(s^{(i)}_j-s^{(i)}_{j-1})
-        (u_{\min(k+p-j,k-1)}-U_{i,0}),\qquad s^{(i)}_0=0.
-\]
-Przed początkiem próby przyjęto $u=u_0$. Błąd bieżącego modelu $d_k$ pozostaje stały w obrębie jednej predykcji. Kolejne poziomy i wagi wyznacza się rekurencyjnie:
-\[
- d_k=y(k)-\sum_i w_i(y(k-1))z_{i,0},\qquad y^0_0=y(k),\qquad
- y^0_p=d_k+\sum_i w_i(y^0_{p-1})z_{i,p},\quad p=1,\ldots,N .
-\]
-W pierwszej próbce za poprzedni poziom przyjęto poziom nominalny. W każdej próbce \texttt{quadprog} minimalizuje $\|Y_{\rm zad}-Y^0-M_k\Delta U\|^2+\lambda\|\Delta U\|^2$ z ograniczeniami $0\le u\le200$ i $|\Delta u|\le30$ dla całego planu. Wykonywany jest pierwszy ruch. Regulator korzysta z pomiaru poziomu oraz historii sterowania. Skok zakłócenia podawany jest na obiekt.
+\chapter{Numeryczny rozmyty regulator predykcyjny FGPC--NPL}
+\section{Algorytm z predykcją nieliniową i linearyzacją}
+W części~4 zaimplementowano algorytm FGPC--NPL (nieliniowa predykcja trajektorii swobodnej i bieżąca linearyzacja trajektorii wymuszonej), zgodnie z materiałami wykładowymi \emph{Regulatory rozmyte}, s.~168--169, wzory (4.103)--(4.105) oraz (4.118)--(4.125). Algorytm korzysta z tego samego pięcioregułowego dyskretnego modelu Takagiego--Sugeno z rozdziału~4 i tworzy macierz dynamiczną $M_k$ dokładnie tak samo jak w FGPC--SL, na podstawie bieżącej linearyzacji w punkcie $y(k)$.
 
-\section{Porównanie układów}
-Dla NPL przyjęto identyczne nastawy jak w dostrojonym SL: $N=20$, $N_u=3$, $D=250$, $\lambda=\num{0.005}$ i $T_f=160$~s. Wszystkie regulatory pracowały na tym samym obiekcie nieliniowym. IAE liczono względem pierwotnego zadania, osobno od 400~s do skoku zakłócenia w 3200~s i od tego skoku do końca próby.
+Zasadniczą zmianą względem FGPC--SL jest sposób wyznaczania odpowiedzi swobodnej $Y^0(k)$. W każdej chwili $k$ oblicza się najpierw bieżący błąd modelu $d_k$ przy użyciu pełnego nieliniowego modelu rozmytego (wzory (4.118)--(4.119)):
+\begin{align}
+ y^{\mathrm{mod}}(k)&=\sum_{i=1}^5\widetilde w_i\bigl(y(k-1)\bigr)\Bigl(b_{1,i}y(k-1)+b_{2,i}y(k-2)\nonumber\\
+ &\qquad+c_{1,i}u(k-11)+c_{2,i}u(k-12)+a_{0,i}\Bigr),\\
+ d_k&=y(k)-y^{\mathrm{mod}}(k).
+\end{align}
+Następnie kolejne próbki trajektorii swobodnej $y^0(k+p|k)$ ($p=1,\dots,N$) wyznacza się iteracyjnie z nieliniowego modelu TS, przeliczając wagi reguł $\widetilde w_i$ w każdym kroku horyzontu predykcji na podstawie poprzednio przewidzianego poziomu (wzory (4.120)--(4.125)):
+\begin{align}
+ y^0(k+p|k)&=d_k+\sum_{i=1}^5\widetilde w_i\bigl(y^0(k+p-1|k)\bigr)\Bigl(b_{1,i}y^0(k+p-1|k)+b_{2,i}y^0(k+p-2|k)\nonumber\\
+ &\qquad+c_{1,i}u^0(k+p-11)+c_{2,i}u^0(k+p-12)+a_{0,i}\Bigr),
+\end{align}
+przy warunkach początkowych $y^0(k|k)=y(k)$, $y^0(k-1|k)=y(k-1)$ oraz zerowych przyszłych przyrostach sterowania ($u^0(k+j)=u(k-1)$ dla $j\geq0$). Dzięki temu regulator przewiduje zmianę dynamiki i pojemności zbiornika $3C_2h_2^2$ wzdłuż trajektorii przejścia. Wektor przyszłych przyrostów $\Delta U$ wyznaczany jest z tego samego zadania optymalizacji kwadratowej \texttt{quadprog} co w części~3, przy ograniczeniach $0\leq u\leq200\ \jednprzep$, $|\Delta u|\leq15\ \jednprzep$ i bez filtrowania wartości zadanej.
 
-\begin{center}\small
-\begin{tabular}{lrrr}\toprule
-Regulator & IAE zadania & IAE po zakłóceniu & IAE łącznie [cm$\cdot$s]\\\midrule
-DMC z części 1 & 10602 & 8631 & 19232\\
-DMC ograniczony & 11472 & 9944 & 21416\\
-PDC & 10295 & 9240 & 19535\\
-PDC strojony & 9297 & 9012 & 18309\\
-SL o nastawach PDC & 10310 & 9178 & 19488\\
-SL przed strojeniem & 9658 & 8260 & 17919\\
-SL po strojeniu & 10329 & 5471 & 15800\\
-NPL & 9876 & 5772 & 15647\\\bottomrule
-\end{tabular}\end{center}
-Sumy zaokrąglono po agregacji. DMC z części 1 pracuje bez narzuconych ograniczeń. NPL obniżył łączny IAE o około \num{0.97}\% względem dostrojonego SL. Suma błędów po zmianie zadania zmalała o \num{4.4}\%, a po zakłóceniu wzrosła o \num{5.5}\%. W próbach $+2$, $+4$, $+8$ i $-8$~cm całkowity IAE dla NPL wyniósł odpowiednio 1637, 3526, 6673 i 3812~cm$\cdot$s. W ostatniej próbie korzystniejszy był dostrojony SL (3685~cm$\cdot$s).
+\section{Strojenie \texorpdfstring{$\lambda$}{lambda} i porównanie wszystkich regulatorów}
+Dla FGPC--NPL zastosowano te same horyzonty ($N=30$, $N_u=5$) oraz ten sam zestaw współczynników kary $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2}\}$ co dla FGPC--SL, co pozwala bezpośrednio porównać oba algorytmy przy identycznych nastawach (analogicznie do Przykładu~4.19, rys.~4.44--4.45 w materiałach wykładowych). Tab.~\ref{tab:npl-tuning} zestawia wyniki strojenia $\lambda$ dla SL i NPL na czterech scenariuszach projektowych, natomiast tab.~\ref{tab:npl-summary} zbiera wszystkie regulatory z części~1--4.
 
-Przy zadaniu $+8$~cm NPL osiąga mniejszy błąd całkowy, ale przed skokiem zakłócenia poziom cofa się o \num{1.266}~cm wobec \num{0.023}~cm dla SL. Suma bezwzględnych przyrostów sterowania w czterech próbach wzrasta z około 310 do 370~$\jednprzep$. Gdy ważniejsze jest łagodne dojście do zadania, wyniki przemawiają za SL. 
-\begin{figure}[H]\centering
-\includegraphics[width=\textwidth]{../wyniki_czesc4/NPL_y.png}
-\caption{Poziom w czterech próbach. Porównanie NPL, dostrojonych SL i PDC oraz DMC z części 1.}
+\begin{table}[H]
+\centering
+\caption{Porównanie wpływu parametru $\lambda$ na jakość regulacji FGPC--SL i FGPC--NPL ($N=30$, $N_u=5$) w czterech próbach projektowych.}
+\small
+\begin{tabular}{crrrrrrrr}\toprule
+ & \multicolumn{4}{c}{FGPC--SL} & \multicolumn{4}{c}{FGPC--NPL}\\\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+$\lambda$ & IAE zad. & IAE zakł. & Suma IAE & $\sum|\Delta u|$ & IAE zad. & IAE zakł. & Suma IAE & $\sum|\Delta u|$\\\midrule
+\num{2.0} & 11963 & 5102 & 17064 & \num{221.6} & 11748 & 4898 & 16646 & \num{235.8}\\
+\num{1.0} & 10849 & 3975 & 14823 & \num{272.1} & 10563 & 3963 & 14526 & \num{304.8}\\
+\num{0.5} & 10194 & 3366 & 13561 & \num{325.9} &  9851 & 3486 & 13337 & \num{389.5}\\
+\num{0.2} &  9633 & 2941 & 12574 & \num{420.4} &  9227 & 3144 & 12371 & \num{523.3}\\\bottomrule
+\end{tabular}
+\label{tab:npl-tuning}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Zbiorcze porównanie wszystkich regulatorów z części~1--4 w czterech próbach projektowych.}
+\small
+\begin{tabular}{lrrrrrrr}\toprule
+Regulator & IAE zad. & IAE zakł. & Suma IAE & Przereg. & Cofn. & $\max|e_{F_D}|$ & $\sum|\Delta u|$\\
+ & [cm$\cdot$s] & [cm$\cdot$s] & [cm$\cdot$s] & [cm] & [cm] & [cm] & [$\jednprzep$]\\\midrule
+DMC cz.~1 (bez ogr.)      & 10720 & 8783 & 19503 & \num{1.715} & \num{2.651} & \num{4.561} & \num{686.0}\\
+DMC ograniczony           & 11008 & 8777 & 19785 & \num{1.706} & \num{2.533} & \num{4.555} & \num{671.0}\\
+PDC                       &  9383 & 6888 & 16271 & \num{0.232} & \num{1.296} & \num{4.364} & \num{490.6}\\
+PDC strojony              &  8675 & 6450 & 15125 & \num{0.473} & \num{1.019} & \num{4.399} & \num{459.6}\\
+FGPC--SL ($\lambda=1$)    & 10849 & 3975 & 14823 & \num{0.497} & \num{0.524} & \num{3.426} & \num{272.1}\\
+FGPC--SL ($\lambda=0{,}5$)& 10194 & 3366 & 13561 & \num{0.501} & \num{0.504} & \num{3.168} & \num{325.9}\\
+FGPC--SL ($\lambda=0{,}2$)&  9633 & 2941 & 12574 & \num{0.586} & \num{1.102} & \num{2.958} & \num{420.4}\\
+FGPC--NPL ($\lambda=1$)   & 10563 & 3963 & 14526 & \num{0.630} & \num{0.671} & \num{3.298} & \num{304.8}\\
+FGPC--NPL ($\lambda=0{,}5$)& 9851 & 3486 & 13337 & \num{0.641} & \num{0.651} & \num{3.061} & \num{389.5}\\
+FGPC--NPL ($\lambda=0{,}2$)& 9227 & 3144 & 12371 & \num{0.745} & \num{0.749} & \num{2.875} & \num{523.3}\\\bottomrule
+\end{tabular}
+\label{tab:npl-summary}
+\end{table}
+
+Dla każdej badanej wartości $\lambda$ algorytm FGPC--NPL uzyskuje niższy łączny wskaźnik IAE niż FGPC--SL (o \num{1.6}--\num{2.5}\%) oraz mniejszy maksymalny uchyb po skoku zakłócenia $F_D=+30\ \jednprzep$ (dla $\lambda=\num{0.5}$: \num{3.061} wobec \num{3.168}~cm). W głównym wariancie kompromisowym $\lambda=\num{0.5}$ regulator FGPC--NPL obniża sumę IAE o \num{31.6}\% względem nieograniczonego DMC z części~1, o \num{32.6}\% względem ograniczonego liniowego DMC i o \num{11.8}\% względem dostrojonego PDC.
+
+Przewaga nieliniowej predykcji trajektorii swobodnej ujawnia się najdobitniej w najsilniej nieliniowym scenariuszu $-8\ \mathrm{cm} / -10\ \jednprzep$ (rys.~\ref{fig:npl-y} i \ref{fig:npl-u}, prawy dolny panel). W przeciwieństwie do FGPC--SL, który przy schodzeniu do $h_2=\num{5.22}\ \mathrm{cm}$ doświadcza wyraźnego odbicia poziomu w górę (cofnięcie \num{0.385}~cm dla $\lambda=\num{0.5}$ i \num{1.102}~cm dla $\lambda=\num{0.2}$), algorytm FGPC--NPL przewiduje kurczenie się pojemności zbiornika wzdłuż horyzontu i doprowadza poziom niemal monotonicznie do wartości zadanej (cofnięcie zredukowane ponad dwudziestokrotnie, do \num{0.018}~cm przy $\lambda=\num{0.5}$). W tym scenariuszu IAE zadania spada o \num{10.8}\% (z 3577 do 3192~cm$\cdot$s), a łączny IAE o \num{8.7}\% (z 3957 do 3614~cm$\cdot$s), przy jednoczesnym spadku aktywności sterowania z \num{83.5} do \num{68.8}~$\jednprzep$.
+
+Przy dodatnich skokach zadania ($+2$, $+4$, $+8\ \mathrm{cm}$), gdzie zbiornik rozszerza się i dynamika obiektu zmienia się wolniej, odpowiedzi obu regulatorów numerycznych są bardzo zbliżone (dla $\lambda=\num{0.5}$ łączny IAE w próbach $+2$, $+4$ i $+8\ \mathrm{cm}$ wynosi dla NPL odpowiednio 1415, 2938 i 5370~cm$\cdot$s wobec 1403, 2857 i 5343~cm$\cdot$s dla SL). W zamian za szybszą reakcję na nieliniowe zmiany punktu pracy FGPC--NPL wykazuje nieco większą sumę zmian sterowania w czterech próbach ($\num{389.5}$ wobec $\num{325.9}\ \jednprzep$) oraz nieznacznie większe przeregulowanie w próbie $+8\ \mathrm{cm}$ (\num{0.641} wobec \num{0.501}~cm). Zależność odpowiedzi od parametru $\lambda$ jest dla NPL gładka i przewidywalna (rys.~\ref{fig:npl-tuning}).
+
+\begin{table}[H]
+\centering
+\caption{Walidacja porównawcza FGPC--SL i FGPC--NPL ($\lambda=\num{0.5}$) na czterech próbach dodatkowych [cm$\cdot$s].}
+\small
+\begin{tabular}{lrrrrrr}\toprule
+ & \multicolumn{3}{c}{FGPC--SL ($\lambda=\num{0.5}$)} & \multicolumn{3}{c}{FGPC--NPL ($\lambda=\num{0.5}$)}\\\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & IAE zad. & IAE zakł. & Suma IAE & IAE zad. & IAE zakł. & Suma IAE\\\midrule
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & 1351 & 379 & 1731 & 1354 & 415 & 1769\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & 1317 & 617 & 1933 & 1266 & 649 & 1915\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & 2833 & 437 & 3270 & 2839 & 512 & 3350\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & 2675 & 739 & 3414 & 2519 & 965 & 3484\\\midrule
+Suma                              & 8176 & 2173 & 10348 & 7978 & 2541 & 10519\\\bottomrule
+\end{tabular}
+\label{tab:npl-validation}
+\end{table}
+
+Na czterech próbach walidacyjnych o przeciwnych znakach wymuszeń (tab.~\ref{tab:npl-validation}) algorytm FGPC--NPL ponownie przewyższa SL w regulacji wartości zadanej (suma $\mathrm{IAE}_{\mathrm{zad}}$ niższa o \num{2.4}\%, zwłaszcza przy ujemnych skokach $-3$ i $-6\ \mathrm{cm}$). Natomiast po dużych dodatnich skokach niemierzalnego zakłócenia $F_D=+12$ i $+15\ \jednprzep$ przy niskim poziomie $h_2$ propagacja stałego składnika $d_k$ przez nieliniowy model powoduje nieco silniejsze wychylenie korekcji, przez co łączny IAE walidacji jest o \num{1.6}\% wyższy niż dla SL (10\,519 wobec 10\,348~cm$\cdot$s). Podsumowując wszystkie cztery części projektu: oba numeryczne algorytmy rozmyte (FGPC--SL i FGPC--NPL) zapewniają znacznie wyższą jakość regulacji oraz zdecydowanie lepsze tłumienie zakłóceń niż liniowy DMC i analityczny PDC, przy pełnym poszanowaniu ograniczeń sterowania. FGPC--NPL najlepiej sprawdza się przy dużych zmianach punktu pracy w głąb obszarów silnej nieliniowości, natomiast FGPC--SL oferuje zbliżoną jakość przy spokojniejszym przebiegu sygnału sterującego.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../wyniki_czesc4/strojenie_NPL.png}
+\caption{Wpływ parametru $\lambda$ na przebiegi wyjścia $h_2$ i sterowania $\uvar$ w regulatorze FGPC--NPL (${N=30}$, ${N_u=5}$).}
+\label{fig:npl-tuning}
 \end{figure}
-\begin{figure}[H]\centering
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{../wyniki_czesc4/NPL_y.png}
+\caption{Poziom $h_2$ w czterech próbach projektowych: DMC z części~1, PDC strojony, FGPC--SL (${\lambda=\num{0.5}}$) i FGPC--NPL (${\lambda=\num{0.5}}$).}
+\label{fig:npl-y}
+\end{figure}
+\begin{figure}[H]
+\centering
 \includegraphics[width=\textwidth]{../wyniki_czesc4/NPL_u.png}
-\caption{Sterowanie w tych samych próbach.}
+\caption{Dopływ sterujący $\uvar$ dla przebiegów z rys.~\ref{fig:npl-y}.}
+\label{fig:npl-u}
 \end{figure}

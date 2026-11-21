@@ -1,21 +1,34 @@
-function plot_comparison(obj,t,traces,slTraces,cases,names,refStart,distStart)
-    figY = figure('Visible','off','Color','w','Position',[100 100 1100 850]);
+function plot_comparison(obj,t,traces,slTraces,cases,lambdaSL,selectedVariant,refStart,distStart)
+    figY = figure('Visible','off','Color','w','Position',[100 100 1100 840]);
+    theme(figY,'light');
     ty = tiledlayout(figY,2,2,'TileSpacing','compact','Padding','compact');
-    figU = figure('Visible','off','Color','w','Position',[100 100 1100 850]);
+    figU = figure('Visible','off','Color','w','Position',[100 100 1100 840]);
+    theme(figU,'light');
     tu = tiledlayout(figU,2,2,'TileSpacing','compact','Padding','compact');
-    colors = [0.44 0.47 0.50; 0.79 0.33 0.05; 0.52 0.27 0.64; 0.18 0.23 0.27; 0 0.34 0.64];
-    styles = {'--','-.',':','--','-'};
-    widths = [1.1,1.3,1.4,1.4,1.8];
+
+    % Porownanie: PDC, PDC strojony, FGPC-SL (lam=1), FGPC-SL (wybrany lam=0.5), FGPC-SL (lam=0.2).
+    slIdx = [2, selectedVariant, 4];
+    names = ["PDC"; "PDC strojony"; ...
+        sprintf("FGPC-SL (\\lambda = %g)",lambdaSL(slIdx(1))); ...
+        sprintf("FGPC-SL (\\lambda = %g)",lambdaSL(slIdx(2))); ...
+        sprintf("FGPC-SL (\\lambda = %g)",lambdaSL(slIdx(3)))];
+    colors = [0.48 0.50 0.53; 0.85 0.33 0.10; 0.49 0.18 0.56; 0 0.45 0.74; 0.93 0.69 0.13];
+    styles = {'--','-.',':','-','--'};
+    widths = [1.15, 1.35, 1.35, 1.85, 1.3];
+
     for j = 1:numel(traces)
-        outputs = [traces(j).y(:,3:4),cat(2,slTraces(j,:).y)];
-        controls = [traces(j).u(:,3:4),cat(2,slTraces(j,:).u)];
-        ay = nexttile(ty);
+        outputs = [traces(j).y(:,3:4), slTraces(j,slIdx(1)).y, slTraces(j,slIdx(2)).y, slTraces(j,slIdx(3)).y];
+        controls = [traces(j).u(:,3:4), slTraces(j,slIdx(1)).u, slTraces(j,slIdx(2)).u, slTraces(j,slIdx(3)).u];
+
+        ay = nexttile(ty); ay.Color = 'w';
         linesY = plot(ay,t,outputs); hold(ay,'on');
         refLine = stairs(ay,t,traces(j).ref,':','Color',[0.12 0.47 0.23],'LineWidth',1.5);
         ylabel(ay,'h_2 [cm]');
-        au = nexttile(tu);
+
+        au = nexttile(tu); au.Color = 'w';
         linesU = stairs(au,t,[controls;controls(end,:)]);
         ylabel(au,'F_{1in} [cm^3/s]');
+
         for m = 1:numel(names)
             set([linesY(m),linesU(m)],'LineStyle',styles{m},'Color',colors(m,:),'LineWidth',widths(m));
         end
@@ -32,7 +45,9 @@ function plot_comparison(obj,t,traces,slTraces,cases,names,refStart,distStart)
             ly.Layout.Tile = 'south'; lu.Layout.Tile = 'south';
         end
     end
-    exportgraphics(figY,fullfile(obj.OutputDir,'porownanie_wyjsc.png'),'Resolution',160);
-    exportgraphics(figU,fullfile(obj.OutputDir,'porownanie_sterowan.png'),'Resolution',160);
+    exportgraphics(figY,fullfile(obj.OutputDir,'porownanie_wyjsc.png'), ...
+        'Resolution',160,'BackgroundColor','white');
+    exportgraphics(figU,fullfile(obj.OutputDir,'porownanie_sterowan.png'), ...
+        'Resolution',160,'BackgroundColor','white');
     close(figY); close(figU);
 end

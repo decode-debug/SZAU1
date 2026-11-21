@@ -1,24 +1,26 @@
 function plot_all_models(obj,linearOutputs,modelOutputs,counts,steps,truth,t)
-    % Porownanie odpowiedzi 2, 3, 4 i 5 regul z liniowym punktem odniesienia.
     selected = [1,6,7,12];
-    fig = figure('Visible','off','Color','w','Position',[100 100 1100 850]);
-    tiledlayout(2,2);
+    fig = figure('Visible','off','Color','w','Position',[100 100 1080 780]);
+    theme(fig,'light');
+    tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
     colors = lines(numel(counts));
     for tile = 1:numel(selected)
         j = selected(tile);
-        nexttile; hold on;
-        plot(t,truth(:,j),'k','LineWidth',1.7,'DisplayName','nieliniowy');
-        yLinear = linearOutputs(:,j);
-        plot(t,yLinear,'k:','LineWidth',1.2,'DisplayName','liniowy');
+        ax = nexttile(tiles); hold(ax,'on'); ax.Color = 'w';
+        plot(ax,t,truth(:,j),'k','LineWidth',1.7,'DisplayName','obiekt nieliniowy');
+        plot(ax,t,linearOutputs(:,j),'k:','LineWidth',1.3,'DisplayName','liniowy');
         for m = 1:numel(counts)
-            yTS = modelOutputs(:,j,m);
-            plot(t,yTS,'Color',colors(m,:),'LineWidth',1.1, ...
-                 'DisplayName',sprintf('TS %d',counts(m)));
+            plot(ax,t,modelOutputs(:,j,m),'Color',colors(m,:),'LineWidth',1.2, ...
+                'DisplayName',sprintf('TS %d',counts(m)));
         end
-        grid on; xlabel('t [s]'); ylabel('h_2 [cm]');
-        title(sprintf('Skok F1in %+g, FD %+g',steps(j,1),steps(j,2)));
-        if tile==1, legend('Location','best'); end
+        grid(ax,'on'); xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');
+        title(ax,sprintf('Skok F_{1in} %+g, F_D %+g cm^3/s',steps(j,1),steps(j,2)));
+        if tile==1
+            lg = legend(ax,'NumColumns',6);
+            lg.Layout.Tile = 'south';
+        end
     end
-    exportgraphics(fig,fullfile(obj.OutputDir,'modele_2_5.png'),'Resolution',160);
+    exportgraphics(fig,fullfile(obj.OutputDir,'modele_2_5.png'), ...
+        'Resolution',160,'BackgroundColor','white');
     close(fig);
 end

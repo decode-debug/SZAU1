@@ -1,22 +1,22 @@
 function plot_model_responses(obj,initial,tuned,steps,truth,t)
-    % Cztery reprezentatywne odpowiedzi; pelne RMSE liczone jest dla 12 prob.
     selected = [1,6,7,12];
-    fig = figure('Visible','off','Color','w');
-    tiledlayout(2,2);
+    fig = figure('Visible','off','Color','w','Position',[100 100 980 680]);
+    theme(fig,'light');
+    tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
     for k = 1:numel(selected)
         j = selected(k);
-        yInitial = initial(:,j);
-        yTuned = tuned(:,j);
-        nexttile;
-        plot(t,truth(:,j),'k',t,yInitial,'b--',t,yTuned,'r-.', ...
-             'LineWidth',1.2);
-        grid on; xlabel('t [s]'); ylabel('h_2 [cm]');
-        title(sprintf('Skok F1in %+g, FD %+g',steps(j,1),steps(j,2)));
+        ax = nexttile(tiles); ax.Color = 'w';
+        plot(ax,t,truth(:,j),'k','LineWidth',1.5); hold(ax,'on');
+        plot(ax,t,initial(:,j),'b--','LineWidth',1.3);
+        plot(ax,t,tuned(:,j),'r-.','LineWidth',1.35);
+        grid(ax,'on'); xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');
+        title(ax,sprintf('Skok F_{1in} %+g, F_D %+g cm^3/s',steps(j,1),steps(j,2)));
         if k==1
-            legend('nieliniowy','TS poczatkowy','TS po strojeniu', ...
-                   'Location','best');
+            lg = legend(ax,{'obiekt nieliniowy','TS 5 początkowy','TS 5 po strojeniu'},'NumColumns',3);
+            lg.Layout.Tile = 'south';
         end
     end
-    exportgraphics(fig,fullfile(obj.OutputDir,'porownanie_modeli_TS.png'),'Resolution',160);
+    exportgraphics(fig,fullfile(obj.OutputDir,'porownanie_modeli_TS.png'), ...
+        'Resolution',160,'BackgroundColor','white');
     close(fig);
 end

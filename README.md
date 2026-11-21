@@ -4,20 +4,20 @@ Wzory, wykresy i porównanie regulatorów zawiera [sprawozdanie z części 1–4
 
 ## Symulacje
 
-W MATLAB-ie R2025b otwórz katalog projektu i wpisz **`run_all`**, aby wykonać wszystkie cztery części. Możesz też uruchomić wybraną część osobno. Pełny zestaw wymaga Control System Toolbox, Fuzzy Logic Toolbox i Optimization Toolbox.
+W MATLAB-ie R2025b otwórz katalog projektu i wpisz **`run_all`**, aby wykonać wszystkie cztery części. Możesz też uruchomić wybraną część osobno. Pełny zestaw wymaga Control System Toolbox i Optimization Toolbox (`quadprog`).
 
 | Polecenie w MATLAB-ie | Co oblicza |
 |---|---|
 | `run_part1` | Odpowiedzi modelu liniowego i nieliniowego oraz regulację klasycznym DMC. |
-| `run_part2` | Modele Takagiego–Sugeno z 2–5 regułami i regulację analitycznym PDC przed i po strojeniu. |
-| `run_part3` | Regulację numerycznym SL i porównanie z PDC. Wczytuje wyniki części 2. |
-| `run_part4` | Regulację numerycznym NPL i porównanie z DMC, PDC oraz SL. Wczytuje wyniki części 3. |
+| `run_part2` | Dyskretne modele Takagiego–Sugeno (2–5 reguł, wzory 4.38 i 4.41) oraz analityczny rozmyty DMC (PDC, wzory 4.72–4.75) przed i po strojeniu. |
+| `run_part3` | Numeryczny rozmyty regulator predykcyjny FGPC–SL (wzory 4.103–4.105, 4.107), strojenie parametru $\lambda$, walidację oraz porównanie z PDC. Wczytuje wyniki części 2. |
+| `run_part4` | Numeryczny rozmyty regulator predykcyjny FGPC–NPL (wzory 4.103–4.105, 4.118–4.125), strojenie parametru $\lambda$, walidację oraz zbiorcze porównanie z DMC, PDC i FGPC–SL. Wczytuje wyniki części 3. |
 
-Wspólne parametry zbiorników są w [tank_parameters.m](private/tank_parameters.m), a pętla regulacji SL i NPL w [simulate_fdmc.m](private/simulate_fdmc.m). MATLAB sam znajduje te funkcje w katalogu `private`.
+Wspólne parametry zbiorników są w [tank_parameters.m](private/tank_parameters.m), budowa dyskretnego modelu rozmytego TS w [build_arx_model.m](private/build_arx_model.m), funkcje przynależności w [ts_memberships.m](private/ts_memberships.m), a pętla regulacji FGPC–SL i FGPC–NPL w [simulate_fgpc.m](private/simulate_fgpc.m). MATLAB sam znajduje te funkcje w katalogu `private`.
 
-Każdy skrypt wykonuje wszystkie swoje próby i zapisuje wyniki w odpowiednim katalogu od `wyniki_czesc1` do `wyniki_czesc4`. Cztery główne próby regulacji mają pary skoków (wartość zadana w cm, zakłócenie w cm³/s) równe (+2, +10), (+4, +20), (+8, +30) i (−8, −10).
+Każdy skrypt wykonuje wszystkie swoje próby i zapisuje wyniki w odpowiednim katalogu od `wyniki_czesc1` do `wyniki_czesc4`. Cztery główne próby regulacji mają wspólną oś czasu (0–8000 s, skok zadanej w 400 s, skok $F_D$ w 3800 s) i pary skoków (wartość zadana w cm, zakłócenie w cm³/s) równe (+2, +10), (+4, +20), (+8, +30) i (−8, −10).
 
-Po zmianie regulatora możesz uruchomić `audit_part3` dla SL lub `audit_part4` dla NPL. Oba testy odtwarzają ruchy sterowania z zapisanych wyników i sprawdzają ograniczenia. Audyt SL sprawdza też m.in. predykcję i wartości IAE.
+Po zmianie regulatora możesz uruchomić `audit_part3` dla FGPC–SL lub `audit_part4` dla FGPC–NPL. Oba testy niezależnie odtwarzają ruchy sterowania przez `lsqlin`, sprawdzają ograniczenia, dokładność dyskretyzacji ZOH oraz równoważność symulacji obiektu w zmiennych wysokości i objętości.
 
 ## Sprawozdanie
 

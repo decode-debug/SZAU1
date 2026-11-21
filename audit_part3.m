@@ -1,87 +1,69 @@
-%% Kontrole numeryczne implementacji czesci 3
+%% Niezalezne kontrole numeryczne implementacji czesci 3 (FGPC-SL)
 clear; clc;
 load(fullfile('wyniki_czesc3','dane_czesc3.mat'), ...
     'P','modelTuned','ctrl','traces','slTraces','tControl', ...
-    'comparisonSummary','horizons','predictionHorizons','lambdaSL','referenceTime','localSteps', ...
+    'comparisonSummary','N_sl','Nu_sl','lambdaSL', ...
     'validationCases','validationTraces','validationSummary','refStart','distStart');
 
-%% Zapisane lokalne odpowiedzi jednostkowe a niezalezna dyskretyzacja ZOH
+%% 1. Weryfikacja dyskretnych modeli lokalnych ARX wzgledem niezaleznej dyskretyzacji ZOH
 maxStepError = 0;
-Ad = zeros(2,2,modelTuned.count);
-Bd = zeros(2,modelTuned.count);
 for rule = 1:modelTuned.count
     A = modelTuned.A(:,:,rule);
     E = expm([A,modelTuned.B;zeros(1,3)]*P.Ts);
-    Ad(:,:,rule) = E(1:2,1:2);
-    Bd(:,rule) = E(1:2,3);
+    Ad = E(1:2,1:2);
+    Bd = E(1:2,3);
     state = zeros(2,1);
-    calculated = zeros(ctrl.D,1);
-    for i = 1:numel(calculated)
-        if i>P.delay, state=Ad(:,:,rule)*state+Bd(:,rule); end
-        calculated(i) = state(2);
+    sSS = zeros(N_sl,1);
+    sARX = zeros(N_sl,1);
+    b = modelTuned.b(:,rule);
+    c = modelTuned.c(:,rule);
+    for p = 1:N_sl
+        if p>P.delay, state = Ad*state + Bd; end
+        sSS(p) = state(2);
+        y1 = 0; y2 = 0;
+        if p>1, y1 = sARX(p-1); end
+        if p>2, y2 = sARX(p-2); end
+        sARX(p) = b(1)*y1 + b(2)*y2 + c(1)*(p>P.delay) + c(2)*(p>P.delay+1);
     end
-    maxStepError = max(maxStepError,max(abs(calculated-localSteps(:,rule))));
+    maxStepError = max(maxStepError,max(abs(sSS-sARX)));
 end
-fprintf('Maks. blad odpowiedzi skokowej wzgledem step: %.3g cm\n',maxStepError);
+fprintf('Maks. blad odpowiedzi skokowej ARX wzgledem ZOH state-space: %.3g cm\n',maxStepError);
 assert(maxStepError<1e-10);
 
-%% Predykcja przy dwoch aktywnych regulach a symulacja obu modeli stanu
-midpoint = mean(modelTuned.centers(2:3));
-w = ts_memberships(midpoint,modelTuned.centers);
-assert(max(abs(w-[0 .5 .5 0]))<1e-12);
-s = localSteps*w.';
-Nu = horizons(end);
-N = predictionHorizons(end);
-[M,F] = dmc_matrices(s,N,Nu);
-assert(max(abs(F(:,end)-(s(end)-s(end-1))))<1e-12);
-pastDu = zeros(ctrl.D-1,1);
-% Wszystkie skoki sa dostatecznie mlode, aby ominac obciecie ogona po D.
-pastDu([1,4,17,69,140,185]) = [1;-2;3;1;-1;2];
-moves = 2*(-0.6).^(0:Nu-1)';
-k = ctrl.D+5;
-input = zeros(k+N-1,1);
-for j = 1:numel(pastDu), input(k-j:end)=input(k-j:end)+pastDu(j); end
-for j = 1:Nu, input(k+j-1:end)=input(k+j-1:end)+moves(j); end
-state = zeros(2,modelTuned.count);
-output = zeros(numel(input)+1,1);
-for m = 1:numel(input)
-    if m>P.delay, delayedInput=input(m-P.delay);
-    else, delayedInput=0; end
-    for rule = 1:modelTuned.count
-        state(:,rule) = Ad(:,:,rule)*state(:,rule)+Bd(:,rule)*delayedInput;
-    end
-    output(m+1)=state(2,:)*w.';
-end
-predicted = output(k)+F*pastDu+M*moves;
-matrixError = max(abs(predicted-output(k+(1:N))));
-fprintf('Maks. blad predykcji DMC wzgledem symulacji stanu: %.3g cm\n',matrixError);
-assert(matrixError<1e-10);
-
-%% Wagi TS w zakresie modelu i na obu ramionach
-grid = linspace(modelTuned.centers(1)-1,modelTuned.centers(end)+1,301)';
+%% 2. Weryfikacja wag TS (zgodnosc z trimf oraz partycja jednosci)
+grid = linspace(modelTuned.centers(1)-2,modelTuned.centers(end)+2,401)';
 weights = ts_memberships(grid,modelTuned.centers);
 weightError = max(abs(sum(weights,2)-1));
 fprintf('Maks. blad sumy wag TS: %.3g\n',weightError);
 assert(weightError<1e-12 && all(weights(:)>=0));
 
-%% Niezalezna ocena wszystkich prob projektowych i walidacyjnych
+%% 3. Niezalezna rekonstrukcja FGPC-SL (lsqlin) oraz weryfikacja ograniczen i wskaznikow
 saved = [slTraces;validationTraces];
-refs = {traces.ref}; disturbances = {traces.dist};
+refs = {traces.ref};
+disturbances = {traces.dist};
 for j = 1:size(validationCases,1)
-    refs{end+1} = P.h0(2)+validationCases(j,1)*(tControl>=refStart);
-    disturbances{end+1} = P.d0+validationCases(j,2)*(tControl>=distStart);
+    refs{end+1} = P.h0(2)+validationCases(j,1)*(tControl>=refStart); %#ok<SAGROW>
+    disturbances{end+1} = P.d0+validationCases(j,2)*(tControl>=distStart); %#ok<SAGROW>
 end
-task = tControl>=refStart & tControl<distStart;
-disturbanceMask = tControl>=distStart;
-maxConstraintError = 0; maxMetricError = 0;
-moveError = zeros(numel(horizons),1);
+taskMask = tControl>=refStart & tControl<distStart;
+distMask = tControl>=distStart;
+
+maxConstraintError = 0;
+maxMetricError = 0;
+moveError = zeros(numel(lambdaSL),1);
 lsOptions = optimoptions('lsqlin','Algorithm','active-set','Display','off');
+L = tril(ones(Nu_sl));
+onesU = ones(Nu_sl,1);
+limits = ctrl.duMax*onesU;
+
 for scenario = 1:size(saved,1)
     ref = refs{scenario};
-    for v = 1:numel(horizons)
-        y = saved(scenario,v).y; u = saved(scenario,v).u;
+    for v = 1:numel(lambdaSL)
+        y = saved(scenario,v).y;
+        u = saved(scenario,v).u;
         du = diff([P.u0;u]);
         maxConstraintError = max([maxConstraintError;u-ctrl.uMax;ctrl.uMin-u;abs(du)-ctrl.duMax]);
+
         if scenario<=numel(traces)
             row = comparisonSummary(comparisonSummary.Scenariusz==scenario & comparisonSummary.Regulator==v+2,:);
         else
@@ -89,86 +71,89 @@ for scenario = 1:size(saved,1)
         end
         err = y-ref;
         signStep = sign(ref(end)-ref(1));
-        directed = signStep*y(task);
-        % Pary i<=j daja wszystkie cofniecia od wczesniejszej probki i do pozniejszej j.
+        directed = signStep*y(taskMask);
         retreat = max(triu(directed-directed.'),[],'all');
-        expected = [P.Ts*sum(abs(err(task))),P.Ts*sum(abs(err(disturbanceMask))), ...
+        expected = [P.Ts*sum(abs(err(taskMask))),P.Ts*sum(abs(err(distMask))), ...
             min(u),max(u),max(abs(du)),sum(abs(du)),retreat, ...
-            max(0,max(signStep*err(task))),max(abs(err(disturbanceMask)))];
+            max(0,max(signStep*err(taskMask))),max(abs(err(distMask)))];
         measured = row{1,{'IAE_zadanie','IAE_zaklocenie','Min_u','Max_u','Maks_zmiana_u', ...
             'Suma_zmian_u','Cofniecie_cm','Przeregulowanie_cm','Maks_blad_po_FD_cm'}};
         maxMetricError = max(maxMetricError,max(abs(expected-measured)));
 
-        % Niezalezna rekonstrukcja celu i rozwiazania QP z zapisanych y i u.
-        target = ref;
-        if referenceTime(v)>0
-            pole = exp(-P.Ts/referenceTime(v));
-            target = filter(1-pole,[1,-pole],ref,pole*ref(1));
-        end
-        Nu = horizons(v);
-        L = tril(ones(Nu)); onesU = ones(Nu,1); limits = ctrl.duMax*onesU;
-        history = zeros(ctrl.D-1,1); prev = P.u0;
+        % Niezalezna rekonstrukcja kroku FGPC-SL (wzor 4.107 + lsqlin)
         for k = 1:numel(u)
+            if k==1, prev = P.u0; else, prev = u(k-1); end
             w = ts_memberships(y(k),modelTuned.centers);
-            [M,F] = dmc_matrices(localSteps*w.',predictionHorizons(v),Nu);
-            rhs = target(k)-(y(k)+F*history);
-            if Nu==1
-                raw = M'*rhs/(M'*M+lambdaSL(v));
-                move = min([max([raw,-ctrl.duMax,ctrl.uMin-prev]),ctrl.duMax,ctrl.uMax-prev]);
-            else
-                G = [M;sqrt(lambdaSL(v))*eye(Nu)]; b = [rhs;zeros(Nu,1)];
-                plan = G\b;
-                values = prev+L*plan;
-                if any(abs(plan)>limits) || any(values<ctrl.uMin | values>ctrl.uMax)
-                    bounds = [(ctrl.uMax-prev)*onesU;(prev-ctrl.uMin)*onesU];
-                    [plan,~,~,flag] = lsqlin(G,b,[L;-L],bounds,[],[],-limits,limits,zeros(Nu,1),lsOptions);
-                    assert(flag>0);
-                end
-                move = plan(1);
+            b = modelTuned.b*w.'; c = modelTuned.c*w.'; a0 = modelTuned.a0*w.';
+            s = zeros(N_sl,1);
+            for p = 1:N_sl
+                y1 = 0; y2 = 0;
+                if p>1, y1 = s(p-1); end
+                if p>2, y2 = s(p-2); end
+                s(p) = b(1)*y1 + b(2)*y2 + c(1)*(p>P.delay) + c(2)*(p>P.delay+1);
             end
-            moveError(v) = max(moveError(v),abs(move-du(k)));
-            history = [du(k);history(1:end-1)];
-            prev = u(k);
+            M = toeplitz(s,[s(1),zeros(1,Nu_sl-1)]);
+            ykm1 = y(max(1,k-1)); ykm2 = y(max(1,k-2));
+            dk = y(k) - (b(1)*ykm1 + b(2)*ykm2 + ...
+                c(1)*get_u(u,k-1-P.delay,k-1,prev,P.u0) + ...
+                c(2)*get_u(u,k-2-P.delay,k-1,prev,P.u0) + a0);
+            free = zeros(N_sl,1); y1 = y(k); y2 = ykm1;
+            for p = 1:N_sl
+                yN = b(1)*y1 + b(2)*y2 + ...
+                    c(1)*get_u(u,k+p-1-P.delay,k-1,prev,P.u0) + ...
+                    c(2)*get_u(u,k+p-2-P.delay,k-1,prev,P.u0) + a0 + dk;
+                free(p) = yN; y2 = y1; y1 = yN;
+            end
+            G = [M;sqrt(lambdaSL(v))*eye(Nu_sl)];
+            rhs = [ref(k)-free;zeros(Nu_sl,1)];
+            plan = G\rhs;
+            vals = prev + L*plan;
+            if any(abs(plan)>limits) || any(vals<ctrl.uMin | vals>ctrl.uMax)
+                bounds = [(ctrl.uMax-prev)*onesU;(prev-ctrl.uMin)*onesU];
+                [plan,~,~,flag] = lsqlin(G,rhs,[L;-L],bounds,[],[],-limits,limits,zeros(Nu_sl,1),lsOptions);
+                assert(flag>0);
+            end
+            moveError(v) = max(moveError(v),abs(plan(1)-du(k)));
         end
     end
 end
 fprintf('Najwieksze naruszenie ograniczen: %.3g; blad wskaznikow: %.3g\n',maxConstraintError,maxMetricError);
-fprintf('Maks. blad ruchu QP w kolejnych wariantach SL: %s\n',mat2str(moveError.',3));
+fprintf('Maks. blad ruchu QP (FGPC-SL): %s\n',mat2str(moveError.',3));
 assert(maxConstraintError<1e-8 && maxMetricError<1e-8 && all(moveError<1e-6));
 
-%% Niezalezny bilans objetosci dla zapisanego sterowania
+%% 4. Niezalezny bilans objetosci dla zapisanych sterowan
 maxPlantError = 0;
 for scenario = 1:size(saved,1)
-    for variant = 1:numel(horizons)
-        control = saved(scenario,variant).u;
-        disturbance = disturbances{scenario};
+    for v = 1:numel(lambdaSL)
+        control = saved(scenario,v).u;
+        dist = disturbances{scenario};
         volume = [P.A1*P.h0(1);P.C2*P.h0(2)^3];
-        checkY = zeros(numel(control)+1,1);
-        checkY(1) = P.h0(2);
+        checkY = zeros(numel(control)+1,1); checkY(1) = P.h0(2);
         for k = 1:numel(control)
-            if k>P.delay, delayedU=control(k-P.delay);
-            else, delayedU=P.u0; end
+            if k>P.delay, delayedU = control(k-P.delay); else, delayedU = P.u0; end
             dt = P.Ts/5;
-            for substep = 1:5
-                a = volume_rhs(P,volume,delayedU,disturbance(k));
-                b = volume_rhs(P,volume+dt*a/2,delayedU,disturbance(k));
-                c = volume_rhs(P,volume+dt*b/2,delayedU,disturbance(k));
-                d = volume_rhs(P,volume+dt*c,delayedU,disturbance(k));
+            for sub = 1:5
+                a = volume_rhs(P,volume,delayedU,dist(k));
+                b = volume_rhs(P,volume+dt*a/2,delayedU,dist(k));
+                c = volume_rhs(P,volume+dt*b/2,delayedU,dist(k));
+                d = volume_rhs(P,volume+dt*c,delayedU,dist(k));
                 volume = volume+dt*(a+2*b+2*c+d)/6;
             end
             checkY(k+1) = (volume(2)/P.C2)^(1/3);
         end
-        maxPlantError = max(maxPlantError, ...
-            max(abs(checkY-saved(scenario,variant).y)));
+        maxPlantError = max(maxPlantError,max(abs(checkY-saved(scenario,v).y)));
     end
 end
 fprintf('Maks. roznica symulacji wysokosci i objetosci: %.3g cm\n',maxPlantError);
 assert(maxPlantError<1e-4);
+fprintf('AUDYT CZESCI 3 (FGPC-SL): WSZYSTKIE TESTY ZALICZONE.\n');
+
+function val = get_u(u,idx,lastKnown,prev,u0)
+    if idx<1, val = u0; elseif idx<=lastKnown, val = u(idx); else, val = prev; end
+end
 
 function dv = volume_rhs(P,v,u,d)
     h1 = max(v(1)/P.A1,0);
     h2 = max(v(2)/P.C2,0)^(1/3);
-    flow1 = P.a1*sqrt(h1);
-    flow2 = P.a2*sqrt(h2);
-    dv = [u+d-flow1;flow1-flow2];
+    dv = [u+d-P.a1*sqrt(h1); P.a1*sqrt(h1)-P.a2*sqrt(h2)];
 end

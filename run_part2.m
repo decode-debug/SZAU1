@@ -1,55 +1,55 @@
-%% SZAU, zadanie 1, czesc 2: modele Takagiego-Sugeno i rozmyty DMC
+%% SZAU, zadanie 1, czesc 2: dyskretne modele Takagiego-Sugeno i rozmyty analityczny DMC (PDC)
 % Uruchom z folderu projektu: run_part2
-% Wymaga Control System Toolbox i Fuzzy Logic Toolbox (trimf).
+% Wymaga Control System Toolbox (ss, c2d, step, tfdata).
 clear; close all; clc;
 
-%% Parametry obiektu (takie same jak w czesci 1)
+%% Parametry obiektu (identyczne jak w czesci 1)
 P = tank_parameters();
 
 outdir = fullfile(fileparts(mfilename('fullpath')),'wyniki_czesc2');
 plots = ResultPlots(outdir);
 
-%% Modele TS: od 2 do 5 modeli lokalnych
-% h2 jako zmienna reguly: jest mierzona i silnie zmienia pojemnosc V2'(h2).
-% Zakres odpowiada F1in = 50..150 przy FD = 20 cm^3/s.
+%% Modele rozmyte TS (wzory 4.38 i 4.41): od 2 do 5 modeli lokalnych
+% Zmienna przeslanek: mierzony poziom h2 (silnie zmienia pojemnosc 3*C2*h2^2
+% i odzwierciedla wplyw niemierzalnego zaklocenia FD).
+% Zakres odpowiada zmianom F1in = 50..150 cm^3/s (+/-50%) przy FD = 20 cm^3/s.
 hRange = [(70/P.a2)^2, (170/P.a2)^2];
 modelCounts = 2:5;
 models = cell(size(modelCounts));
 for j = 1:numel(modelCounts)
     centers = linspace(hRange(1),hRange(2),modelCounts(j));
-    models{j} = make_ts_model(P,centers);
+    models{j} = build_arx_model(P,centers);
 end
-linearModel = make_ts_model(P,P.h0(2));
+linearModel = build_arx_model(P,P.h0(2));
 
-%% Ocena modeli: skoki F1in i FD z punktu pracy
-% Kolumny: Delta F1in, Delta FD. Kazda proba zaczyna sie od rownowagi.
+%% Ocena modeli: 12 skokow F1in i FD (+/-10%, +/-25%, +/-50%) z punktu pracy
 openSteps = [-50 0; -25 0; -10 0; 10 0; 25 0; 50 0; ...
               0 -10; 0 -5; 0 -2; 0 2; 0 5; 0 10];
 nOpen = 300;
 tOpen = (0:nOpen)'*P.Ts;
 truth = zeros(nOpen+1,size(openSteps,1));
 for j = 1:size(openSteps,1)
-    truth(:,j) = simulate_step(P,[],openSteps(j,:),nOpen);
+    truth(:,j) = simulate_plant_step(P,openSteps(j,:),nOpen);
 end
 
 modelRmse = zeros(numel(models),1);
 modelMaxError = zeros(numel(models),1);
-% Kolumny: liniowy, TS2, TS3, TS4, TS5 i wybrany TS4 po strojeniu.
 stepMse = zeros(size(openSteps,1),numel(models)+2);
 modelOutputs = zeros([size(truth),numel(models)]);
 linearOutputs = zeros(size(truth));
 linearErrors = zeros(size(truth));
 for j = 1:size(openSteps,1)
-    linearOutputs(:,j) = simulate_step(P,linearModel,openSteps(j,:),nOpen);
+    linearOutputs(:,j) = simulate_arx_step(P,linearModel,openSteps(j,:),nOpen);
     linearErrors(:,j) = linearOutputs(:,j)-truth(:,j);
 end
 linearRmse = sqrt(mean(linearErrors(:).^2));
 linearMaxError = max(abs(linearErrors(:)));
 stepMse(:,1) = mean(linearErrors.^2,1).';
+
 for m = 1:numel(models)
     errors = zeros(size(truth));
     for j = 1:size(openSteps,1)
-        yTS = simulate_step(P,models{m},openSteps(j,:),nOpen);
+        yTS = simulate_arx_step(P,models{m},openSteps(j,:),nOpen);
         modelOutputs(:,j,m) = yTS;
         errors(:,j) = yTS-truth(:,j);
     end
@@ -62,78 +62,76 @@ modelSummary = table([1;modelCounts'],[linearRmse;modelRmse], ...
     'VariableNames',{'Liczba_regul','RMSE_cm','Maks_blad_cm'});
 disp(modelSummary);
 
-% Wybrany model do dalszych badan: 4 reguly (dobry kompromis jakosci i liczby regul).
-selectedCount = 4;
+%% Wybor modelu (5 regul - najmniejszy blad) i strojenie funkcji przynaleznosci
+selectedCount = 5;
 selectedIndex = find(modelCounts==selectedCount);
 modelInitial = models{selectedIndex};
 
-% Strojenie: przesuwamy dwa wewnetrzne wezly, pozostawiajac konce zakresu.
-middle = modelInitial.centers(2:3);
-shifts = [-3 -1.5 0 1.5 3];
+% Przesuwamy trzy wewnetrzne wezly funkcji przynaleznosci, pozostawiajac
+% konce zakresu i lokalne nastepniki stale.
+middle = modelInitial.centers(2:4);
+shifts = [-2 -1 0 1 2];
 bestRmse = inf;
 modelTuned = modelInitial;
 tunedOutputs = modelOutputs(:,:,selectedIndex);
 candidateOutputs = zeros(size(truth));
-for a = shifts
-    for b = shifts
-        candidateCenters = [hRange(1),middle(1)+a,middle(2)+b,hRange(2)];
-        if any(diff(candidateCenters)<=0), continue; end
-        % Macierze lokalne pozostaja stale; zmieniaja sie tylko wagi regul.
-        candidateModel = modelInitial;
-        candidateModel.centers = candidateCenters;
-        candidateMse = zeros(size(openSteps,1),1);
-        for j = 1:size(openSteps,1)
-            yTS = simulate_step(P,candidateModel,openSteps(j,:),nOpen);
-            error = yTS-truth(:,j);
-            candidateOutputs(:,j) = yTS;
-            candidateMse(j) = mean(error.^2);
-        end
-        rmse = sqrt(mean(candidateMse));
-        % Wybierz najlepszy model dla zestawu 12 skokow projektowych.
-        if rmse<bestRmse
-            bestRmse = rmse;
-            modelTuned = candidateModel;
-            tunedOutputs = candidateOutputs;
-            stepMse(:,end) = candidateMse;
+for s1 = shifts
+    for s2 = shifts
+        for s3 = shifts
+            candidateCenters = [hRange(1),middle+[s1,s2,s3],hRange(2)];
+            if any(diff(candidateCenters)<=2), continue; end
+            candidateModel = modelInitial;
+            candidateModel.centers = candidateCenters;
+            candidateMse = zeros(size(openSteps,1),1);
+            for j = 1:size(openSteps,1)
+                yTS = simulate_arx_step(P,candidateModel,openSteps(j,:),nOpen);
+                err = yTS-truth(:,j);
+                candidateOutputs(:,j) = yTS;
+                candidateMse(j) = mean(err.^2);
+            end
+            rmse = sqrt(mean(candidateMse));
+            if rmse<bestRmse
+                bestRmse = rmse;
+                modelTuned = candidateModel;
+                tunedOutputs = candidateOutputs;
+                stepMse(:,end) = candidateMse;
+            end
         end
     end
 end
-if isinf(bestRmse), bestRmse=modelRmse(selectedIndex); end
-fprintf('Model TS 4: RMSE przed = %.4f cm, po = %.4f cm; wezly = %s cm\n', ...
+fprintf('Model TS 5: RMSE przed = %.4f cm, po = %.4f cm; wezly = %s cm\n', ...
     modelRmse(selectedIndex),bestRmse,mat2str(modelTuned.centers,4));
 
-% Osobny zestaw skokow nieuzyty przy wyborze wezlow.
-validationSteps = [-40 0;40 0;0 -7;0 7];
+% Walidacja modelu na 4 dodatkowych skokach nieuzytych przy strojeniu.
+validationSteps = [-40 0; 40 0; 0 -7; 0 7];
 validationError = zeros(nOpen+1,size(validationSteps,1),2);
 for j = 1:size(validationSteps,1)
-    yTrue = simulate_step(P,[],validationSteps(j,:),nOpen);
-    validationError(:,j,1) = simulate_step(P,modelInitial, ...
-        validationSteps(j,:),nOpen)-yTrue;
-    validationError(:,j,2) = simulate_step(P,modelTuned, ...
-        validationSteps(j,:),nOpen)-yTrue;
+    yTrue = simulate_plant_step(P,validationSteps(j,:),nOpen);
+    validationError(:,j,1) = simulate_arx_step(P,modelInitial,validationSteps(j,:),nOpen)-yTrue;
+    validationError(:,j,2) = simulate_arx_step(P,modelTuned,validationSteps(j,:),nOpen)-yTrue;
 end
 validationRmse = [sqrt(mean(validationError(:,:,1).^2,'all')); ...
                   sqrt(mean(validationError(:,:,2).^2,'all'))];
-fprintf('Dodatkowe skoki TS 4: RMSE przed = %.4f cm, po = %.4f cm\n', ...
+fprintf('Walidacja TS 5: RMSE przed = %.4f cm, po = %.4f cm\n', ...
     validationRmse(1),validationRmse(2));
 
-% W kazdej grupie sa cztery rownej dlugosci odpowiedzi: oba wejscia i oba znaki.
+% Podsumowanie wg amplitudy skoku (10%, 25%, 50%).
 amplitudePct = 100*max(abs(openSteps)./[P.u0,P.d0],[],2);
-levels = unique(amplitudePct);
-groupRmse = zeros(numel(levels),size(stepMse,2));
-for j = 1:numel(levels)
-    groupRmse(j,:) = sqrt(mean(stepMse(amplitudePct==levels(j),:),1));
+ampLevels = unique(amplitudePct);
+groupRmse = zeros(numel(ampLevels),size(stepMse,2));
+for j = 1:numel(ampLevels)
+    groupRmse(j,:) = sqrt(mean(stepMse(amplitudePct==ampLevels(j),:),1));
 end
-amplitudeSummary = array2table([levels,groupRmse],'VariableNames', ...
-    {'Skok_proc','Liniowy_cm','TS2_cm','TS3_cm','TS4_cm','TS5_cm','TS4_strojony_cm'});
+amplitudeSummary = array2table([ampLevels,groupRmse],'VariableNames', ...
+    {'Skok_proc','Liniowy_cm','TS2_cm','TS3_cm','TS4_cm','TS5_cm','TS5_strojony_cm'});
 disp(amplitudeSummary);
 
-% Zmiana poziomu po jednym opoznieniu transportowym przy stalych obu doplywach.
+% Dryf modeli przy zerowym wymuszeniu po jednym czasie opoznienia.
 driftModels = [{linearModel},models,{modelTuned}];
 nominalDrift = zeros(1,numel(driftModels));
 for j = 1:numel(driftModels)
-    yNominal = simulate_step(P,driftModels{j},[0,0],P.delay);
-    nominalDrift(j) = yNominal(end)-P.h0(2);
+    yNom = simulate_arx_step(P,driftModels{j},[0,0],P.delay);
+    nominalDrift(j) = yNom(end)-P.h0(2);
 end
 
 %% Wykresy modeli i funkcji przynaleznosci
@@ -144,87 +142,94 @@ plots.plot_memberships(levels,modelWeights,modelCounts,initialWeights);
 plots.plot_model_responses(modelOutputs(:,:,selectedIndex),tunedOutputs,openSteps,truth,tOpen);
 plots.plot_all_models(linearOutputs,modelOutputs,modelCounts,openSteps,truth,tOpen);
 
-%% Analityczny rozmyty DMC z ograniczeniami
-% Nu=1 pozwala wyznaczyc kazdy lokalny ruch analitycznie i ograniczyc go
-% dokladnie do przedzialu dopuszczalnego. Wynik PDC to suma wazona ruchow.
-ctrl.N = 50;
+%% Analityczny rozmyty DMC (PDC, wzory 4.72-4.75) z ograniczeniami sterowania
+% Te same nastawy bazowe co konwencjonalny DMC z czesci 1: D=250, N=50, Nu=10, lambda=0.05.
+% Ograniczenia sterowania: 0 <= u <= 200 cm^3/s oraz |du| <= 15 cm^3/s na probke.
 ctrl.D = 250;
+ctrl.N = 50;
+ctrl.Nu = 10;
 ctrl.lambda = 0.05;
 ctrl.uMin = 0;         % cm^3/s
 ctrl.uMax = 200;       % cm^3/s
-ctrl.duMax = 30;       % cm^3/s na probke
+ctrl.duMax = 15;       % cm^3/s na probke
 
-linearConstrained = design_dmc(P,linearModel,ctrl,1);
-fuzzyDmc = design_dmc(P,modelTuned,ctrl,1);
-linearPart1 = design_dmc(P,linearModel,ctrl,10);
+linearControllers = design_dmc(P,linearModel,ctrl);
+fuzzyControllers = design_dmc(P,modelTuned,ctrl);
 
-% Scenariusze: zmiana zadania w 400 s, zmiana FD w 3200 s.
+% Ta sama os czasu i te same 4 scenariusze co w czesci 1 (skok zadanej 400 s, skok FD 3800 s).
 controlCases = [ 2,  10; ...
                  4,  20; ...
                  8,  30; ...
                 -8, -10];
-tControl = (0:320)'*P.Ts;
+refStart = 400;
+distStart = 3800;
+tControl = (0:400)'*P.Ts;
+refMask = tControl>=refStart & tControl<distStart;
+distMask = tControl>=distStart;
+
 testData = cell(size(controlCases,1),1);
 for j = 1:numel(testData)
-    testData{j}.ref = P.h0(2)+controlCases(j,1)*(tControl>=400);
-    testData{j}.dist = P.d0+controlCases(j,2)*(tControl>=3200);
+    testData{j}.ref = P.h0(2)+controlCases(j,1)*(tControl>=refStart);
+    testData{j}.dist = P.d0+controlCases(j,2)*(tControl>=distStart);
 end
 
-% PDC: regulator uzywa tych samych funkcji przynaleznosci co wybrany model.
+% Strojenie funkcji przynaleznosci regulatora PDC (wykladnik gamma + przesuniecia wezlow).
 gammaInitial = 1;
 gammaCandidates = [0.5 0.75 1 1.25 1.5 2 3];
 gammaScores = zeros(size(gammaCandidates));
 for g = 1:numel(gammaCandidates)
-    gammaScores(g) = pdc_iae(P,fuzzyDmc,modelTuned.centers,gammaCandidates(g),testData,ctrl);
+    gammaScores(g) = pdc_iae(P,fuzzyControllers,modelTuned.centers, ...
+        gammaCandidates(g),testData,ctrl,refMask,distMask);
 end
 [~,bestGammaIndex] = min(gammaScores);
 gammaTuned = gammaCandidates(bestGammaIndex);
 controllerCenters = modelTuned.centers;
 bestControlScore = gammaScores(bestGammaIndex);
-centerShifts = [-2 0 2];
-for firstShift = centerShifts
-    for secondShift = centerShifts
-        candidateCenters = modelTuned.centers;
-        candidateCenters(2:3) = candidateCenters(2:3) ...
-                              + [firstShift,secondShift];
-        if any(diff(candidateCenters)<=0), continue; end
-        score = pdc_iae(P,fuzzyDmc,candidateCenters,gammaTuned,testData,ctrl);
-        if score<bestControlScore
-            bestControlScore = score;
-            controllerCenters = candidateCenters;
+
+% Przesuniecia wewnetrznych wezlow w regulatorze (stale lokalne regulatory).
+cShifts = [-2 0 2];
+for d1 = cShifts
+    for d2 = cShifts
+        for d3 = cShifts
+            candCenters = modelTuned.centers;
+            candCenters(2:4) = candCenters(2:4) + [d1,d2,d3];
+            if any(diff(candCenters)<=1.5), continue; end
+            score = pdc_iae(P,fuzzyControllers,candCenters,gammaTuned,testData,ctrl,refMask,distMask);
+            if score<bestControlScore
+                bestControlScore = score;
+                controllerCenters = candCenters;
+            end
         end
     end
 end
 
-% Kolumny: scenariusz, regulator, IAE zadania, IAE zaklocenia, min/max u.
+%% Symulacje porownawcze 4 regulatorow czesci 2
 controlResults = zeros(size(controlCases,1)*4,7);
+traces = struct([]);
 row = 0;
-
 for j = 1:numel(testData)
     ref = testData{j}.ref;
     dist = testData{j}.dist;
-    [yPart1,uPart1] = simulate_control(P,linearPart1,[],1,ref,dist,ctrl,false);
-    [yLinear,uLinear] = simulate_control(P,linearConstrained,[],1,ref,dist,ctrl,true);
-    [yFuzzy,uFuzzy] = simulate_control(P,fuzzyDmc,modelTuned.centers, ...
-                                     gammaInitial,ref,dist,ctrl,true);
-    [yTuned,uTuned] = simulate_control(P,fuzzyDmc,controllerCenters, ...
-                                     gammaTuned,ref,dist,ctrl,true);
+    [yPart1,uPart1] = simulate_pdc(P,linearControllers,[],1,ref,dist,ctrl,false);
+    [yLinear,uLinear] = simulate_pdc(P,linearControllers,[],1,ref,dist,ctrl,true);
+    [yFuzzy,uFuzzy] = simulate_pdc(P,fuzzyControllers,modelTuned.centers, ...
+                                   gammaInitial,ref,dist,ctrl,true);
+    [yTuned,uTuned] = simulate_pdc(P,fuzzyControllers,controllerCenters, ...
+                                   gammaTuned,ref,dist,ctrl,true);
 
-    traces(j).ref = ref; traces(j).dist = dist;
+    traces(j).ref = ref;
+    traces(j).dist = dist;
     traces(j).y = [yPart1,yLinear,yFuzzy,yTuned];
     traces(j).u = [uPart1,uLinear,uFuzzy,uTuned];
     for method = 1:4
         row = row+1;
         yCase = traces(j).y(:,method);
         uCase = traces(j).u(:,method);
-        refMask = tControl>=400 & tControl<3200;
-        distMask = tControl>=3200;
         controlResults(row,:) = [j,method, ...
             P.Ts*sum(abs(yCase(refMask)-ref(refMask))), ...
             P.Ts*sum(abs(yCase(distMask)-ref(distMask))), ...
             min(uCase),max(uCase),max(abs(diff([P.u0;uCase])))];
     end
-
 end
 plots.pdc(tControl,traces,controlCases);
 
@@ -232,129 +237,119 @@ controlSummary = array2table(controlResults,'VariableNames', ...
     {'Scenariusz','Regulator','IAE_zadanie','IAE_zaklocenie', ...
      'Min_u','Max_u','Maks_zmiana_u'});
 disp(controlSummary);
-fprintf('Regulator: gamma przed = %.2f, po strojeniu = %.2f\n', ...
-        gammaInitial,gammaTuned);
-fprintf('Suma IAE dla gamma = %s\n',mat2str(gammaScores,5));
+
+totalsPart2 = accumarray(controlSummary.Regulator, ...
+    controlSummary.IAE_zadanie+controlSummary.IAE_zaklocenie);
+fprintf('Suma IAE [DMC cz.1, Liniowy ogr., PDC, PDC strojony] = %s cm*s\n', ...
+    mat2str(totalsPart2.',6));
+fprintf('Regulator PDC: gamma przed = %.2f, po strojeniu = %.2f\n', ...
+    gammaInitial,gammaTuned);
 fprintf('Wezly regulatora po strojeniu = %s cm; suma IAE = %.1f cm*s\n', ...
-        mat2str(controllerCenters,4),bestControlScore);
+    mat2str(controllerCenters,4),bestControlScore);
 
 controllerWeights = ts_memberships(levels,controllerCenters).^gammaTuned;
-plots.plot_control_memberships(levels,initialWeights,controllerWeights./sum(controllerWeights,2),gammaTuned);
+controllerWeights = controllerWeights./sum(controllerWeights,2);
+plots.plot_control_memberships(levels,initialWeights,controllerWeights,gammaTuned);
+
 writetable(modelSummary,fullfile(outdir,'jakosc_modeli.csv'));
 writetable(amplitudeSummary,fullfile(outdir,'jakosc_modeli_amplitudy.csv'));
 writetable(controlSummary,fullfile(outdir,'jakosc_regulacji.csv'));
 save(fullfile(outdir,'dane_czesc2.mat'),'P','models','modelInitial', ...
      'modelTuned','modelSummary','amplitudeSummary','stepMse','nominalDrift', ...
-     'openSteps','truth','validationSteps', ...
-     'validationRmse','controlCases', ...
-     'controlSummary','traces','tControl','gammaCandidates','gammaScores', ...
-     'gammaTuned','controllerCenters','ctrl');
+     'openSteps','truth','validationSteps','validationRmse', ...
+     'controlCases','controlSummary','traces','tControl','refStart','distStart', ...
+     'gammaCandidates','gammaScores','gammaTuned','controllerCenters','ctrl');
 
 %% Funkcje pomocnicze
-function model = make_ts_model(P,centers)
-    model.centers = centers(:)';
-    model.count = numel(centers);
-    model.A = zeros(2,2,model.count);
-    model.B = [1/P.A1;0];
-    model.heq = zeros(2,model.count);
-    model.qeq = zeros(1,model.count);
-    for i = 1:model.count
-        q = P.a2*sqrt(centers(i));
-        h1 = (q/P.a1)^2;
-        k1 = P.a1/(2*sqrt(h1));
-        k2 = P.a2/(2*sqrt(centers(i)));
-        cap2 = 3*P.C2*centers(i)^2;
-        model.heq(:,i) = [h1;centers(i)];
-        model.qeq(i) = q;
-        model.A(:,:,i) = [-k1/P.A1,0; k1/cap2,-k2/cap2];
-    end
-end
-
-function y = simulate_step(P,model,stepSize,n)
+function y = simulate_plant_step(P,stepSize,n)
     h = P.h0;
     y = zeros(n+1,1);
     y(1) = h(2);
     for k = 1:n
-        % Skok FD dziala od razu, a skok F1in po opoznieniu tau.
         du = stepSize(1)*(k>P.delay);
         dd = stepSize(2);
-        h = rk4_step(@(state) model_rhs(P,model,state,du,dd),h,P.Ts,5);
+        h = rk4_step(@(state) plant_rhs(P,state,P.u0+du,P.d0+dd),h,P.Ts,5);
         h = max(h,0.05);
         y(k+1) = h(2);
     end
 end
 
-function dh = model_rhs(P,model,h,du,dd)
-    if isempty(model)
-        f2 = P.a1*sqrt(max(h(1),0));
-        f3 = P.a2*sqrt(max(h(2),0));
-        cap2 = 3*P.C2*max(h(2),0.05)^2;
-        dh = [(P.q0+du+dd-f2)/P.A1;(f2-f3)/cap2];
-    else
-        weights = ts_memberships(h(2),model.centers);
-        dh = zeros(2,1);
-        for i = 1:model.count
-            local = model.A(:,:,i)*(h-model.heq(:,i)) ...
-                  +model.B*(P.q0+du+dd-model.qeq(i));
-            dh = dh+weights(i)*local;
-        end
+function y = simulate_arx_step(P,model,stepSize,n)
+    % Symulacja dyskretnego modelu TS (wzor 4.41) w petli otwartej.
+    y = zeros(n+1,1);
+    y(1) = P.h0(2);
+    for k = 1:n
+        yk = y(k);
+        if k==1, ykm1 = P.h0(2); else, ykm1 = y(k-1); end
+        q1 = P.q0 + stepSize(1)*(k>P.delay) + stepSize(2);
+        if k==1, q2 = P.q0; else, q2 = P.q0 + stepSize(1)*(k-1>P.delay) + stepSize(2); end
+        w = ts_memberships(yk,model.centers);
+        b = model.b*w.';
+        c = model.c*w.';
+        a0q = model.a0q*w.';
+        y(k+1) = max(b(1)*yk + b(2)*ykm1 + c(1)*q1 + c(2)*q2 + a0q, 0.05);
     end
 end
 
-function controllers = design_dmc(P,model,ctrl,Nu)
-    % Jeden lokalny analityczny DMC na kazda regule modelu TS.
+function dh = plant_rhs(P,h,u,d)
+    f2 = P.a1*sqrt(max(h(1),0));
+    f3 = P.a2*sqrt(max(h(2),0));
+    cap2 = 3*P.C2*max(h(2),0.05)^2;
+    dh = [(u+d-f2)/P.A1; (f2-f3)/cap2];
+end
+
+function controllers = design_dmc(P,model,ctrl)
+    % Lokalne analityczne regulatory DMC (wzory 4.72-4.73) dla kazdej reguly TS.
     S = local_step_responses(P,model,ctrl.D);
     for rule = 1:model.count
-        [M,freeMatrix] = dmc_matrices(S(:,rule),ctrl.N,Nu);
-        gain = (M'*M+ctrl.lambda*eye(Nu))\M';
-        controllers(rule).gain = gain(1,:);
-        controllers(rule).freeMatrix = freeMatrix;
+        [M,freeMatrix] = dmc_matrices(S(:,rule),ctrl.N,ctrl.Nu);
+        K = (M'*M+ctrl.lambda*eye(ctrl.Nu))\M';
+        controllers(rule).gain = K(1,:); %#ok<AGROW>
+        controllers(rule).freeMatrix = freeMatrix; %#ok<AGROW>
     end
 end
 
-function score = pdc_iae(P,controllers,centers,gamma,testData,ctrl)
+function score = pdc_iae(P,controllers,centers,gamma,testData,ctrl,refMask,distMask)
     score = 0;
     for j = 1:numel(testData)
         trial = testData{j};
-        y = simulate_control(P,controllers,centers,gamma,trial.ref,trial.dist,ctrl,true);
-        score = score+P.Ts*sum(abs(y-trial.ref));
+        y = simulate_pdc(P,controllers,centers,gamma,trial.ref,trial.dist,ctrl,true);
+        err = y-trial.ref;
+        score = score + P.Ts*(sum(abs(err(refMask)))+sum(abs(err(distMask))));
     end
 end
 
-function [y,u] = simulate_control(P,controllers,centers,gamma,ref,dist,ctrl,limited)
+function [y,u] = simulate_pdc(P,controllers,centers,gamma,ref,dist,ctrl,limited)
+    % Analityczny rozmyty DMC (wzory 4.74-4.75) z rzutowaniem na ograniczenia.
     n = numel(ref)-1;
     y = zeros(n+1,1); y(1) = P.h0(2);
     u = zeros(n,1);
     h = P.h0;
     pastDu = zeros(ctrl.D-1,1);
+    nRules = numel(controllers);
     for k = 1:n
-        if k==1, previousU=P.u0; else, previousU=u(k-1); end
-        if numel(controllers)==1
+        if k==1, previousU = P.u0; else, previousU = u(k-1); end
+        if nRules==1
             weights = 1;
         else
             weights = ts_memberships(y(k),centers).^gamma;
             weights = weights/sum(weights);
         end
-
-        localMove = zeros(1,numel(controllers));
-        for rule = 1:numel(controllers)
-            free = y(k)+controllers(rule).freeMatrix*pastDu;
-            du = controllers(rule).gain*(ref(k)-free);
-            if limited
-                lower = max(-ctrl.duMax,ctrl.uMin-previousU);
-                upper = min(ctrl.duMax,ctrl.uMax-previousU);
-                du = min(max(du,lower),upper);
-            end
-            localMove(rule) = du;
+        du = 0;
+        for rule = 1:nRules
+            free = y(k) + controllers(rule).freeMatrix*pastDu;
+            du = du + weights(rule)*(controllers(rule).gain*(ref(k)-free));
         end
-        du = sum(weights.*localMove);
-        u(k) = previousU+du;
+        if limited
+            lower = max(-ctrl.duMax,ctrl.uMin-previousU);
+            upper = min( ctrl.duMax,ctrl.uMax-previousU);
+            du = min(max(du,lower),upper);
+        end
+        u(k) = previousU + du;
         pastDu = [du;pastDu(1:end-1)];
 
-        if k>P.delay, actualU=u(k-P.delay); else, actualU=P.u0; end
-        inputChange = [actualU-P.u0,dist(k)-P.d0];
-        h = rk4_step(@(state) model_rhs(P,[],state, ...
-            inputChange(1),inputChange(2)),h,P.Ts,5);
+        if k>P.delay, actualU = u(k-P.delay); else, actualU = P.u0; end
+        h = rk4_step(@(state) plant_rhs(P,state,actualU,dist(k)),h,P.Ts,5);
         h = max(h,0.05);
         y(k+1) = h(2);
     end

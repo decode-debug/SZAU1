@@ -1,18 +1,19 @@
 function plot_control_memberships(obj,x,initialWeights,tunedWeights,gamma)
-    fig = figure('Visible','off','Color','w');
-    tiledlayout(1,2);
+    fig = figure('Visible','off','Color','w','Position',[100 100 960 390]);
+    theme(fig,'light');
+    tiles = tiledlayout(fig,1,2,'TileSpacing','compact','Padding','compact');
     for panel = 1:2
-        nexttile; hold on;
+        ax = nexttile(tiles); hold(ax,'on'); ax.Color = 'w';
         if panel==1
-            values = initialWeights;
+            plot(ax,x,initialWeights,'LineWidth',1.35);
+            title(ax,'PDC: funkcje przynależności jak w modelu');
         else
-            values = tunedWeights;
+            plot(ax,x,tunedWeights,'LineWidth',1.35);
+            title(ax,sprintf('Po strojeniu regulatora: \\gamma = %.2f',gamma));
         end
-        plot(x,values,'LineWidth',1.3);
-        if panel==1, title('PDC: funkcje jak w modelu');
-        else, title(sprintf('Po strojeniu: gamma = %.2f',gamma)); end
-        xlabel('h_2 [cm]'); ylabel('waga reguly'); grid on;
+        xlabel(ax,'h_2 [cm]'); ylabel(ax,'znormalizowana waga reguły'); grid(ax,'on');
     end
-    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_regulatora.png'),'Resolution',160);
+    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_regulatora.png'), ...
+        'Resolution',160,'BackgroundColor','white');
     close(fig);
 end
