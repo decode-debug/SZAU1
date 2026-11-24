@@ -19,7 +19,7 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
             curves = [traces(j).(signal)(:,1), traces(j).(signal)(:,4), ...
                       slTraces(j,selectedVariant).(signal), nplTraces(j,selectedVariant).(signal)];
             if signal=="y"
-                hL = plot(ax,tControl,curves);
+                hL = stairs(ax,tControl,curves);
                 refL = stairs(ax,tControl,traces(j).ref,'Color',[0.12 0.47 0.23],'LineStyle',':','LineWidth',1.45);
                 ylabel(ax,'h_2 [cm]');
             else
@@ -65,7 +65,7 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
         j = picked(col);
         ay = nexttile(tiles,col); hold(ay,'on'); ay.Color = 'w';
         for v = 1:numel(lambdaNPL)
-            plot(ay,tControl,nplTraces(j,v).y,'Color',lColors(v,:),'LineStyle',lStyles{v},'LineWidth',lWidths(v));
+            stairs(ay,tControl,nplTraces(j,v).y,'Color',lColors(v,:),'LineStyle',lStyles{v},'LineWidth',lWidths(v));
         end
         stairs(ay,tControl,traces(j).ref,'k:','LineWidth',1.4);
         xline(ay,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');

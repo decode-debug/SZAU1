@@ -7,10 +7,10 @@ function plot_all_models(obj,linearOutputs,modelOutputs,counts,steps,truth,t)
     for tile = 1:numel(selected)
         j = selected(tile);
         ax = nexttile(tiles); hold(ax,'on'); ax.Color = 'w';
-        plot(ax,t,truth(:,j),'k','LineWidth',1.7,'DisplayName','obiekt nieliniowy');
-        plot(ax,t,linearOutputs(:,j),'k:','LineWidth',1.3,'DisplayName','liniowy');
+        stairs(ax,t,truth(:,j),'k','LineWidth',1.7,'DisplayName','obiekt nieliniowy');
+        stairs(ax,t,linearOutputs(:,j),'k:','LineWidth',1.3,'DisplayName','liniowy');
         for m = 1:numel(counts)
-            plot(ax,t,modelOutputs(:,j,m),'Color',colors(m,:),'LineWidth',1.2, ...
+            stairs(ax,t,modelOutputs(:,j,m),'Color',colors(m,:),'LineWidth',1.2, ...
                 'DisplayName',sprintf('TS %d',counts(m)));
         end
         grid(ax,'on'); xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');

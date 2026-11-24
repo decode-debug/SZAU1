@@ -29,15 +29,15 @@ Przyjęto $N=30$ (20 próbek za opóźnieniem transportowym) oraz $N_u=5$. Analo
 
 \begin{table}[H]
 \centering
-\caption{Łączny IAE zadania i zakłócenia w czterech próbach [cm$\cdot$s]: PDC oraz FGPC--SL ($N=30$, $N_u=5$).}
+\caption{Łączny błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$]: PDC oraz FGPC--SL ($N=30$, $N_u=5$).}
 \small
 \begin{tabular}{lrrrrrr}\toprule
 $\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($\lambda=2$) & SL ($\lambda=1$) & SL ($\lambda=\num{0.5}$) & SL ($\lambda=\num{0.2}$)\\\midrule
-$+2\ \mathrm{cm}/+10\ \jednprzep$ & 1746 & 1573 & 1728 & 1522 & 1403 & 1294\\
-$+4\ \mathrm{cm}/+20\ \jednprzep$ & 3809 & 3392 & 3541 & 3098 & 2857 & 2646\\
-$+8\ \mathrm{cm}/+30\ \jednprzep$ & 7529 & 7001 & 7066 & 5973 & 5343 & 4899\\
-$-8\ \mathrm{cm}/-10\ \jednprzep$ & 3187 & 3159 & 4729 & 4232 & 3957 & 3735\\\midrule
-Suma & 16271 & 15125 & 17064 & 14823 & 13561 & 12574\\\bottomrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.291} & \num{0.317} & \num{0.278} & \num{0.255} & \num{0.234}\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.230} & \num{1.213} & \num{1.277} & \num{1.106} & \num{1.009} & \num{0.927}\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.328} & \num{4.259} & \num{4.586} & \num{3.996} & \num{3.661} & \num{3.395}\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.644} & \num{2.640} & \num{3.483} & \num{3.185} & \num{3.006} & \num{2.857}\\\midrule
+Średnia & \num{2.124} & \num{2.101} & \num{2.416} & \num{2.141} & \num{1.983} & \num{1.853}\\\bottomrule
 \end{tabular}
 \label{tab:sl-control}
 \end{table}
@@ -46,34 +46,34 @@ Suma & 16271 & 15125 & 17064 & 14823 & 13561 & 12574\\\bottomrule
 \centering
 \caption{Wskaźniki jakości regulacji i aktywności sterowania w czterech próbach projektowych.}
 \small
-\begin{tabular}{lrrrrrrr}\toprule
-Regulator & IAE zad. & IAE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Cofn. & Przereg. & $\max|e_{F_D}|$\\
- & [cm$\cdot$s] & [cm$\cdot$s] & [$\jednprzep$] & [$\jednprzep$] & [cm] & [cm] & [cm]\\\midrule
-PDC                       &  9383 & 6888 & \num{490.6} & \num{15.0} & \num{1.296} & \num{0.232} & \num{4.364}\\
-PDC strojony              &  8675 & 6450 & \num{459.6} & \num{15.0} & \num{1.019} & \num{0.473} & \num{4.399}\\
-FGPC--SL ($\lambda=2$)    & 11963 & 5102 & \num{221.6} &  \num{5.5} & \num{0.553} & \num{0.506} & \num{3.818}\\
-FGPC--SL ($\lambda=1$)    & 10849 & 3975 & \num{272.1} &  \num{8.4} & \num{0.524} & \num{0.497} & \num{3.426}\\
-FGPC--SL ($\lambda=0{,}5$)& 10194 & 3366 & \num{325.9} & \num{11.5} & \num{0.504} & \num{0.501} & \num{3.168}\\
-FGPC--SL ($\lambda=0{,}2$)&  9633 & 2941 & \num{420.4} & \num{15.0} & \num{1.102} & \num{0.586} & \num{2.958}\\\bottomrule
+\begin{tabular}{lrrrrrr}\toprule
+Regulator & MSE zad. & MSE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Cofn. & Przereg.\\
+ & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [$\jednprzep$] & [$\jednprzep$] & [cm] & [cm]\\\midrule
+PDC                       & \num{3.595} & \num{0.938} & \num{490.6} & \num{15.0} & \num{1.296} & \num{0.232}\\
+PDC strojony              & \num{3.547} & \num{0.936} & \num{470.5} & \num{15.0} & \num{1.001} & \num{0.294}\\
+FGPC--SL ($\lambda=2$)    & \num{4.627} & \num{0.634} & \num{221.6} &  \num{5.5} & \num{0.553} & \num{0.506}\\
+FGPC--SL ($\lambda=1$)    & \num{4.251} & \num{0.442} & \num{272.1} &  \num{8.4} & \num{0.524} & \num{0.497}\\
+FGPC--SL ($\lambda=0{,}5$)& \num{4.016} & \num{0.344} & \num{325.9} & \num{11.5} & \num{0.504} & \num{0.501}\\
+FGPC--SL ($\lambda=0{,}2$)& \num{3.807} & \num{0.279} & \num{420.4} & \num{15.0} & \num{1.102} & \num{0.586}\\\bottomrule
 \end{tabular}
 \label{tab:sl-metrics}
 \end{table}
 
-Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Jako główny wariant wybrano $\lambda=\num{0.5}$: łączny IAE spada o \num{10.3}\% względem dostrojonego PDC (do 13\,561~cm$\cdot$s), błąd po zakłóceniu maleje niemal dwukrotnie (z 6450 do 3366~cm$\cdot$s), a suma zmian sterowania jest o \num{29.1}\% mniejsza (\num{325.9} wobec \num{459.6}~$\jednprzep$). Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża IAE do 12\,574~cm$\cdot$s, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie odbicie poziomu (cofnięcie \num{1.102}~cm).
+Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{5.6}\% względem dostrojonego PDC (do \num{1.983}~$\mathrm{cm^2}$), MSE po zakłóceniu maleje niemal trzykrotnie (z \num{0.936} do \num{0.344}~$\mathrm{cm^2}$), a suma zmian sterowania jest o \num{30.7}\% mniejsza (\num{325.9} wobec \num{470.5}~$\jednprzep$). Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE do \num{1.853}~$\mathrm{cm^2}$, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie odbicie poziomu (cofnięcie \num{1.102}~cm).
 
 W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w punkcie startowym $y(k)$ na cały horyzont $N=30$ nie uwzględnia szybkiego spadku pojemności $3C_2h_2^2$ przy niskim poziomie, co wywołuje krótkotrwałe odbicie poziomu i sterowania około 1000~s (rys.~\ref{fig:sl-outputs} i \ref{fig:sl-controls}). Średni czas obliczeń \texttt{quadprog} nie przekracza \num{0.4}~ms na próbkę.
 
 \begin{table}[H]
 \centering
-\caption{Walidacja wariantów FGPC--SL na czterech próbach dodatkowych [cm$\cdot$s].}
+\caption{Walidacja wariantów FGPC--SL na czterech próbach dodatkowych (MSE [$\mathrm{cm^2}$]).}
 \small
 \begin{tabular}{lrrrr}\toprule
 $\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$\\\midrule
-$+3\ \mathrm{cm}/-8\ \jednprzep$  & 2109 & 1870 & 1731 & 1600\\
-$-3\ \mathrm{cm}/+12\ \jednprzep$ & 2341 & 2085 & 1933 & 1783\\
-$+6\ \mathrm{cm}/-10\ \jednprzep$ & 3987 & 3532 & 3270 & 3049\\
-$-6\ \mathrm{cm}/+15\ \jednprzep$ & 4095 & 3665 & 3414 & 3177\\\midrule
-Suma IAE                          & 12532 & 11152 & 10348 & 9609\\
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.563} & \num{0.509} & \num{0.476} & \num{0.444}\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.618} & \num{0.556} & \num{0.518} & \num{0.481}\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.146} & \num{1.957} & \num{1.839} & \num{1.726}\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{2.111} & \num{1.922} & \num{1.806} & \num{1.698}\\\midrule
+Średni MSE                        & \num{1.359} & \num{1.236} & \num{1.159} & \num{1.087}\\
 Maks. cofnięcie / przereg. [cm]   & \num{0.276} / \num{0.272} & \num{0.275} / \num{0.273} & \num{0.286} / \num{0.284} & \num{0.693} / \num{0.350}\\\bottomrule
 \end{tabular}
 \label{tab:sl-validation}

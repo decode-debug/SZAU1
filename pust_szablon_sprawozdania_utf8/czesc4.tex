@@ -20,15 +20,15 @@ Dla FGPC--NPL użyto tych samych nastaw $N=30$, $N_u=5$ i $\lambda\in\{2;\ 1;\ \
 
 \begin{table}[H]
 \centering
-\caption{Wpływ $\lambda$ na jakość regulacji FGPC--SL i FGPC--NPL ($N=30$, $N_u=5$) w czterech próbach.}
+\caption{Wpływ $\lambda$ na jakość regulacji (MSE [$\mathrm{cm^2}$]) FGPC--SL i FGPC--NPL ($N=30$, $N_u=5$) w czterech próbach.}
 \small
 \begin{tabular}{crrrrrrrr}\toprule
  & \multicolumn{4}{c}{FGPC--SL} & \multicolumn{4}{c}{FGPC--NPL}\\\cmidrule(lr){2-5}\cmidrule(lr){6-9}
-$\lambda$ & IAE zad. & IAE zakł. & Suma IAE & $\sum|\Delta u|$ & IAE zad. & IAE zakł. & Suma IAE & $\sum|\Delta u|$\\\midrule
-\num{2.0} & 11963 & 5102 & 17064 & \num{221.6} & 11748 & 4898 & 16646 & \num{235.8}\\
-\num{1.0} & 10849 & 3975 & 14823 & \num{272.1} & 10563 & 3963 & 14526 & \num{304.8}\\
-\num{0.5} & 10194 & 3366 & 13561 & \num{325.9} &  9851 & 3486 & 13337 & \num{389.5}\\
-\num{0.2} &  9633 & 2941 & 12574 & \num{420.4} &  9227 & 3144 & 12371 & \num{523.3}\\\bottomrule
+$\lambda$ & MSE zad. & MSE zakł. & Śr. MSE & $\sum|\Delta u|$ & MSE zad. & MSE zakł. & Śr. MSE & $\sum|\Delta u|$\\\midrule
+\num{2.0} & \num{4.627} & \num{0.634} & \num{2.416} & \num{221.6} & \num{4.592} & \num{0.549} & \num{2.353} & \num{235.8}\\
+\num{1.0} & \num{4.251} & \num{0.442} & \num{2.141} & \num{272.1} & \num{4.209} & \num{0.385} & \num{2.092} & \num{304.8}\\
+\num{0.5} & \num{4.016} & \num{0.344} & \num{1.983} & \num{325.9} & \num{3.968} & \num{0.306} & \num{1.940} & \num{389.5}\\
+\num{0.2} & \num{3.807} & \num{0.279} & \num{1.853} & \num{420.4} & \num{3.750} & \num{0.252} & \num{1.813} & \num{523.3}\\\bottomrule
 \end{tabular}
 \label{tab:npl-tuning}
 \end{table}
@@ -37,44 +37,44 @@ $\lambda$ & IAE zad. & IAE zakł. & Suma IAE & $\sum|\Delta u|$ & IAE zad. & IAE
 \centering
 \caption{Zestawienie wszystkich regulatorów z części~1--4 w czterech próbach projektowych.}
 \small
-\begin{tabular}{lrrrrrrr}\toprule
-Regulator & IAE zad. & IAE zakł. & Suma IAE & Przereg. & Cofn. & $\max|e_{F_D}|$ & $\sum|\Delta u|$\\
- & [cm$\cdot$s] & [cm$\cdot$s] & [cm$\cdot$s] & [cm] & [cm] & [cm] & [$\jednprzep$]\\\midrule
-DMC cz.~1 (bez ogr.)      & 10720 & 8783 & 19503 & \num{1.715} & \num{2.651} & \num{4.561} & \num{686.0}\\
-DMC ograniczony           & 11008 & 8777 & 19785 & \num{1.706} & \num{2.533} & \num{4.555} & \num{671.0}\\
-PDC                       &  9383 & 6888 & 16271 & \num{0.232} & \num{1.296} & \num{4.364} & \num{490.6}\\
-PDC strojony              &  8675 & 6450 & 15125 & \num{0.473} & \num{1.019} & \num{4.399} & \num{459.6}\\
-FGPC--SL ($\lambda=1$)    & 10849 & 3975 & 14823 & \num{0.497} & \num{0.524} & \num{3.426} & \num{272.1}\\
-FGPC--SL ($\lambda=0{,}5$)& 10194 & 3366 & 13561 & \num{0.501} & \num{0.504} & \num{3.168} & \num{325.9}\\
-FGPC--SL ($\lambda=0{,}2$)&  9633 & 2941 & 12574 & \num{0.586} & \num{1.102} & \num{2.958} & \num{420.4}\\
-FGPC--NPL ($\lambda=1$)   & 10563 & 3963 & 14526 & \num{0.630} & \num{0.671} & \num{3.298} & \num{304.8}\\
-FGPC--NPL ($\lambda=0{,}5$)& 9851 & 3486 & 13337 & \num{0.641} & \num{0.651} & \num{3.061} & \num{389.5}\\
-FGPC--NPL ($\lambda=0{,}2$)& 9227 & 3144 & 12371 & \num{0.745} & \num{0.749} & \num{2.875} & \num{523.3}\\\bottomrule
+\begin{tabular}{lrrrrrr}\toprule
+Regulator & MSE zad. & MSE zakł. & Śr. MSE & Przereg. & Cofn. & $\sum|\Delta u|$\\
+ & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [cm] & [cm] & [$\jednprzep$]\\\midrule
+DMC cz.~1 (bez ogr.)      & \num{3.579} & \num{1.164} & \num{2.241} & \num{1.715} & \num{2.651} & \num{686.0}\\
+DMC ograniczony           & \num{3.746} & \num{1.161} & \num{2.315} & \num{1.706} & \num{2.533} & \num{671.0}\\
+PDC                       & \num{3.595} & \num{0.938} & \num{2.124} & \num{0.232} & \num{1.296} & \num{490.6}\\
+PDC strojony              & \num{3.547} & \num{0.936} & \num{2.101} & \num{0.294} & \num{1.001} & \num{470.5}\\
+FGPC--SL ($\lambda=1$)    & \num{4.251} & \num{0.442} & \num{2.141} & \num{0.497} & \num{0.524} & \num{272.1}\\
+FGPC--SL ($\lambda=0{,}5$)& \num{4.016} & \num{0.344} & \num{1.983} & \num{0.501} & \num{0.504} & \num{325.9}\\
+FGPC--SL ($\lambda=0{,}2$)& \num{3.807} & \num{0.279} & \num{1.853} & \num{0.586} & \num{1.102} & \num{420.4}\\
+FGPC--NPL ($\lambda=1$)   & \num{4.209} & \num{0.385} & \num{2.092} & \num{0.630} & \num{0.671} & \num{304.8}\\
+FGPC--NPL ($\lambda=0{,}5$)& \num{3.968} & \num{0.306} & \num{1.940} & \num{0.641} & \num{0.651} & \num{389.5}\\
+FGPC--NPL ($\lambda=0{,}2$)& \num{3.750} & \num{0.252} & \num{1.813} & \num{0.745} & \num{0.749} & \num{523.3}\\\bottomrule
 \end{tabular}
 \label{tab:npl-summary}
 \end{table}
 
-Dla każdego badanego $\lambda$ regulator FGPC--NPL daje nieco niższy łączny IAE niż SL (o \num{1.6}--\num{2.5}\%) i niższy maksymalny uchyb po skoku $F_D=+30\ \jednprzep$. Dla $\lambda=\num{0.5}$ łączny IAE wynosi 13\,337~cm$\cdot$s -- o \num{31.6}\% mniej niż w DMC z części~1 i o \num{11.8}\% mniej niż w dostrojonym PDC.
+Dla każdego badanego $\lambda$ regulator FGPC--NPL daje nieco niższy średni MSE niż SL (o \num{2.2}--\num{2.6}\%) i niższy maksymalny uchyb po skoku $F_D=+30\ \jednprzep$. Dla $\lambda=\num{0.5}$ średni MSE wynosi \num{1.940}~$\mathrm{cm^2}$ -- o \num{13.5}\% mniej niż w DMC z części~1 i o \num{7.7}\% mniej niż w dostrojonym PDC.
 
-Najwyraźniejsza różnica między NPL i SL pojawia się przy skoku $-8\ \mathrm{cm}$ (rys.~\ref{fig:npl-y}): NPL uwzględnia malejącą pojemność zbiornika i sprowadza poziom niemal bez odbicia (cofnięcie \num{0.018} wobec \num{0.385}~cm), zmniejszając IAE zadania z 3577 do 3192~cm$\cdot$s (o \num{10.8}\%). Na skokach dodatnich ($+2$, $+4$, $+8\ \mathrm{cm}$) przebiegi obu metod są bardzo zbliżone (dla $\lambda=\num{0.5}$ łączny IAE NPL wynosi 1415, 2938 i 5370~cm$\cdot$s wobec 1403, 2857 i 5343~cm$\cdot$s dla SL), jednak NPL ma większą aktywność sterowania (\num{389.5} wobec \num{325.9}~$\jednprzep$) i wolniej wygasza drugą falę po skoku $F_D=+20\ \jednprzep$.
+Najwyraźniejsza różnica między NPL i SL pojawia się przy skoku $-8\ \mathrm{cm}$ (rys.~\ref{fig:npl-y}): NPL uwzględnia malejącą pojemność zbiornika i sprowadza poziom niemal bez odbicia (cofnięcie \num{0.018} wobec \num{0.385}~cm), zmniejszając MSE zadania z \num{6.643} do \num{6.459}~$\mathrm{cm^2}$ (o \num{2.8}\%). Na skokach dodatnich ($+2$, $+4$, $+8\ \mathrm{cm}$) przebiegi obu metod są bardzo zbliżone (dla $\lambda=\num{0.5}$ łączny MSE NPL wynosi \num{0.251}, \num{0.982} i \num{3.600}~$\mathrm{cm^2}$ wobec \num{0.255}, \num{1.009} i \num{3.661}~$\mathrm{cm^2}$ dla SL), jednak NPL ma większą aktywność sterowania (\num{389.5} wobec \num{325.9}~$\jednprzep$) i wolniej wygasza drugą falę po skoku $F_D=+20\ \jednprzep$.
 
 \begin{table}[H]
 \centering
-\caption{Walidacja FGPC--SL i FGPC--NPL ($\lambda=\num{0.5}$) na czterech próbach dodatkowych [cm$\cdot$s].}
+\caption{Walidacja FGPC--SL i FGPC--NPL ($\lambda=\num{0.5}$) na czterech próbach dodatkowych (MSE [$\mathrm{cm^2}$]).}
 \small
 \begin{tabular}{lrrrrrr}\toprule
  & \multicolumn{3}{c}{FGPC--SL ($\lambda=\num{0.5}$)} & \multicolumn{3}{c}{FGPC--NPL ($\lambda=\num{0.5}$)}\\\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & IAE zad. & IAE zakł. & Suma IAE & IAE zad. & IAE zakł. & Suma IAE\\\midrule
-$+3\ \mathrm{cm}/-8\ \jednprzep$  & 1351 & 379 & 1731 & 1354 & 415 & 1769\\
-$-3\ \mathrm{cm}/+12\ \jednprzep$ & 1317 & 617 & 1933 & 1266 & 649 & 1915\\
-$+6\ \mathrm{cm}/-10\ \jednprzep$ & 2833 & 437 & 3270 & 2839 & 512 & 3350\\
-$-6\ \mathrm{cm}/+15\ \jednprzep$ & 2675 & 739 & 3414 & 2519 & 965 & 3484\\\midrule
-Suma                              & 8176 & 2173 & 10348 & 7978 & 2541 & 10519\\\bottomrule
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & MSE zad. & MSE zakł. & Łącz. MSE & MSE zad. & MSE zakł. & Łącz. MSE\\\midrule
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.980} & \num{0.070} & \num{0.476} & \num{0.979} & \num{0.075} & \num{0.479}\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.946} & \num{0.173} & \num{0.518} & \num{0.940} & \num{0.157} & \num{0.506}\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{4.006} & \num{0.092} & \num{1.839} & \num{4.001} & \num{0.104} & \num{1.843}\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{3.747} & \num{0.242} & \num{1.806} & \num{3.689} & \num{0.237} & \num{1.777}\\\midrule
+Średnia                           & \num{2.420} & \num{0.144} & \num{1.159} & \num{2.402} & \num{0.143} & \num{1.151}\\\bottomrule
 \end{tabular}
 \label{tab:npl-validation}
 \end{table}
 
-Na próbach walidacyjnych (tab.~\ref{tab:npl-validation}) NPL nadal osiąga mniejszy błąd na zadaniu (7978 wobec 8176~cm$\cdot$s), lecz przy dużych dodatnich skokach zakłócenia na niskim poziomie ma nieco wyższy błąd zakłócenia, co daje łącznie 10\,519 wobec 10\,348~cm$\cdot$s dla SL. Oba algorytmy numeryczne wyraźnie przewyższają liniowy DMC i analityczny PDC: NPL lepiej radzi sobie z dużymi skokami w dół, natomiast SL pracuje nieco spokojniej przy zakłóceniach.
+Na próbach walidacyjnych (tab.~\ref{tab:npl-validation}) NPL osiąga nieco niższy średni MSE zarówno na zadaniu (\num{2.402} wobec \num{2.420}~$\mathrm{cm^2}$), jak i łącznie (\num{1.151} wobec \num{1.159}~$\mathrm{cm^2}$ dla SL). Oba algorytmy numeryczne wyraźnie przewyższają liniowy DMC i analityczny PDC: NPL lepiej radzi sobie z dużymi skokami w dół, natomiast SL pracuje spokojniej pod względem zmienności sterowania.
 
 \begin{figure}[H]
 \centering

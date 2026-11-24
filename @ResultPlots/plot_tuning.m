@@ -17,7 +17,7 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
         % Gorny wiersz: wyjscie h_2
         ay = nexttile(tiles,col); hold(ay,'on'); ay.Color = 'w';
         for v = 1:numel(lambdaSL)
-            plot(ay,t,slTraces(j,v).y,'Color',colors(v,:),'LineStyle',styles{v},'LineWidth',widths(v));
+            stairs(ay,t,slTraces(j,v).y,'Color',colors(v,:),'LineStyle',styles{v},'LineWidth',widths(v));
         end
         stairs(ay,t,traces(j).ref,'k:','LineWidth',1.4);
         xline(ay,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');

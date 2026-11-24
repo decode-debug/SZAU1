@@ -21,7 +21,7 @@ function plot_comparison(obj,t,traces,slTraces,cases,lambdaSL,selectedVariant,re
         controls = [traces(j).u(:,3:4), slTraces(j,slIdx(1)).u, slTraces(j,slIdx(2)).u, slTraces(j,slIdx(3)).u];
 
         ay = nexttile(ty); ay.Color = 'w';
-        linesY = plot(ay,t,outputs); hold(ay,'on');
+        linesY = stairs(ay,t,outputs); hold(ay,'on');
         refLine = stairs(ay,t,traces(j).ref,':','Color',[0.12 0.47 0.23],'LineWidth',1.5);
         ylabel(ay,'h_2 [cm]');
 

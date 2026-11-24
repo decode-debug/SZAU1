@@ -6,10 +6,10 @@ function pdc(obj,tControl,traces,controlCases)
         y = traces(j).y;
         ref = traces(j).ref;
         ax = nexttile(tiles); hold(ax,'on'); grid(ax,'on'); ax.Color = 'w';
-        plot(ax,tControl,y(:,1),'Color',[0.48 0.48 0.48],'LineWidth',1.2);
-        plot(ax,tControl,y(:,2),'k--','LineWidth',1.2);
-        plot(ax,tControl,y(:,3),'Color',[0 0.45 0.74],'LineWidth',1.35);
-        plot(ax,tControl,y(:,4),'Color',[0.85 0.33 0.10],'LineStyle','-.','LineWidth',1.4);
+        stairs(ax,tControl,y(:,1),'Color',[0.48 0.48 0.48],'LineWidth',1.2);
+        stairs(ax,tControl,y(:,2),'k--','LineWidth',1.2);
+        stairs(ax,tControl,y(:,3),'Color',[0 0.45 0.74],'LineWidth',1.35);
+        stairs(ax,tControl,y(:,4),'Color',[0.85 0.33 0.10],'LineStyle','-.','LineWidth',1.4);
         stairs(ax,tControl,ref,'Color',[0.12 0.47 0.23],'LineStyle',':','LineWidth',1.4);
         xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');
         xlim(ax,[tControl(1),tControl(end)]);

@@ -112,10 +112,10 @@ for j = 1:size(scenarios,1)
     dmcTraces(j).ref = ref;
     dmcTraces(j).dist = dist;
 
-    iaeRef = P.Ts*sum(abs(yNL(referencePeriod)-ref(referencePeriod)));
-    iaeDist = P.Ts*sum(abs(yNL(disturbancePeriod)-ref(disturbancePeriod)));
+    mseRef = mean((yNL(referencePeriod)-ref(referencePeriod)).^2);
+    mseDist = mean((yNL(disturbancePeriod)-ref(disturbancePeriod)).^2);
     maxDifference = max(abs(yNL-yLin));
-    dmcResults(j,:) = [deltaRef,deltaDist,iaeRef,iaeDist, ...
+    dmcResults(j,:) = [deltaRef,deltaDist,mseRef,mseDist, ...
                        maxDifference,min(uNL)];
 
 end
@@ -125,7 +125,7 @@ stepSummary = array2table(stepResults,'VariableNames', ...
     {'Skok_F1in','h2_nieliniowy','h2_liniowy','Blad_ustalony','Maks_blad'});
 disp(stepSummary);
 dmcSummary = array2table(dmcResults,'VariableNames', ...
-    {'Skok_zadania_cm','Skok_FD','IAE_zadanie','IAE_zaklocenie', ...
+    {'Skok_zadania_cm','Skok_FD','MSE_zadanie','MSE_zaklocenie', ...
      'Maks_roznica_modeli_cm','Min_F1in'});
 disp(dmcSummary);
 

@@ -1,6 +1,13 @@
 \chapter{Regulacja DMC}
 \section{Algorytm i testy}
-Zaprojektowano analityczny regulator DMC na podstawie odpowiedzi skokowej modelu liniowego. W każdej próbce algorytm wyznacza przyszłe przyrosty sterowania minimalizujące błąd predykcji wyjścia i zmiany sterowania, a na obiekt podaje tylko pierwszy z nich. Dzięki uwzględnieniu historii sterowań regulator dobrze radzi sobie z opóźnieniem transportowym $200\ \mathrm{s}$. Przyjęto nastawy: $D=250$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$ oraz $T_s=20\ \mathrm{s}$. Regulator działa bez ograniczeń, a zakłócenie $F_D$ tłumi przez sprzężenie zwrotne.
+Zaprojektowano analityczny regulator DMC na podstawie odpowiedzi skokowej modelu liniowego.
+W każdej próbce algorytm wyznacza przyszłe przyrosty sterowania minimalizujące błąd predykcji wyjścia i zmiany sterowania,
+a na obiekt podaje tylko pierwszy z nich. Dzięki uwzględnieniu historii sterowań regulator dobrze radzi sobie z opóźnieniem transportowym $200\ \mathrm{s}$.
+Przyjęto nastawy: $D=250$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$ oraz $T_s=20\ \mathrm{s}$.
+Okres próbkowania $T_s=20\ \mathrm{s}$ dobrano jako kompromis między dokładnością sterowania a jego złożonością obliczeniową,
+ponieważ przy zmniejszaniu $T_s$ rośnie liczba próbek na horyzoncie sterowania $N_u$, a złożoność obliczeniowa zadań optymalizacji w regulacji predykcyjnej rośnie sześciennie ($O(N_u^3)$).
+Jest to szczególnie istotne w przypadku regulatorów predykcyjnych, które wymagają rozwiązywania problemów optymalizacji w każdej próbce czasowej (online) dla algorytmów SL i NPL.
+Regulator działa bez ograniczeń, a zakłócenie $F_D$ tłumi przez sprzężenie zwrotne.
 
 Na obu obiektach w $400\ \mathrm{s}$ zmieniano zadany poziom, a w $3800\ \mathrm{s}$ zakłócenie. Dla każdej próby pokazano wyjście $y(k)=h_2(k)$ i sterowanie $u(k)=\uvar(k)$ na wspólnej osi czasu.
 \begin{figure}[H]
@@ -39,29 +46,25 @@ Przy dużym dodatnim skoku obiekt nieliniowy silniej oscyluje. Widać również 
 \caption{Próba 4: $\Delta y_{\mathrm{zad}}=-8\ \mathrm{cm}$, $\Delta F_D=-10\ \jednprzep$. Wyjście $y(k)$ i sterowanie $u(k)$.}
 \label{fig:dmcUjemny}
 \end{figure}
-Obniżenie zadania wymaga zmniejszenia dopływu. Oscylacje poziomu na obiekcie nieliniowym wiążą się z oscylacjami sterowania. Minimalny dopływ to około $\num{31.19}\ \jednprzep$.
+Obniżenie zadania wymaga zmniejszenia dopływu. Oscylacje poziomu na obiekcie nieliniowym wiążą się z oscylacjami sterowania.
 
 \clearpage
 \section{Ocena jakości regulacji}
-Uchyb regulacji to wartość zadana $y_{\mathrm{zad}}(k)$ minus zmierzony poziom $y(k)=h_2(k)$:
+Jakość regulacji obiektu nieliniowego oceniono błędem średniokwadratowym
 \begin{equation}
-e(k)=y_{\mathrm{zad}}(k)-y(k).
+\mathrm{MSE}=\frac{1}{K}\sum_k\bigl(y_{\mathrm{zad}}(k)-y(k)\bigr)^2.
 \end{equation}
-Jakość regulacji obiektu nieliniowego oceniono wskaźnikiem
-\begin{equation}
-\mathrm{IAE}=T_s\sum_k|y_{\mathrm{zad}}(k)-y(k)|=T_s\sum_k|e(k)|.
-\end{equation}
-Dla zadania sumowano próbki od $400$ do chwili poprzedzającej $3800\ \mathrm{s}$, a dla zakłócenia od $3800$ do $8000\ \mathrm{s}$.
+Dla zadania uśredniano próbki od $400$ do chwili poprzedzającej $3800\ \mathrm{s}$, a dla zakłócenia od $3800$ do $8000\ \mathrm{s}$.
 \begin{table}[H]
 \centering\small
-\caption{Wyniki regulacji obiektu nieliniowego i różnica wyjść obu pętli}
-\begin{tabular}{rrrrr}
+\caption{Wyniki regulacji obiektu nieliniowego}
+\begin{tabular}{rrrr}
 \toprule
-$\Delta y_{\mathrm{zad}}$ & $\Delta F_D$ & $\mathrm{IAE}_{\mathrm{zad}}$ & $\mathrm{IAE}_D$ & $\max|y_{\mathrm{NL}}-y_{\mathrm{L}}|$\\
-{}[cm] & [$\jednprzep$] & [$\mathrm{cm\cdot s}$] & [$\mathrm{cm\cdot s}$] & [cm]\\
+$\Delta y_{\mathrm{zad}}$ & $\Delta F_D$ & $\mathrm{MSE}_{\mathrm{zad}}$ & $\mathrm{MSE}_D$\\
+{}[cm] & [$\jednprzep$] & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$]\\
 \midrule
 \tableinput{dane/DMC_wskazniki.tex}
 \bottomrule
 \end{tabular}
 \end{table}
-W badanych próbach sterowanie pozostało dodatnie; najmniejsza wartość wynosiła około $\num{31.19}\ \jednprzep$. Przy większych skokach rosną oscylacje i rozbieżności modeli. W dodatnich scenariuszach zwiększano jednocześnie zmianę zadania i zakłócenia, dlatego sam wzrost IAE nie pozwala oddzielić wpływu tych dwóch czynników.
+W badanych próbach sterowanie pozostało dodatnie (fizycznie realizowalne). Przy większych skokach rosną oscylacje i rozbieżności modeli. W dodatnich scenariuszach zwiększano jednocześnie zmianę zadania i zakłócenia, dlatego sam wzrost MSE nie pozwala oddzielić wpływu tych dwóch czynników.

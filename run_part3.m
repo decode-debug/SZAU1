@@ -29,7 +29,7 @@ nVariants = numel(lambdaSL);
 taskMask = tControl>=refStart & tControl<distStart;
 distMask = tControl>=distStart;
 
-metricNames = {'IAE_zadanie','IAE_zaklocenie','Min_u','Max_u','Maks_zmiana_u', ...
+metricNames = {'MSE_zadanie','MSE_zaklocenie','MSE_laczny','Min_u','Max_u','Maks_zmiana_u', ...
     'Suma_zmian_u','Cofniecie_cm','Przeregulowanie_cm','Maks_blad_po_FD_cm'};
 resultNames = [{'Scenariusz','Wariant','N','Nu','Lambda'},metricNames, ...
     {'Sredni_czas_decyzji_s','Maks_czas_decyzji_s'}];
@@ -87,12 +87,12 @@ for j = 1:nProject
 end
 comparisonSummary = array2table(comparison,'VariableNames',[{'Scenariusz','Regulator'},metricNames]);
 comparisonSummary.Nazwa = methodNames(comparisonSummary.Regulator);
-totalIAE = accumarray(comparisonSummary.Regulator, ...
-    comparisonSummary.IAE_zadanie+comparisonSummary.IAE_zaklocenie);
-totalRef = accumarray(comparisonSummary.Regulator,comparisonSummary.IAE_zadanie);
-totalDist = accumarray(comparisonSummary.Regulator,comparisonSummary.IAE_zaklocenie);
-disp(table(methodNames,totalRef,totalDist,totalIAE, ...
-    'VariableNames',{'Regulator','IAE_zadanie','IAE_zaklocenie','Suma_IAE'}));
+totalMSE = accumarray(comparisonSummary.Regulator, ...
+    comparisonSummary.MSE_laczny,[],@mean);
+totalRef = accumarray(comparisonSummary.Regulator,comparisonSummary.MSE_zadanie,[],@mean);
+totalDist = accumarray(comparisonSummary.Regulator,comparisonSummary.MSE_zaklocenie,[],@mean);
+disp(table(methodNames,totalRef,totalDist,totalMSE, ...
+    'VariableNames',{'Regulator','MSE_zadanie','MSE_zaklocenie','MSE_laczny'}));
 
 %% Wykresy i zapis wynikow
 plots.plot_comparison(tControl,traces,slTraces,controlCases,lambdaSL,selectedVariant,refStart,distStart);
@@ -102,7 +102,7 @@ writetable(comparisonSummary,fullfile(outdir,'porownanie_regulatorow.csv'));
 writetable(validationSummary,fullfile(outdir,'walidacja_SL.csv'));
 save(fullfile(outdir,'dane_czesc3.mat'),'P','modelTuned','ctrl','controlCases', ...
     'tControl','traces','slTraces','N_sl','Nu_sl','lambdaSL','selectedVariant', ...
-    'refStart','distStart','slSummary','comparisonSummary','totalIAE', ...
+    'refStart','distStart','slSummary','comparisonSummary','totalMSE', ...
     'validationCases','validationTraces','validationSummary');
 
 %% Funkcje pomocnicze
@@ -113,6 +113,6 @@ function metrics = case_metrics(P,y,u,ref,taskMask,distMask)
     retreat = max(cummax(level)-level);
     overshoot = max(0,max(direction*err(taskMask)));
     du = diff([P.u0;u]);
-    metrics = [P.Ts*sum(abs(err(taskMask))),P.Ts*sum(abs(err(distMask))), ...
+    metrics = [mean(err(taskMask).^2),mean(err(distMask).^2),mean(err(taskMask|distMask).^2), ...
         min(u),max(u),max(abs(du)),sum(abs(du)),retreat,overshoot,max(abs(err(distMask)))];
 end

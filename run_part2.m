@@ -178,7 +178,7 @@ gammaInitial = 1;
 gammaCandidates = [0.5 0.75 1 1.25 1.5 2 3];
 gammaScores = zeros(size(gammaCandidates));
 for g = 1:numel(gammaCandidates)
-    gammaScores(g) = pdc_iae(P,fuzzyControllers,modelTuned.centers, ...
+    gammaScores(g) = pdc_mse(P,fuzzyControllers,modelTuned.centers, ...
         gammaCandidates(g),testData,ctrl,refMask,distMask);
 end
 [~,bestGammaIndex] = min(gammaScores);
@@ -194,7 +194,7 @@ for d1 = cShifts
             candCenters = modelTuned.centers;
             candCenters(2:4) = candCenters(2:4) + [d1,d2,d3];
             if any(diff(candCenters)<=1.5), continue; end
-            score = pdc_iae(P,fuzzyControllers,candCenters,gammaTuned,testData,ctrl,refMask,distMask);
+            score = pdc_mse(P,fuzzyControllers,candCenters,gammaTuned,testData,ctrl,refMask,distMask);
             if score<bestControlScore
                 bestControlScore = score;
                 controllerCenters = candCenters;
@@ -204,7 +204,7 @@ for d1 = cShifts
 end
 
 %% Symulacje porownawcze 4 regulatorow czesci 2
-controlResults = zeros(size(controlCases,1)*4,7);
+controlResults = zeros(size(controlCases,1)*4,8);
 traces = struct([]);
 row = 0;
 for j = 1:numel(testData)
@@ -226,25 +226,26 @@ for j = 1:numel(testData)
         yCase = traces(j).y(:,method);
         uCase = traces(j).u(:,method);
         controlResults(row,:) = [j,method, ...
-            P.Ts*sum(abs(yCase(refMask)-ref(refMask))), ...
-            P.Ts*sum(abs(yCase(distMask)-ref(distMask))), ...
+            mean((yCase(refMask)-ref(refMask)).^2), ...
+            mean((yCase(distMask)-ref(distMask)).^2), ...
+            mean((yCase(refMask|distMask)-ref(refMask|distMask)).^2), ...
             min(uCase),max(uCase),max(abs(diff([P.u0;uCase])))];
     end
 end
 plots.pdc(tControl,traces,controlCases);
 
 controlSummary = array2table(controlResults,'VariableNames', ...
-    {'Scenariusz','Regulator','IAE_zadanie','IAE_zaklocenie', ...
+    {'Scenariusz','Regulator','MSE_zadanie','MSE_zaklocenie','MSE_laczny', ...
      'Min_u','Max_u','Maks_zmiana_u'});
 disp(controlSummary);
 
 totalsPart2 = accumarray(controlSummary.Regulator, ...
-    controlSummary.IAE_zadanie+controlSummary.IAE_zaklocenie);
-fprintf('Suma IAE [DMC cz.1, Liniowy ogr., PDC, PDC strojony] = %s cm*s\n', ...
-    mat2str(totalsPart2.',6));
+    controlSummary.MSE_laczny,[],@mean);
+fprintf('Sredni MSE [DMC cz.1, Liniowy ogr., PDC, PDC strojony] = %s cm^2\n', ...
+    mat2str(totalsPart2.',5));
 fprintf('Regulator PDC: gamma przed = %.2f, po strojeniu = %.2f\n', ...
     gammaInitial,gammaTuned);
-fprintf('Wezly regulatora po strojeniu = %s cm; suma IAE = %.1f cm*s\n', ...
+fprintf('Wezly regulatora po strojeniu = %s cm; sredni MSE = %.4f cm^2\n', ...
     mat2str(controllerCenters,4),bestControlScore);
 
 controllerWeights = ts_memberships(levels,controllerCenters).^gammaTuned;
@@ -309,14 +310,16 @@ function controllers = design_dmc(P,model,ctrl)
     end
 end
 
-function score = pdc_iae(P,controllers,centers,gamma,testData,ctrl,refMask,distMask)
+function score = pdc_mse(P,controllers,centers,gamma,testData,ctrl,refMask,distMask)
     score = 0;
+    allMask = refMask | distMask;
     for j = 1:numel(testData)
         trial = testData{j};
         y = simulate_pdc(P,controllers,centers,gamma,trial.ref,trial.dist,ctrl,true);
         err = y-trial.ref;
-        score = score + P.Ts*(sum(abs(err(refMask)))+sum(abs(err(distMask))));
+        score = score + mean(err(allMask).^2);
     end
+    score = score / numel(testData);
 end
 
 function [y,u] = simulate_pdc(P,controllers,centers,gamma,ref,dist,ctrl,limited)

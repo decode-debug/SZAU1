@@ -44,8 +44,8 @@ for kind, key, factor in [('F1in', 'stepTracesU', 1), ('FD', 'stepTracesD', .2)]
     for sign, ax in enumerate(axs):
         handles = []
         for c, j in zip(colors, range(sign*3, sign*3+3)):
-            ax.plot(d['t'], d[key][:, 2*j], color=c)
-            ax.plot(d['t'], d[key][:, 2*j+1], '--', color=c)
+            ax.step(d['t'], d[key][:, 2*j], where='post', color=c)
+            ax.step(d['t'], d[key][:, 2*j+1], where='post', linestyle='--', color=c)
             handles.append(Line2D([], [], color=c, label=f'{d["steps"][j]*factor:+g} cm³/s'))
         handles.extend([Line2D([], [], color='.25', label='model nieliniowy'),
                         Line2D([], [], color='.25', linestyle='--', label='model liniowy')])
@@ -70,8 +70,8 @@ for indices, name in [([0], 'DMC_scenariusz_1'),
         row, col = 2*(offset//cols), offset % cols
         ay, au = axs[row, col], axs[row+1, col]
         au.sharex(ay)
-        ay.plot(d['tc'], tr['yNL'], color=colors[0], label='obiekt nieliniowy')
-        ay.plot(d['tc'], tr['yLin'], '--', color=colors[1], label='obiekt liniowy')
+        ay.step(d['tc'], tr['yNL'], where='post', color=colors[0], label='obiekt nieliniowy')
+        ay.step(d['tc'], tr['yLin'], where='post', linestyle='--', color=colors[1], label='obiekt liniowy')
         ay.step(d['tc'], tr['ref'], where='post', color='.2', linestyle=':',
                 label=r'$y_{\mathrm{zad}}(k)$')
         # Ostatnie sterowanie obowiązuje do końca ostatniego przedziału.
@@ -95,8 +95,8 @@ for indices, name in [([0], 'DMC_scenariusz_1'),
 
 tr = traces[1]
 fig, axs = plt.subplots(3, 1, figsize=(6.4, 4.9), sharex=True, layout='constrained')
-axs[0].plot(d['tc'], tr['yNL'], color=colors[0], label='obiekt nieliniowy')
-axs[0].plot(d['tc'], tr['yLin'], '--', color=colors[1], label='obiekt liniowy')
+axs[0].step(d['tc'], tr['yNL'], where='post', color=colors[0], label='obiekt nieliniowy')
+axs[0].step(d['tc'], tr['yLin'], where='post', linestyle='--', color=colors[1], label='obiekt liniowy')
 axs[0].step(d['tc'], tr['ref'], where='post', color='.2', linestyle=':', label=r'$y_{\mathrm{zad}}(k)$')
 axs[0].set_ylabel(r'$y(k)$ [cm]')
 axs[0].legend(ncol=3, loc='upper right')
@@ -118,7 +118,7 @@ def row(values, decimals):
 for key, name in [('stepResults', 'skoki_F1in'), ('distResults', 'skoki_FD')]:
     (TABLES / (name + '.tex')).write_text('\n'.join(row(r, [0, 4, 4, 4, 4]) for r in d[key]) + '\n', encoding='utf-8')
 
-(TABLES / 'DMC_wskazniki.tex').write_text('\n'.join(row(r[:5], [0, 0, 1, 1, 3]) for r in d['dmcResults']) + '\n', encoding='utf-8')
+(TABLES / 'DMC_wskazniki.tex').write_text('\n'.join(row(r[:4], [0, 0, 3, 3]) for r in d['dmcResults']) + '\n', encoding='utf-8')
 control_rows = []
 extra = []
 for sc, tr in zip(d['scenarios'], traces):
@@ -126,9 +126,9 @@ for sc, tr in zip(d['scenarios'], traces):
     control_rows.append(row([sc[0], sc[1], np.min(tr['uNL']), np.max(tr['uNL']), residual], [0, 0, 2, 2, 4]))
     mask_r = (d['tc'] >= 400) & (d['tc'] < 3800)
     mask_d = d['tc'] >= 3800
-    extra.append([sc[0], sc[1], 20*np.sum(abs(tr['yLin'][mask_r]-tr['ref'][mask_r])),
-                  20*np.sum(abs(tr['yLin'][mask_d]-tr['ref'][mask_d]))])
+    extra.append([sc[0], sc[1], np.mean((tr['yLin'][mask_r]-tr['ref'][mask_r])**2),
+                  np.mean((tr['yLin'][mask_d]-tr['ref'][mask_d])**2)])
 (TABLES / 'DMC_sterowanie.tex').write_text('\n'.join(control_rows) + '\n', encoding='utf-8')
 print('Utworzono rysunki PDF z parami y(k), u(k), obrazy PNG oraz 4 tabele LaTeX.')
-print('IAE modelu liniowego [skok y_zad, skok FD, IAE zadanie, IAE FD]:')
+print('MSE modelu liniowego [skok y_zad, skok FD, MSE zadanie, MSE FD]:')
 print(np.array(extra))

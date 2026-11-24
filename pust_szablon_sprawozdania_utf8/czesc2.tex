@@ -1,6 +1,6 @@
 \chapter{Modele rozmyte Takagiego--Sugeno}
 \section{Zmienna reguł i dyskretne modele lokalne}
-Zmienną przesłanek jest poziom $h_2$, od którego zależy przekrój drugiego zbiornika $B_2(h_2)=3C_2h_2^2$ oraz reakcja układu na niemierzalne zakłócenie $F_D$. Zakres $h_2\in[\num{4.500},\ \num{26.538}]\ \mathrm{cm}$ odpowiada zmianom dopływu $\uvar$ od 50 do 150~$\jednprzep$ ($\pm50\%$) przy $F_{D,0}=20\ \jednprzep$. Podzielono go równomiernie na 2, 3, 4 i 5~węzłów z trójkątnymi funkcjami przynależności (z ramionami na brzegach), sumującymi się do jedności.
+Jako zmienną decydującą o wagach modeli lokalnych wybrano mierzony poziom wyjściowy $h_2$, a nie sterowanie $\uvar$. Wynika to z dwóch powodów: po pierwsze, od $h_2$ bezpośrednio zależy chwilowy przekrój drugiego zbiornika ($B_2(h_2)=3C_2h_2^2$), który decyduje o szybkości zmian poziomu; po drugie, na $h_2$ od razu wpływa niemierzalne zakłócenie $F_D$, więc model rozpoznaje zmianę punktu pracy nawet przy stałym lub opóźnionym sterowaniu $\uvar$. Węzły funkcji przynależności rozmieszczono równomiernie na 2, 3, 4 i 5~punktach w przedziale $h_2\in[\num{4.500},\ \num{26.538}]\ \mathrm{cm}$, odpowiadającym stanom ustalonym dla badanego zakresu zmian dopływu $\uvar$ od 50 do 150~$\jednprzep$ ($\pm50\%$ wokół punktu pracy przy $F_{D,0}=20\ \jednprzep$). Zastosowano trójkątne funkcje przynależności sumujące się do jedności z płaskimi ramionami równymi~1 poza tym przedziałem, dzięki czemu model obsługuje także szerszy zakres sterowania (np. $\uvar\in[0,200]\ \jednprzep$) bez konieczności umieszczania węzłów w pobliżu $h_2=0$, gdzie nieliniowość obiektu rośnie bardzo gwałtownie.
 
 W każdym węźle $h_{2,i}$ wyznaczono punkt równowagi $q_i=\alpha_2\sqrt{h_{2,i}}$, $h_{1,i}=(q_i/\alpha_1)^2$ oraz linearyzację obiektu:
 \begin{align}
@@ -30,13 +30,13 @@ Modele sprawdzono na 12 skokach z punktu pracy ($\Delta\uvar=\pm10,\pm25,\pm50\ 
 \begin{table}[H]
 \centering
 \caption{Jakość modeli na 12 skokach z punktu pracy (przed strojeniem).}
-\begin{tabular}{lrr}\toprule
-Model & RMSE [cm] & Maksymalny błąd [cm]\\\midrule
-Liniowy & \num{0.878} & \num{2.296}\\
-TS, 2 reguły & \num{3.369} & \num{8.895}\\
-TS, 3 reguły & \num{1.615} & \num{2.442}\\
-TS, 4 reguły & \num{0.393} & \num{1.499}\\
-TS, 5 reguł & \num{0.207} & \num{1.457}\\\bottomrule
+\begin{tabular}{lr}\toprule
+Model & RMSE [cm]\\\midrule
+Liniowy & \num{0.878}\\
+TS, 2 reguły & \num{3.369}\\
+TS, 3 reguły & \num{1.615}\\
+TS, 4 reguły & \num{0.393}\\
+TS, 5 reguł & \num{0.207}\\\bottomrule
 \end{tabular}
 \label{tab:ts-quality}
 \end{table}
@@ -96,9 +96,9 @@ Dla $i$-tej reguły pierwszy wiersz $k_{1,i}^{\mathsf T}$ macierzy $K_i=(M_i^{\m
 Przyjęto ograniczenia $0\leq\uvar\leq200\ \jednprzep$ i $|\Delta\uvar|\leq15\ \jednprzep$ na próbkę. Początkowe funkcje przynależności regulatora są takie same jak w dostrojonym modelu obiektu. Do porównania zestawiono nieograniczony DMC z części~1 oraz ten sam liniowy DMC z ograniczeniami.
 
 \section{Porównanie układów i strojenie PDC}
-Testy wykonano na tej samej osi czasu co w części~1: skok zadania w 400~s, skok $F_D$ w 3800~s, koniec w 8000~s. IAE liczono osobno dla zadania (400--3780~s) i zakłócenia (3800--8000~s).
+Testy wykonano na tej samej osi czasu co w części~1: skok zadania w 400~s, skok $F_D$ w 3800~s, koniec w 8000~s. Błąd średniokwadratowy MSE liczono osobno dla zadania (400--3780~s), zakłócenia (3800--8000~s) oraz łącznie dla całej próby (400--8000~s).
 
-Strojenie regulatora polegało na zmianie wyłącznie wag przełączania ($\widetilde w_i\propto\mu_i^\gamma$ dla $\gamma$ z zakresu od \num{0.5} do 3) i przesunięciu wewnętrznych węzłów o $\{-2,0,+2\}\ \mathrm{cm}$ przy stałych regulatorach lokalnych. Najmniejszy IAE dało $\gamma=\num{3.0}$ z węzłami $[\num{4.500},\num{10.009},\num{15.519},\num{21.029},\num{26.538}]\ \mathrm{cm}$ (rys.~\ref{fig:ts-controller-mf}).
+Strojenie regulatora polegało na zmianie wyłącznie wag przełączania ($\widetilde w_i\propto\mu_i^\gamma$ dla $\gamma$ z zakresu od \num{0.5} do 3) i przesunięciu wewnętrznych węzłów o $\{-2,0,+2\}\ \mathrm{cm}$ przy stałych regulatorach lokalnych. Najmniejszy MSE dało $\gamma=\num{3.0}$ z węzłami $[\num{4.500},\num{8.009},\num{15.519},\num{21.029},\num{26.538}]\ \mathrm{cm}$ (rys.~\ref{fig:ts-controller-mf}).
 
 \begin{figure}[H]
 \centering
@@ -109,20 +109,20 @@ Strojenie regulatora polegało na zmianie wyłącznie wag przełączania ($\wide
 
 \begin{table}[H]
 \centering
-\caption{Suma IAE zadania i zakłócenia w czterech próbach [cm$\cdot$s] ($N=50$, $N_u=10$, $\lambda=\num{0.05}$).}
+\caption{Łączny błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$] ($N=50$, $N_u=10$, $\lambda=\num{0.05}$).}
 \small
 \begin{tabular}{lrrrr}\toprule
 Skoki: zadanie / $F_D$ & DMC cz.~1 & Liniowy ogr. & PDC & PDC strojony\\\midrule
-$+2\ \mathrm{cm}/+10\ \jednprzep$ & 1633 & 1633 & 1746 & 1573\\
-$+4\ \mathrm{cm}/+20\ \jednprzep$ & 3944 & 3947 & 3809 & 3392\\
-$+8\ \mathrm{cm}/+30\ \jednprzep$ & 9483 & 9627 & 7529 & 7001\\
-$-8\ \mathrm{cm}/-10\ \jednprzep$ & 4443 & 4579 & 3187 & 3159\\\midrule
-Suma & 19503 & 19785 & 16271 & 15125\\\bottomrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.294} & \num{0.294} & \num{0.292} & \num{0.291}\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.281} & \num{1.282} & \num{1.230} & \num{1.213}\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.705} & \num{4.852} & \num{4.328} & \num{4.259}\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.685} & \num{2.831} & \num{2.644} & \num{2.640}\\\midrule
+Średnia & \num{2.241} & \num{2.315} & \num{2.124} & \num{2.101}\\\bottomrule
 \end{tabular}
 \label{tab:ts-control}
 \end{table}
 
-Już początkowy PDC obniża sumę IAE o \num{17.8}\% względem ograniczonego DMC liniowego i wyraźnie ogranicza oscylacje przy skokach $\pm8\ \mathrm{cm}$ (rys.~\ref{fig:ts-control}). Po dostrojeniu wag łączny IAE spada o kolejne \num{7.0}\% (do 15\,125~cm$\cdot$s), poprawiając wynik DMC z części~1 o \num{22.5}\% w sumie i w każdej próbie osobno, mimo ograniczenia $|\Delta u|\leq15\ \jednprzep$ (DMC bez ograniczeń wykonywał ruchy do \num{31.12}~$\jednprzep$).
+Już początkowy PDC obniża średni MSE o \num{8.3}\% względem ograniczonego DMC liniowego i wyraźnie ogranicza oscylacje przy skokach $\pm8\ \mathrm{cm}$ (rys.~\ref{fig:ts-control}). Po dostrojeniu wag średni MSE spada o kolejne \num{1.1}\% (do \num{2.101}~$\mathrm{cm^2}$), poprawiając wynik DMC z części~1 o \num{6.3}\% średnio i w każdej próbie osobno, mimo ograniczenia $|\Delta u|\leq15\ \jednprzep$ (DMC bez ograniczeń wykonywał ruchy do \num{31.12}~$\jednprzep$).
 
 \begin{figure}[H]
 \centering
