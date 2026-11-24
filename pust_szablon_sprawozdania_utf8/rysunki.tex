@@ -1,15 +1,6 @@
 \chapter{Regulacja DMC}
 \section{Algorytm i testy}
-Zaprojektowano analityczny DMC z modelu liniowego. Uwzględnia on wcześniejsze sterowania, co jest istotne przy opóźnieniu $200\ \mathrm{s}$. Dla odpowiedzi skokowej $s_i$ przyjęto $M_{ij}=s_{i-j+1}$ dla $i\geq j$, a poza tym zero. Swobodna predykcja wynosi
-\begin{equation}
-Y_i^0(k)=y(k)+\sum_{j=1}^{D-1}(s_{i+j}-s_j)\Delta u(k-j).
-\end{equation}
-Dla wektora zadania $Y_{\mathrm{zad}}$ minimalizowano:
-\begin{align}
-J&=\|Y_{\mathrm{zad}}-Y^0-M\Delta U\|^2+\lambda\|\Delta U\|^2,\\
-\Delta U&=(M^{\mathsf T}M+\lambda I)^{-1}M^{\mathsf T}(Y_{\mathrm{zad}}-Y^0).
-\end{align}
-W każdej próbce stosowano pierwszy przyrost $\Delta U$. Nastawy: $D=250$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$, $T_s=20\ \mathrm{s}$. Regulator działa bez ograniczeń; zakłócenie tłumi przez sprzężenie zwrotne.
+Zaprojektowano analityczny regulator DMC na podstawie odpowiedzi skokowej modelu liniowego. W każdej próbce algorytm wyznacza przyszłe przyrosty sterowania minimalizujące błąd predykcji wyjścia i zmiany sterowania, a na obiekt podaje tylko pierwszy z nich. Dzięki uwzględnieniu historii sterowań regulator dobrze radzi sobie z opóźnieniem transportowym $200\ \mathrm{s}$. Przyjęto nastawy: $D=250$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$ oraz $T_s=20\ \mathrm{s}$. Regulator działa bez ograniczeń, a zakłócenie $F_D$ tłumi przez sprzężenie zwrotne.
 
 Na obu obiektach w $400\ \mathrm{s}$ zmieniano zadany poziom, a w $3800\ \mathrm{s}$ zakłócenie. Dla każdej próby pokazano wyjście $y(k)=h_2(k)$ i sterowanie $u(k)=\uvar(k)$ na wspólnej osi czasu.
 \begin{figure}[H]
