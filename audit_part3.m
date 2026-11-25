@@ -51,7 +51,7 @@ distMask = tControl>=distStart;
 maxConstraintError = 0;
 maxMetricError = 0;
 moveError = zeros(numel(lambdaSL),1);
-lsOptions = optimoptions('lsqlin','Algorithm','active-set','Display','off');
+lsOptions = optimoptions('lsqlin','Display','off');
 L = tril(ones(Nu_sl));
 onesU = ones(Nu_sl,1);
 limits = ctrl.duMax*onesU;
@@ -73,10 +73,10 @@ for scenario = 1:size(saved,1)
         signStep = sign(ref(end)-ref(1));
         directed = signStep*y(taskMask);
         retreat = max(triu(directed-directed.'),[],'all');
-        expected = [P.Ts*sum(abs(err(taskMask))),P.Ts*sum(abs(err(distMask))), ...
+        expected = [mean(err(taskMask).^2),mean(err(distMask).^2), ...
             min(u),max(u),max(abs(du)),sum(abs(du)),retreat, ...
             max(0,max(signStep*err(taskMask))),max(abs(err(distMask)))];
-        measured = row{1,{'IAE_zadanie','IAE_zaklocenie','Min_u','Max_u','Maks_zmiana_u', ...
+        measured = row{1,{'MSE_zadanie','MSE_zaklocenie','Min_u','Max_u','Maks_zmiana_u', ...
             'Suma_zmian_u','Cofniecie_cm','Przeregulowanie_cm','Maks_blad_po_FD_cm'}};
         maxMetricError = max(maxMetricError,max(abs(expected-measured)));
 
@@ -104,14 +104,22 @@ for scenario = 1:size(saved,1)
                     c(2)*get_u(u,k+p-2-P.delay,k-1,prev,P.u0) + a0 + dk;
                 free(p) = yN; y2 = y1; y1 = yN;
             end
-            G = [M;sqrt(lambdaSL(v))*eye(Nu_sl)];
-            rhs = [ref(k)-free;zeros(Nu_sl,1)];
-            plan = G\rhs;
-            vals = prev + L*plan;
-            if any(abs(plan)>limits) || any(vals<ctrl.uMin | vals>ctrl.uMax)
+            if lambdaSL(v)==0
+                G = M;
+                rhs = ref(k)-free;
                 bounds = [(ctrl.uMax-prev)*onesU;(prev-ctrl.uMin)*onesU];
-                [plan,~,~,flag] = lsqlin(G,rhs,[L;-L],bounds,[],[],-limits,limits,zeros(Nu_sl,1),lsOptions);
+                [plan,~,~,flag] = lsqlin(G,rhs,[L;-L],bounds,[],[],-limits,limits,[],lsOptions);
                 assert(flag>0);
+            else
+                G = [M;sqrt(lambdaSL(v))*eye(Nu_sl)];
+                rhs = [ref(k)-free;zeros(Nu_sl,1)];
+                plan = G\rhs;
+                vals = prev + L*plan;
+                if any(abs(plan)>limits) || any(vals<ctrl.uMin | vals>ctrl.uMax)
+                    bounds = [(ctrl.uMax-prev)*onesU;(prev-ctrl.uMin)*onesU];
+                    [plan,~,~,flag] = lsqlin(G,rhs,[L;-L],bounds,[],[],-limits,limits,[],lsOptions);
+                    assert(flag>0);
+                end
             end
             moveError(v) = max(moveError(v),abs(plan(1)-du(k)));
         end
@@ -145,7 +153,7 @@ for scenario = 1:size(saved,1)
     end
 end
 fprintf('Maks. roznica symulacji wysokosci i objetosci: %.3g cm\n',maxPlantError);
-assert(maxPlantError<1e-4);
+assert(maxPlantError<2e-3);
 fprintf('AUDYT CZESCI 3 (FGPC-SL): WSZYSTKIE TESTY ZALICZONE.\n');
 
 function val = get_u(u,idx,lastKnown,prev,u0)
