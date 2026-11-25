@@ -16,9 +16,9 @@ OUT.mkdir(parents=True, exist_ok=True)
 TABLES.mkdir(exist_ok=True)
 d = loadmat(DATA, simplify_cells=True)
 plt.rcParams.update({'font.size': 8, 'axes.labelsize': 9, 'axes.titlesize': 9,
-                     'legend.fontsize': 7, 'lines.linewidth': 1.25,
+                     'legend.fontsize': 7, 'lines.linewidth': 1.0,
                      'pdf.fonttype': 42, 'savefig.bbox': 'tight'})
-colors = ['#0072BD', '#D95319', '#EDB120']
+colors = ['#1171BE', '#DD5400', '#EDB120']
 fmt = FuncFormatter(lambda x, pos: f'{x:g}'.replace('.', ','))
 
 def axes_style(ax):

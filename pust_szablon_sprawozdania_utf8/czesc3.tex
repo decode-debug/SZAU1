@@ -8,19 +8,26 @@ Zastosowano numeryczny regulator rozmyty z kolejną linearyzacją (FGPC--SL), op
 z jawnymi ograniczeniami $0\leq\uvar\leq200\ \jednprzep$ oraz $|\Delta\uvar|\leq15\ \jednprzep$ na próbkę w całym horyzoncie sterowania. Do obiektu podawany jest pierwszy przyrost z wyznaczonego wektora $\Delta U$.
 
 \section{Strojenie \texorpdfstring{$\lambda$}{lambda} i porównanie z PDC}
-Przyjęto $N=30$ (20 próbek za opóźnieniem transportowym) oraz $N_u=5$. Zbadano wpływ współczynnika $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2}\}$ na tych samych czterech próbach co w częściach~1 i 2.
+Przyjęto te same horyzonty co w regulatorach DMC i PDC: $N=50$ oraz $N_u=10$. Zbadano wpływ współczynnika $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2};\ 0\}$ (od łagodnego sterowania, przez aktywację ograniczeń, aż po brak kary za przyrosty sterowania) na tych samych czterech próbach co w częściach~1 i 2.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{rysunki/czesc3/strojenie_SL.pdf}
+\caption{Wpływ $\lambda\in\{2;\ \num{0.5};\ \num{0.2}\}$ w regulatorze FGPC--SL (${N=50}$, ${N_u=10}$) dla prób $+8\ \mathrm{cm}$ / $+30\ \jednprzep$ i $-8\ \mathrm{cm}$ / $-10\ \jednprzep$ (dla czytelności pominięto oscylujący wariant $\lambda=0$).}
+\label{fig:sl-tuning}
+\end{figure}
 
 \begin{table}[H]
 \centering
-\caption{Łączny błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$]: PDC oraz FGPC--SL ($N=30$, $N_u=5$).}
-\small
-\begin{tabular}{lrrrrrr}\toprule
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($\lambda=2$) & SL ($\lambda=1$) & SL ($\lambda=\num{0.5}$) & SL ($\lambda=\num{0.2}$)\\\midrule
-$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.288} & \num{0.316} & \num{0.277} & \num{0.254} & \num{0.233}\\
-$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.228} & \num{1.210} & \num{1.283} & \num{1.111} & \num{1.012} & \num{0.928}\\
-$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.336} & \num{4.226} & \num{4.571} & \num{3.971} & \num{3.632} & \num{3.367}\\
-$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.637} & \num{2.633} & \num{3.464} & \num{3.163} & \num{2.979} & \num{2.822}\\\midrule
-Średnia & \num{2.123} & \num{2.089} & \num{2.409} & \num{2.130} & \num{1.969} & \num{1.838}\\\bottomrule
+\caption{Łączny błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$]: PDC oraz FGPC--SL ($N=50$, $N_u=10$).}
+\footnotesize
+\begin{tabular}{lrrrrrrr}\toprule
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($2$) & SL ($1$) & SL ($\num{0.5}$) & SL ($\num{0.2}$) & SL ($0$)\\\midrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.288} & \num{0.318} & \num{0.288} & \num{0.260} & \num{0.230} & \num{8.094}\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.228} & \num{1.210} & \num{1.286} & \num{1.161} & \num{1.044} & \num{0.914} & \num{5.353}\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.336} & \num{4.226} & \num{4.444} & \num{4.077} & \num{3.731} & \num{3.345} & \num{5.642}\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.637} & \num{2.633} & \num{3.491} & \num{3.246} & \num{3.018} & \num{2.794} & \num{3.229}\\\midrule
+Średnia & \num{2.123} & \num{2.089} & \num{2.385} & \num{2.193} & \num{2.013} & \num{1.821} & \num{5.580}\\\bottomrule
 \end{tabular}
 \label{tab:sl-control}
 \end{table}
@@ -29,56 +36,51 @@ $-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.637} & \num{2.633} & \num{3.464} & \n
 \centering
 \caption{Wskaźniki jakości regulacji i aktywności sterowania w czterech próbach projektowych.}
 \small
-\begin{tabular}{lrrrrrr}\toprule
-Regulator & MSE zad. & MSE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Cofn. & Przereg.\\
- & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [$\jednprzep$] & [$\jednprzep$] & [cm] & [cm]\\\midrule
-PDC                       & \num{3.608} & \num{0.927} & \num{502.7} & \num{15.0} & \num{1.563} & \num{0.306}\\
-PDC strojony              & \num{3.544} & \num{0.917} & \num{450.7} & \num{15.0} & \num{1.457} & \num{0.595}\\
-FGPC--SL ($\lambda=2$)    & \num{4.619} & \num{0.628} & \num{220.2} &  \num{5.5} & \num{0.528} & \num{0.496}\\
-FGPC--SL ($\lambda=1$)    & \num{4.238} & \num{0.432} & \num{274.8} &  \num{8.3} & \num{0.486} & \num{0.480}\\
-FGPC--SL ($\lambda=0{,}5$)& \num{4.000} & \num{0.333} & \num{337.3} & \num{11.5} & \num{0.480} & \num{0.476}\\
-FGPC--SL ($\lambda=0{,}2$)& \num{3.787} & \num{0.268} & \num{441.3} & \num{15.0} & \num{0.742} & \num{0.552}\\\bottomrule
+\begin{tabular}{lrrrrr}\toprule
+Regulator & MSE zad. & MSE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Przereg.\\
+ & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [$\jednprzep$] & [$\jednprzep$] & [cm]\\\midrule
+PDC                       & \num{3.608} & \num{0.927} & \num{502.7} & \num{15.0} & \num{0.306}\\
+PDC strojony              & \num{3.544} & \num{0.917} & \num{450.7} & \num{15.0} & \num{0.595}\\
+FGPC--SL ($\lambda=2$)    & \num{4.659} & \num{0.553} & \num{203.6} &  \num{5.7} & \num{0.267}\\
+FGPC--SL ($\lambda=1$)    & \num{4.348} & \num{0.456} & \num{237.7} &  \num{7.5} & \num{0.379}\\
+FGPC--SL ($\lambda=0{,}5$)& \num{4.052} & \num{0.370} & \num{303.4} & \num{10.3} & \num{0.511}\\
+FGPC--SL ($\lambda=0{,}2$)& \num{3.741} & \num{0.273} & \num{475.0} & \num{15.0} & \num{0.687}\\
+FGPC--SL ($\lambda=0$)    & \num{6.982} & \num{4.450} & \num{20102.2} & \num{15.0} & \num{5.738}\\\bottomrule
 \end{tabular}
 \label{tab:sl-metrics}
 \end{table}
 
-Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{6.2}\% względem dostrojonego PDC (do \num{1.969}~$\mathrm{cm^2}$), MSE po zakłóceniu maleje niemal trzykrotnie (z \num{0.935} do \num{0.333}~$\mathrm{cm^2}$), a suma zmian sterowania jest o \num{21.1}\% mniejsza (\num{337.3} wobec \num{427.5}~$\jednprzep$). Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE do \num{1.838}~$\mathrm{cm^2}$, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie odbicie poziomu (cofnięcie \num{0.742}~cm).
+Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Całkowite usunięcie kary za przyrosty ($\lambda=0$) wywołuje jednak silne oscylacje sterowania na granicach ograniczeń i wyraźnie pogarsza jakość regulacji. Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{3.7}\% względem dostrojonego PDC, MSE po zakłóceniu maleje niemal 2,5-krotnie, a sterowanie jest znacznie łagodniejsze. Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie przeregulowanie.
 
-W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w punkcie startowym $y(k)$ na cały horyzont $N=30$ nie uwzględnia szybkiego spadku pojemności $3C_2h_2^2$ przy niskim poziomie, co wywołuje krótkotrwałe odbicie poziomu i sterowania około 1000~s (rys.~\ref{fig:sl-outputs} i \ref{fig:sl-controls}). Średni czas obliczeń \texttt{quadprog} nie przekracza \num{0.4}~ms na próbkę.
+W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w punkcie $y(k)$ na cały horyzont nie uwzględnia spadku pojemności $3C_2h_2^2$ przy niskim poziomie, co powoduje krótkotrwałe odbicie około 1000~s (rys.~\ref{fig:sl-outputs} i \ref{fig:sl-controls}). Średni czas obliczeń \texttt{quadprog} nie przekracza \num{0.9}~ms na próbkę.
 
 \begin{table}[H]
 \centering
 \caption{Walidacja wariantów FGPC--SL na czterech próbach dodatkowych (MSE [$\mathrm{cm^2}$]).}
-\small
-\begin{tabular}{lrrrr}\toprule
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$\\\midrule
-$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.563} & \num{0.509} & \num{0.475} & \num{0.444}\\
-$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.622} & \num{0.559} & \num{0.520} & \num{0.483}\\
-$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.150} & \num{1.960} & \num{1.841} & \num{1.728}\\
-$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{2.107} & \num{1.916} & \num{1.798} & \num{1.688}\\\midrule
-Średni MSE                        & \num{1.360} & \num{1.236} & \num{1.158} & \num{1.086}\\
-Maks. cofnięcie / przereg. [cm]   & \num{0.265} / \num{0.257} & \num{0.256} / \num{0.254} & \num{0.263} / \num{0.262} & \num{0.466} / \num{0.319}\\\bottomrule
+\footnotesize
+\begin{tabular}{lrrrrr}\toprule
+$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$ & $\lambda=0$\\\midrule
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.567} & \num{0.524} & \num{0.483} & \num{0.437} & \num{5.461}\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.627} & \num{0.576} & \num{0.529} & \num{0.477} & \num{0.516}\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.161} & \num{2.012} & \num{1.869} & \num{1.704} & \num{4.673}\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{2.124} & \num{1.969} & \num{1.823} & \num{1.668} & \num{2.066}\\\midrule
+Średni MSE                        & \num{1.370} & \num{1.270} & \num{1.176} & \num{1.072} & \num{3.179}\\
+Maks. przeregulowanie [cm]        & \num{0.137} & \num{0.204} & \num{0.285} & \num{0.392} & \num{4.744}\\\bottomrule
 \end{tabular}
 \label{tab:sl-validation}
 \end{table}
 
-Próby walidacyjne o przeciwnych znakach skoków (tab.~\ref{tab:sl-validation}) dają taki sam obraz: $\lambda=\num{0.5}$ utrzymuje cofnięcie i przeregulowanie poniżej \num{0.27}~cm, natomiast dla $\lambda=\num{0.2}$ cofnięcie w próbie $-6\ \mathrm{cm}$ wzrasta do \num{0.466}~cm.
+Próby walidacyjne o przeciwnych znakach skoków (tab.~\ref{tab:sl-validation}) potwierdzają ten wybór: $\lambda=\num{0.5}$ utrzymuje małe przeregulowanie, dla $\lambda=\num{0.2}$ rośnie aktywność sterowania i przeregulowanie, a przy $\lambda=0$ układ ponownie wpada w oscylacje.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{rysunki/czesc3/strojenie_SL.png}
-\caption{Wpływ $\lambda$ w regulatorze FGPC--SL (${N=30}$, ${N_u=5}$) dla prób $+8\ \mathrm{cm}$ / $+30\ \jednprzep$ i $-8\ \mathrm{cm}$ / $-10\ \jednprzep$.}
-\label{fig:sl-tuning}
-\end{figure}
-\begin{figure}[H]
-\centering
-\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_wyjsc.png}
+\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_wyjsc.pdf}
 \caption{Poziom $h_2$ w czterech próbach: PDC, PDC strojony oraz FGPC--SL (${\lambda=1}$, ${\lambda=\num{0.5}}$ i ${\lambda=\num{0.2}}$).}
 \label{fig:sl-outputs}
 \end{figure}
 \begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_sterowan.png}
+\includegraphics[width=\textwidth]{rysunki/czesc3/porownanie_sterowan.pdf}
 \caption{Sterowanie $\uvar$ dla przebiegów z rys.~\ref{fig:sl-outputs}.}
 \label{fig:sl-controls}
 \end{figure}

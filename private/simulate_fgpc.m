@@ -18,6 +18,7 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
     ub =  ctrl.duMax*ones(Nu,1);
     onesNu = ones(Nu,1);
     lambdaEye = ctrl.lambda*eye(Nu);
+    lsqOpts = optimoptions('lsqlin','Display','off');
 
     for k = 1:n
         if k==1, prevU = P.u0; else, prevU = u(k-1); end
@@ -92,11 +93,15 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
         end
 
         % (4.103)-(4.105): zadanie optymalizacji liniowo-kwadratowej z ograniczeniami.
-        H = 2*(M'*M + lambdaEye);
-        H = 0.5*(H + H');
-        f = -2*M'*(reference(k) - free);
         bineq = [(ctrl.uMax - prevU)*onesNu; (prevU - ctrl.uMin)*onesNu];
-        [moves,~,exitflag] = quadprog(H,f,Aineq,bineq,[],[],lb,ub,zeros(Nu,1),options);
+        if ctrl.lambda==0
+            [moves,~,~,exitflag] = lsqlin(M,reference(k)-free,Aineq,bineq,[],[],lb,ub,[],lsqOpts);
+        else
+            H = 2*(M'*M + lambdaEye);
+            H = 0.5*(H + H');
+            f = -2*M'*(reference(k) - free);
+            [moves,~,exitflag] = quadprog(H,f,Aineq,bineq,[],[],lb,ub,zeros(Nu,1),options);
+        end
         if exitflag<=0
             error('quadprog nie rozwiazal probki k=%d (exitflag=%d).',k,exitflag);
         end

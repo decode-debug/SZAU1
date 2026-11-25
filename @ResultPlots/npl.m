@@ -6,9 +6,7 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
         "PDC strojony"; ...
         sprintf("FGPC-SL (\\lambda = %g)",lamSel); ...
         sprintf("FGPC-NPL (\\lambda = %g)",lamSel)];
-    colors = [0.48 0.50 0.53; 0.85 0.33 0.10; 0.93 0.69 0.13; 0 0.45 0.74];
     styles = {'--','-.','-','-'};
-    widths = [1.15, 1.35, 1.45, 1.85];
 
     for signal = ["y","u"]
         fig = figure('Visible','off','Color','w','Position',[100 100 1080 800]);
@@ -20,17 +18,17 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
                       slTraces(j,selectedVariant).(signal), nplTraces(j,selectedVariant).(signal)];
             if signal=="y"
                 hL = stairs(ax,tControl,curves);
-                refL = stairs(ax,tControl,traces(j).ref,'Color',[0.12 0.47 0.23],'LineStyle',':','LineWidth',1.45);
+                refL = stairs(ax,tControl,traces(j).ref,'LineStyle',':','LineWidth',1);
                 ylabel(ax,'h_2 [cm]');
             else
                 hL = stairs(ax,tControl,[curves;curves(end,:)]);
                 ylabel(ax,'F_{1in} [cm^3/s]');
             end
             for m = 1:numel(baseLabels)
-                set(hL(m),'Color',colors(m,:),'LineStyle',styles{m},'LineWidth',widths(m));
+                set(hL(m),'LineStyle',styles{m},'LineWidth',1);
             end
-            xline(ax,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');
-            xline(ax,distStart,':','skok F_D','Color',[.45 .45 .45],'HandleVisibility','off');
+            xline(ax,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
+            xline(ax,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
             xlim(ax,[tControl(1),tControl(end)]);
             title(ax,sprintf('Zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
             xlabel(ax,'t [s]');
@@ -43,8 +41,8 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
                 lg.Layout.Tile = 'south';
             end
         end
-        exportgraphics(fig,fullfile(obj.OutputDir,"NPL_"+signal+".png"), ...
-            'Resolution',160,'BackgroundColor','white');
+        exportgraphics(fig,fullfile(obj.OutputDir,"NPL_"+signal+".pdf"), ...
+            'ContentType','vector','BackgroundColor','white');
         close(fig);
     end
 
@@ -55,42 +53,44 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
     theme(fig,'light');
     tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
 
-    lColors = [0.49 0.18 0.56; 0.47 0.67 0.19; 0 0.45 0.74; 0.85 0.33 0.10];
-    lStyles = {'--','-.','-','-'};
-    lWidths = [1.25, 1.35, 1.85, 1.35];
-    lLabels = arrayfun(@(l) sprintf('FGPC-NPL (\\lambda = %g)',l),lambdaNPL,'UniformOutput',false);
+    % Wybrane 3 reprezentatywne wartosci lambda (lagodne, wybrane, agresywne) dla czytelnosci.
+    showIdx = [1, 3, 4];
+    lStyles = {'--','-','-.'};
+    lLabels = arrayfun(@(l) sprintf('FGPC-NPL (\\lambda = %g)',l),lambdaNPL(showIdx),'UniformOutput',false);
 
     picked = [jPos, jNeg];
     for col = 1:2
         j = picked(col);
         ay = nexttile(tiles,col); hold(ay,'on'); ay.Color = 'w';
-        for v = 1:numel(lambdaNPL)
-            stairs(ay,tControl,nplTraces(j,v).y,'Color',lColors(v,:),'LineStyle',lStyles{v},'LineWidth',lWidths(v));
+        for idx = 1:numel(showIdx)
+            v = showIdx(idx);
+            stairs(ay,tControl,nplTraces(j,v).y,'LineStyle',lStyles{idx},'LineWidth',1);
         end
-        stairs(ay,tControl,traces(j).ref,'k:','LineWidth',1.4);
-        xline(ay,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');
-        xline(ay,distStart,':','skok F_D','Color',[.45 .45 .45],'HandleVisibility','off');
+        stairs(ay,tControl,traces(j).ref,'LineStyle',':','LineWidth',1);
+        xline(ay,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(ay,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(ay,'on'); xlim(ay,[tControl(1),tControl(end)]);
         ylabel(ay,'h_2 [cm]'); xlabel(ay,'t [s]');
         title(ay,sprintf('Wyjście h_2 (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
 
         au = nexttile(tiles,col+2); hold(au,'on'); au.Color = 'w';
-        for v = 1:numel(lambdaNPL)
+        for idx = 1:numel(showIdx)
+            v = showIdx(idx);
             u = nplTraces(j,v).u;
-            stairs(au,tControl,[u;u(end)],'Color',lColors(v,:),'LineStyle',lStyles{v},'LineWidth',lWidths(v));
+            stairs(au,tControl,[u;u(end)],'LineStyle',lStyles{idx},'LineWidth',1);
         end
-        xline(au,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');
-        xline(au,distStart,':','skok F_D','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(au,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(au,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(au,'on'); xlim(au,[tControl(1),tControl(end)]);
         ylabel(au,'F_{1in} [cm^3/s]'); xlabel(au,'t [s]');
         title(au,sprintf('Sterowanie F_{1in} (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
 
         if col==1
-            lg = legend(ay,[lLabels,{'zadana'}],'NumColumns',5);
+            lg = legend(ay,[lLabels,{'zadana'}],'NumColumns',4);
             lg.Layout.Tile = 'south';
         end
     end
-    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_NPL.png'), ...
-        'Resolution',160,'BackgroundColor','white');
+    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_NPL.pdf'), ...
+        'ContentType','vector','BackgroundColor','white');
     close(fig);
 end

@@ -6,44 +6,46 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
     theme(fig,'light');
     tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
 
-    colors = [0.49 0.18 0.56; 0.47 0.67 0.19; 0 0.45 0.74; 0.85 0.33 0.10];
-    styles = {'--','-.','-','-'};
-    widths = [1.25, 1.35, 1.85, 1.35];
-    labels = arrayfun(@(l) sprintf('FGPC-SL (\\lambda = %g)',l),lambdaSL,'UniformOutput',false);
+    % Wybrane 3 reprezentatywne wartosci lambda (lagodne, wybrane, agresywne) dla czytelnosci.
+    showIdx = [1, 3, 4];
+    styles = {'--','-','-.'};
+    labels = arrayfun(@(l) sprintf('FGPC-SL (\\lambda = %g)',l),lambdaSL(showIdx),'UniformOutput',false);
 
     picked = [jPos, jNeg];
     for col = 1:2
         j = picked(col);
         % Gorny wiersz: wyjscie h_2
         ay = nexttile(tiles,col); hold(ay,'on'); ay.Color = 'w';
-        for v = 1:numel(lambdaSL)
-            stairs(ay,t,slTraces(j,v).y,'Color',colors(v,:),'LineStyle',styles{v},'LineWidth',widths(v));
+        for idx = 1:numel(showIdx)
+            v = showIdx(idx);
+            stairs(ay,t,slTraces(j,v).y,'LineStyle',styles{idx},'LineWidth',1);
         end
-        stairs(ay,t,traces(j).ref,'k:','LineWidth',1.4);
-        xline(ay,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');
-        xline(ay,distStart,':','skok F_D','Color',[.45 .45 .45],'HandleVisibility','off');
+        stairs(ay,t,traces(j).ref,'LineStyle',':','LineWidth',1);
+        xline(ay,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(ay,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(ay,'on'); xlim(ay,[t(1),t(end)]);
         ylabel(ay,'h_2 [cm]'); xlabel(ay,'t [s]');
         title(ay,sprintf('Wyjście h_2: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
 
         % Dolny wiersz: sterowanie F_1in
         au = nexttile(tiles,col+2); hold(au,'on'); au.Color = 'w';
-        for v = 1:numel(lambdaSL)
+        for idx = 1:numel(showIdx)
+            v = showIdx(idx);
             u = slTraces(j,v).u;
-            stairs(au,t,[u;u(end)],'Color',colors(v,:),'LineStyle',styles{v},'LineWidth',widths(v));
+            stairs(au,t,[u;u(end)],'LineStyle',styles{idx},'LineWidth',1);
         end
-        xline(au,refStart,':','zadanie','Color',[.45 .45 .45],'HandleVisibility','off');
-        xline(au,distStart,':','skok F_D','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(au,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(au,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(au,'on'); xlim(au,[t(1),t(end)]);
         ylabel(au,'F_{1in} [cm^3/s]'); xlabel(au,'t [s]');
         title(au,sprintf('Sterowanie F_{1in}: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
 
         if col==1
-            lg = legend(ay,[labels,{'zadana'}],'NumColumns',5);
+            lg = legend(ay,[labels,{'zadana'}],'NumColumns',4);
             lg.Layout.Tile = 'south';
         end
     end
-    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_SL.png'), ...
-        'Resolution',160,'BackgroundColor','white');
+    exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_SL.pdf'), ...
+        'ContentType','vector','BackgroundColor','white');
     close(fig);
 end

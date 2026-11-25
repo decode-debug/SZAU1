@@ -15,11 +15,11 @@ plots = ResultPlots(outdir);
 
 %% Nastawy numerycznego regulatora FGPC-SL (bez filtru wartosci zadanej!)
 % Badanie wplywu parametru lambda (jak w Przykladzie 4.18, Rys. 4.42-4.43).
-N_sl = 30;
-Nu_sl = 5;
-lambdaSL = [2.0, 1.0, 0.5, 0.2];
+N_sl = 50;
+Nu_sl = 10;
+lambdaSL = [2.0, 1.0, 0.5, 0.2, 0.0];
 selectedVariant = 3;  % lambda = 0.5: najlepszy kompromis jakosci i gladkosci sterowania
-options = optimoptions('quadprog','Algorithm','active-set','Display','off');
+options = optimoptions('quadprog','Algorithm','active-set','MaxIterations',1000,'Display','off');
 
 % Dodatkowe proby walidacyjne o posrednich amplitudach i przeciwnych znakach.
 validationCases = [3,-8; -3,12; 6,-10; -6,15];
@@ -72,7 +72,7 @@ validationSummary.Skok_FD = validationCases(validationSummary.Scenariusz,2);
 %% Zbiorcze porownanie: PDC (cz. 2) oraz FGPC-SL dla badanych wartosci lambda
 methodNames = ["PDC";"PDC strojony"; ...
     "FGPC-SL (\lambda=2)";"FGPC-SL (\lambda=1)"; ...
-    "FGPC-SL (\lambda=0,5)";"FGPC-SL (\lambda=0,2)"];
+    "FGPC-SL (\lambda=0,5)";"FGPC-SL (\lambda=0,2)";"FGPC-SL (\lambda=0)"];
 comparison = zeros(nProject*numel(methodNames),2+numel(metricNames));
 for j = 1:nProject
     first = (j-1)*numel(methodNames);
