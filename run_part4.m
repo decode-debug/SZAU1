@@ -6,37 +6,26 @@ root = fileparts(mfilename('fullpath'));
 source = fullfile(root,'wyniki_czesc3','dane_czesc3.mat');
 if ~isfile(source), error('Uruchom najpierw run_part2 i run_part3.'); end
 load(source,'P','ctrl','modelTuned','traces','slTraces','controlCases', ...
-    'tControl','refStart','distStart','N_sl','Nu_sl','lambdaSL','selectedVariant', ...
+    'tControl','refStart','distStart','lambdaGrid','selectedVariant', ...
     'validationCases','validationTraces');
 outdir = fullfile(root,'wyniki_czesc4');
 plots = ResultPlots(outdir);
-options = optimoptions('quadprog','Algorithm','active-set','MaxIterations',1000,'Display','off');
 
 %% Symulacje FGPC-NPL dla tych samych nastaw N, Nu i zestawu lambda co FGPC-SL
-N_npl = N_sl;
-Nu_npl = Nu_sl;
-lambdaNPL = lambdaSL;
 nProject = numel(traces);
-nVariants = numel(lambdaNPL);
+nVariants = numel(lambdaGrid);
 allCases = [controlCases;validationCases];
-
 taskMask = tControl>=refStart & tControl<distStart;
 distMask = tControl>=distStart;
 
 allNPL = struct([]);
 for j = 1:size(allCases,1)
-    if j<=nProject
-        ref = traces(j).ref;
-        dist = traces(j).dist;
-    else
-        ref = P.h0(2)+allCases(j,1)*(tControl>=refStart);
-        dist = P.d0+allCases(j,2)*(tControl>=distStart);
-    end
+    ref = P.h0(2) + allCases(j,1)*(tControl>=refStart);
+    dist = P.d0 + allCases(j,2)*(tControl>=distStart);
     for v = 1:nVariants
         cfg = ctrl;
-        cfg.N = N_npl;
-        cfg.lambda = lambdaNPL(v);
-        [y,u,dt] = simulate_fgpc(P,modelTuned,cfg,Nu_npl,ref,dist,options,true);
+        cfg.lambda = lambdaGrid(v);
+        [y,u,dt] = simulate_fgpc(P,modelTuned,cfg,ref,dist,true);
         allNPL(j,v).y = y;
         allNPL(j,v).u = u;
         allNPL(j,v).decisionTime = dt;
@@ -46,49 +35,25 @@ nplTraces = allNPL(1:nProject,:);
 nplValTraces = allNPL(nProject+1:end,:);
 
 %% Zbiorcze zestawienie regulatorow z czesci 1-4
-names = [ ...
-    "DMC cz. 1"; ...
-    "DMC ograniczony"; ...
-    "PDC"; ...
-    "PDC strojony"; ...
-    "FGPC-SL (lambda=1)"; ...
-    "FGPC-SL (lambda=0,5)"; ...
-    "FGPC-SL (lambda=0,2)"; ...
-    "FGPC-SL (lambda=0)"; ...
-    "FGPC-NPL (lambda=1)"; ...
-    "FGPC-NPL (lambda=0,5)"; ...
-    "FGPC-NPL (lambda=0,2)"; ...
-    "FGPC-NPL (lambda=0)"];
+varIdx = 2:nVariants; % lambda = 1, 0.5, 0.2, 0
+names = ["DMC cz. 1"; "DMC ograniczony"; "PDC"; "PDC strojony"; ...
+    arrayfun(@(l) sprintf("FGPC-SL (lambda=%g)",l),lambdaGrid(varIdx).'); ...
+    arrayfun(@(l) sprintf("FGPC-NPL (lambda=%g)",l),lambdaGrid(varIdx).')];
 
 nMethods = numel(names);
-rows = zeros(nProject*nMethods,12);
-allMask = taskMask | distMask;
+rows = zeros(nProject*nMethods,11);
 for j = 1:nProject
     ref = traces(j).ref;
-    Y = [traces(j).y, ...
-         slTraces(j,2).y, slTraces(j,3).y, slTraces(j,4).y, slTraces(j,5).y, ...
-         nplTraces(j,2).y, nplTraces(j,3).y, nplTraces(j,4).y, nplTraces(j,5).y];
-    U = [traces(j).u, ...
-         slTraces(j,2).u, slTraces(j,3).u, slTraces(j,4).u, slTraces(j,5).u, ...
-         nplTraces(j,2).u, nplTraces(j,3).u, nplTraces(j,4).u, nplTraces(j,5).u];
+    Y = [traces(j).y, slTraces(j,varIdx).y, nplTraces(j,varIdx).y];
+    U = [traces(j).u, slTraces(j,varIdx).u, nplTraces(j,varIdx).u];
     for m = 1:nMethods
-        e = Y(:,m)-ref;
-        du = diff([P.u0;U(:,m)]);
-        dir = sign(controlCases(j,1));
-        z = dir*Y(taskMask,m);
-        over = max(0,max(dir*e(taskMask)));
-        retr = max(cummax(z)-z);
-        rows((j-1)*nMethods+m,:) = [j,m, ...
-            mean(e(taskMask).^2), mean(e(distMask).^2), mean(e(allMask).^2), ...
-            over, retr, max(abs(e(distMask))), ...
-            min(U(:,m)), max(U(:,m)), max(abs(du)), sum(abs(du))];
+        rows((j-1)*nMethods+m,:) = [j, m, control_metrics(P,Y(:,m),U(:,m),ref,taskMask,distMask)];
     end
 end
 
 quality = array2table(rows,'VariableNames',{ ...
     'Scenariusz','ID','MSE_zadanie','MSE_zaklocenie','MSE_laczny', ...
-    'Przeregulowanie_cm','Cofniecie_cm','Maks_blad_po_FD_cm', ...
-    'Min_u','Max_u','Maks_zmiana_u','Suma_zmian_u'});
+    'Przeregulowanie_cm','Maks_blad_po_FD_cm','Min_u','Max_u','Maks_zmiana_u','Suma_zmian_u'});
 quality.Regulator = names(quality.ID);
 
 totals = table(names, ...
@@ -96,32 +61,25 @@ totals = table(names, ...
     accumarray(quality.ID,quality.MSE_zaklocenie,[],@mean), ...
     accumarray(quality.ID,quality.MSE_laczny,[],@mean), ...
     accumarray(quality.ID,quality.Przeregulowanie_cm,[],@max), ...
-    accumarray(quality.ID,quality.Cofniecie_cm,[],@max), ...
     accumarray(quality.ID,quality.Maks_blad_po_FD_cm,[],@max), ...
     accumarray(quality.ID,quality.Suma_zmian_u), ...
     'VariableNames',{'Regulator','MSE_zadanie','MSE_zaklocenie','MSE_laczny', ...
-    'Maks_przereg_cm','Maks_cofniecie_cm','Maks_blad_FD_cm','Suma_zmian_u'});
+    'Maks_przereg_cm','Maks_blad_FD_cm','Suma_zmian_u'});
 disp(totals);
 
 % Zestawienie wplywu lambda dla SL i NPL.
 sweepRows = zeros(nVariants,11);
 for v = 1:nVariants
-    slR=0; slD=0; slA=0; slO=0; slDU=0;
-    npR=0; npD=0; npA=0; npO=0; npDU=0;
+    mSL = zeros(nProject,9);
+    mNPL = zeros(nProject,9);
     for j = 1:nProject
-        ref = traces(j).ref; dir = sign(controlCases(j,1));
-        eS = slTraces(j,v).y-ref;
-        slR=slR+mean(eS(taskMask).^2); slD=slD+mean(eS(distMask).^2); slA=slA+mean(eS(allMask).^2);
-        slO=max(slO,max(0,max(dir*eS(taskMask))));
-        slDU=slDU+sum(abs(diff([P.u0;slTraces(j,v).u])));
-
-        eN = nplTraces(j,v).y-ref;
-        npR=npR+mean(eN(taskMask).^2); npD=npD+mean(eN(distMask).^2); npA=npA+mean(eN(allMask).^2);
-        npO=max(npO,max(0,max(dir*eN(taskMask))));
-        npDU=npDU+sum(abs(diff([P.u0;nplTraces(j,v).u])));
+        ref = traces(j).ref;
+        mSL(j,:)  = control_metrics(P,slTraces(j,v).y, slTraces(j,v).u, ref,taskMask,distMask);
+        mNPL(j,:) = control_metrics(P,nplTraces(j,v).y,nplTraces(j,v).u,ref,taskMask,distMask);
     end
-    sweepRows(v,:) = [lambdaNPL(v), slR/nProject, slD/nProject, slA/nProject, slO, slDU, ...
-                                    npR/nProject, npD/nProject, npA/nProject, npO, npDU];
+    sweepRows(v,:) = [lambdaGrid(v), ...
+        mean(mSL(:,1:3),1),  max(mSL(:,4)),  sum(mSL(:,9)), ...
+        mean(mNPL(:,1:3),1), max(mNPL(:,4)), sum(mNPL(:,9))];
 end
 sweepTable = array2table(sweepRows,'VariableNames',{ ...
     'Lambda','SL_MSE_zad','SL_MSE_zakl','SL_MSE','SL_Przereg_cm','SL_Suma_du', ...
@@ -131,12 +89,12 @@ disp(sweepTable);
 % Walidacja NPL vs SL na 4 probach dodatkowych (dla wybranej lam=0.5).
 valRows = zeros(size(validationCases,1),8);
 for j = 1:size(validationCases,1)
-    ref = P.h0(2)+validationCases(j,1)*(tControl>=refStart);
-    eS = validationTraces(j,selectedVariant).y-ref;
-    eN = nplValTraces(j,selectedVariant).y-ref;
-    valRows(j,:) = [validationCases(j,1), validationCases(j,2), ...
-        mean(eS(taskMask).^2), mean(eS(distMask).^2), mean(eS(allMask).^2), ...
-        mean(eN(taskMask).^2), mean(eN(distMask).^2), mean(eN(allMask).^2)];
+    ref = P.h0(2) + validationCases(j,1)*(tControl>=refStart);
+    mS = control_metrics(P,validationTraces(j,selectedVariant).y, ...
+        validationTraces(j,selectedVariant).u,ref,taskMask,distMask);
+    mN = control_metrics(P,nplValTraces(j,selectedVariant).y, ...
+        nplValTraces(j,selectedVariant).u,ref,taskMask,distMask);
+    valRows(j,:) = [validationCases(j,1), validationCases(j,2), mS(1:3), mN(1:3)];
 end
 valTable = array2table(valRows,'VariableNames',{ ...
     'Skok_zad_cm','Skok_FD','SL_MSE_zad','SL_MSE_zakl','SL_MSE', ...
@@ -150,7 +108,7 @@ writetable(valTable,fullfile(outdir,'walidacja_NPL.csv'));
 
 results = nplTraces(:,selectedVariant);  % glowny wariant NPL (lambda = 0.5)
 save(fullfile(outdir,'dane_czesc4.mat'),'results','nplTraces','nplValTraces', ...
-    'tControl','controlCases','validationCases','ctrl','N_npl','Nu_npl', ...
-    'lambdaNPL','selectedVariant','quality','totals','sweepTable','valTable');
+    'tControl','controlCases','validationCases','ctrl', ...
+    'lambdaGrid','selectedVariant','quality','totals','sweepTable','valTable');
 
-plots.npl(tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,controlCases,refStart,distStart);
+plots.npl(tControl,traces,slTraces,nplTraces,selectedVariant,lambdaGrid,controlCases,refStart,distStart);
