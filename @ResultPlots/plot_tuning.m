@@ -24,10 +24,10 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
         xline(ay,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xline(ay,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(ay,'on'); xlim(ay,[t(1),t(end)]);
-        ylabel(ay,'h_2 [cm]'); xlabel(ay,'t [s]');
-        title(ay,sprintf('Wyjście h_2: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
+        ylabel(ay,'y [cm]'); xlabel(ay,'t [s]');
+        title(ay,sprintf('Wyjście y: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
 
-        % Dolny wiersz: sterowanie F_1in
+        % Dolny wiersz: sterowanie u
         au = nexttile(tiles,col+2); hold(au,'on'); au.Color = 'w';
         for idx = 1:numel(showIdx)
             v = showIdx(idx);
@@ -37,11 +37,11 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
         xline(au,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xline(au,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(au,'on'); xlim(au,[t(1),t(end)]);
-        ylabel(au,'F_{1in} [cm^3/s]'); xlabel(au,'t [s]');
-        title(au,sprintf('Sterowanie F_{1in}: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
+        ylabel(au,'u [cm^3/s]'); xlabel(au,'t [s]');
+        title(au,sprintf('Sterowanie u: zadanie %+g cm, F_D %+g cm^3/s',cases(j,1),cases(j,2)));
 
         if col==1
-            lg = legend(ay,[labels,{'zadana'}],'NumColumns',4);
+            lg = legend(ay,[labels,{'y_{zad}'}],'NumColumns',4);
             lg.Layout.Tile = 'south';
         end
     end

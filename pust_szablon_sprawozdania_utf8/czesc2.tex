@@ -1,6 +1,6 @@
 \chapter{Modele rozmyte Takagiego--Sugeno}
 \section{Zmienna reguł i dyskretne modele lokalne}
-Jako zmienną decydującą o wagach modeli lokalnych wybrano mierzony poziom wyjściowy $h_2$, a nie sterowanie $\uvar$. Wynika to z dwóch powodów: po pierwsze, od $h_2$ bezpośrednio zależy chwilowy przekrój drugiego zbiornika ($3C_2h_2^2$), który decyduje o szybkości zmian poziomu; po drugie, na $h_2$ od razu wpływa niemierzalne zakłócenie $F_D$, więc model rozpoznaje zmianę punktu pracy nawet przy stałym lub opóźnionym sterowaniu $\uvar$. Węzły funkcji przynależności rozmieszczono równomiernie na 2, 3, 4 i 5~punktach w przedziale $h_2\in[\num{2.296},\ \num{29.752}]\ \mathrm{cm}$, odpowiadającym stanom ustalonym dla łącznego dopływu $\uvar+F_D\in[50,180]\ \jednprzep$ (obejmującego jednocześnie zmiany sterowania i zakłócenia). Zastosowano trójkątne funkcje przynależności sumujące się do jedności z płaskimi ramionami równymi~1 poza tym przedziałem.
+Jako zmienną decydującą o wagach modeli lokalnych wybrano mierzony poziom wyjściowy $h_2$, a nie sterowanie $\uvar$. Wynika to z dwóch powodów: po pierwsze, od $h_2$ bezpośrednio zależy chwilowy przekrój drugiego zbiornika ($3C_2h_2^2$), który decyduje o szybkości zmian poziomu; po drugie, na $h_2$ od razu wpływa niemierzalne zakłócenie $F_D$, więc model rozpoznaje zmianę punktu pracy nawet przy stałym lub opóźnionym sterowaniu $\uvar$. Węzły funkcji przynależności rozmieszczono równomiernie na 2, 3, 4 i 5~punktach w przedziale $h_2\in[\num{2.296},\ \num{29.752}]\ \mathrm{cm}$, odpowiadającym stanom ustalonym dla łącznego dopływu $\uvar+F_D\in[50,180]\ \jednprzep$ (obejmującego jednocześnie zmiany sterowania i zakłócenia). Zastosowano trójkątne funkcje przynależności sumujące się do jedności z płaskimi ramionami równymi~1 poza tym przedziałem (rys.~\ref{fig:ts-mf}).
 
 W każdym węźle $h_{2,i}$ wyznaczono odpowiadający mu punkt równowagi (przy nominalnym $F_{D,0}$): $u_i=\alpha_2\sqrt{h_{2,i}}-F_{D,0}$, $h_{1,i}=(\alpha_2\sqrt{h_{2,i}}/\alpha_1)^2$ oraz lokalną linearyzację obiektu w oznaczeniach z treści zadania ($A_1$, $C_2$, $\alpha_1$, $\alpha_2$):
 \begin{align}
@@ -68,7 +68,7 @@ W modelu pięcioregułowym dostrojono położenie trzech wewnętrznych węzłów
 c_{\mathrm{przed}}&=[\num{2.296},\num{9.160},\num{16.024},\num{22.888},\num{29.752}]\ \mathrm{cm},\\
 c_{\mathrm{po}}&=[\num{2.296},\num{8.266},\num{13.560},\num{20.730},\num{29.752}]\ \mathrm{cm}.
 \end{align*}
-Przesunięcie w stronę mniejszych poziomów poprawiło odwzorowanie w obszarze silniejszej nieliniowości. Łączny MSE na 12 próbach spadł z \num{0.172} do \num{0.039}~$\mathrm{cm^2}$ (o \num{77.1}\%), a na 4 dodatkowych skokach walidacyjnych ($\Delta\uvar=\pm40$, $\Delta F_D=\pm7\ \jednprzep$) z \num{0.190} do \num{0.141}~$\mathrm{cm^2}$.
+Przesunięcie w stronę mniejszych poziomów poprawiło odwzorowanie w obszarze silniejszej nieliniowości (rys.~\ref{fig:ts-tuned}). Łączny MSE na 12 próbach spadł z \num{0.172} do \num{0.039}~$\mathrm{cm^2}$ (o \num{77.1}\%), a na 4 dodatkowych skokach walidacyjnych ($\Delta\uvar=\pm40$, $\Delta F_D=\pm7\ \jednprzep$) z \num{0.190} do \num{0.141}~$\mathrm{cm^2}$.
 
 \begin{figure}[H]
 \centering
@@ -131,7 +131,7 @@ Strojenie regulatora polegało na zmianie kształtu funkcji przynależności z t
 \caption{Błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$] w podziale na zadanie (400--3780~s), zakłócenie (3800--8000~s) oraz całą próbę (400--8000~s) ($N=50$, $N_u=10$, $\lambda=\num{0.05}$).}
 \small
 \begin{tabular}{llrrrr}\toprule
-Skoki: zadanie / $F_D$ & Etap & DMC cz.~1 & Liniowy ogr. & PDC & PDC strojony\\\midrule
+$\Delta y_{\mathrm{zad}}$ / $\Delta F_D$ & Etap & DMC cz.~1 & DMC ogr. & PDC & PDC strojony\\\midrule
 $+2\ \mathrm{cm}/+10\ \jednprzep$ & zadanie    & \num{0.367} & \num{0.367} & \num{0.373} & \num{0.370}\\
                                   & zakłócenie & \num{0.235} & \num{0.235} & \num{0.227} & \num{0.221}\\
                                   & cała próba & \num{0.294} & \num{0.294} & \num{0.292} & \num{0.288}\\\midrule
@@ -151,4 +151,4 @@ $-8\ \mathrm{cm}/-10\ \jednprzep$ & zadanie    & \num{5.875} & \num{6.200} & \nu
 \label{tab:ts-control}
 \end{table}
 
-Już początkowy PDC obniża średni MSE o \num{8.3}\% względem ograniczonego DMC liniowego i wyraźnie ogranicza oscylacje przy skokach $\pm8\ \mathrm{cm}$ (rys.~\ref{fig:ts-control}). Po przejściu na dostrojone funkcje dzwonowe średni MSE spada o kolejne \num{1.6}\% (do \num{2.089}~$\mathrm{cm^2}$), poprawiając wynik DMC z części~1 o \num{6.8}\% średnio i w każdej próbie osobno, mimo ograniczenia $|\Delta u|\leq15\ \jednprzep$.
+Już początkowy PDC obniża średni MSE o \num{8.3}\% względem ograniczonego DMC liniowego i wyraźnie ogranicza oscylacje przy skokach $\pm8\ \mathrm{cm}$ (rys.~\ref{fig:ts-control} i \ref{fig:ts-control-u}, tab.~\ref{tab:ts-control}). Po przejściu na dostrojone funkcje dzwonowe średni MSE spada o kolejne \num{1.6}\% (do \num{2.089}~$\mathrm{cm^2}$), poprawiając wynik DMC z części~1 o \num{6.8}\% średnio i w każdej próbie osobno, mimo ograniczenia $|\Delta u|\leq15\ \jednprzep$.

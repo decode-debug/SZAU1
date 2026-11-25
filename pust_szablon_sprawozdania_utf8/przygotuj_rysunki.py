@@ -52,7 +52,7 @@ for kind, key, factor in [('F1in', 'stepTracesU', 1), ('FD', 'stepTracesD', .2)]
         ax.legend(handles=handles, loc='best')
         axes_style(ax)
         ax.set_xlim(0, 6000)
-        ax.set_ylabel(r'$h_2$ [cm]')
+        ax.set_ylabel(r'$y$ [cm]')
         ax.set_title('Skoki ujemne' if sign == 0 else 'Skoki dodatnie')
     save(fig, 'skoki_' + kind)
 
@@ -73,7 +73,7 @@ for indices, name in [([0], 'DMC_scenariusz_1'),
         ay.step(d['tc'], tr['yNL'], where='post', color=colors[0], label='obiekt nieliniowy')
         ay.step(d['tc'], tr['yLin'], where='post', linestyle='--', color=colors[1], label='obiekt liniowy')
         ay.step(d['tc'], tr['ref'], where='post', color='.2', linestyle=':',
-                label=r'$y_{\mathrm{zad}}(k)$')
+                label=r'$y_{\mathrm{zad}}$')
         # Ostatnie sterowanie obowiązuje do końca ostatniego przedziału.
         au.step(d['tc'], np.r_[tr['uNL'], tr['uNL'][-1]], where='post',
                 color=colors[0], label='obiekt nieliniowy')
@@ -81,12 +81,13 @@ for indices, name in [([0], 'DMC_scenariusz_1'),
                 color=colors[1], label='obiekt liniowy')
         for ax in (ay, au):
             axes_style(ax)
+            ax.axvline(400, color='.6', linewidth=.6, linestyle=':')
             ax.axvline(3800, color='.6', linewidth=.6, linestyle=':')
             ax.set_xticks([0, 2000, 4000, 6000, 8000])
         ay.set_xlabel('')
         ay.tick_params(labelbottom=False)
-        ay.set_ylabel(r'$y(k)$ [cm]')
-        au.set_ylabel(r'$u(k)$ [cm³/s]')
+        ay.set_ylabel(r'$y$ [cm]')
+        au.set_ylabel(r'$u$ [cm³/s]')
         ay.set_title(rf'({chr(97+j)}) $\Delta y_{{\mathrm{{zad}}}}={sc[0]:+g}$ cm, $\Delta F_D={sc[1]:+g}$ cm³/s', fontsize=8)
         if offset == 0:
             ay.legend(loc='best', ncol=3 if cols == 1 else 1)
@@ -97,12 +98,12 @@ tr = traces[1]
 fig, axs = plt.subplots(3, 1, figsize=(6.4, 4.9), sharex=True, layout='constrained')
 axs[0].step(d['tc'], tr['yNL'], where='post', color=colors[0], label='obiekt nieliniowy')
 axs[0].step(d['tc'], tr['yLin'], where='post', linestyle='--', color=colors[1], label='obiekt liniowy')
-axs[0].step(d['tc'], tr['ref'], where='post', color='.2', linestyle=':', label=r'$y_{\mathrm{zad}}(k)$')
-axs[0].set_ylabel(r'$y(k)$ [cm]')
+axs[0].step(d['tc'], tr['ref'], where='post', color='.2', linestyle=':', label=r'$y_{\mathrm{zad}}$')
+axs[0].set_ylabel(r'$y$ [cm]')
 axs[0].legend(ncol=3, loc='upper right')
 axs[1].step(d['tc'], np.r_[tr['uNL'], tr['uNL'][-1]], where='post', color=colors[0])
 axs[1].step(d['tc'], np.r_[tr['uLin'], tr['uLin'][-1]], '--', where='post', color=colors[1])
-axs[1].set_ylabel(r'$u(k)$ [cm³/s]')
+axs[1].set_ylabel(r'$u$ [cm³/s]')
 axs[2].step(d['tc'], tr['dist'], where='post', color=colors[2])
 axs[2].set_ylabel(r'$F_D$ [cm³/s]')
 for ax in axs:

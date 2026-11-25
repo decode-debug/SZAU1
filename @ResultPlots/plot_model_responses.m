@@ -9,8 +9,8 @@ function plot_model_responses(obj,initial,tuned,steps,truth,t)
         stairs(ax,t,truth(:,j),'LineWidth',1); hold(ax,'on');
         stairs(ax,t,initial(:,j),'LineStyle','--','LineWidth',1);
         stairs(ax,t,tuned(:,j),'LineStyle','-.','LineWidth',1);
-        grid(ax,'on'); xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');
-        title(ax,sprintf('Skok F_{1in} %+g, F_D %+g cm^3/s',steps(j,1),steps(j,2)));
+        grid(ax,'on'); xlabel(ax,'t [s]'); ylabel(ax,'y [cm]');
+        title(ax,sprintf('Skok u %+g, F_D %+g cm^3/s',steps(j,1),steps(j,2)));
         if k==1
             lg = legend(ax,{'obiekt nieliniowy','TS 5 początkowy','TS 5 po strojeniu'},'NumColumns',3);
             lg.Layout.Tile = 'south';

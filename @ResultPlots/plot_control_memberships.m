@@ -11,7 +11,7 @@ function plot_control_memberships(obj,x,initialWeights,tunedWeights,sigmaScale)
             plot(ax,x,tunedWeights,'LineWidth',1);
             title(ax,sprintf('Po strojeniu regulatora: funkcje dzwonowe (\\sigma = %.2f cm)',sigmaScale));
         end
-        xlabel(ax,'h_2 [cm]'); ylabel(ax,'stopień przynależności \mu_i(h_2)'); grid(ax,'on');
+        xlabel(ax,'y [cm]'); ylabel(ax,'stopień przynależności \mu_i(y)'); grid(ax,'on');
         ylim(ax,[0 1.05]);
     end
     exportgraphics(fig,fullfile(obj.OutputDir,'strojenie_regulatora.pdf'), ...

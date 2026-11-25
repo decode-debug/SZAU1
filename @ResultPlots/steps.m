@@ -1,11 +1,10 @@
 function steps(obj,t,responses,amplitudes,signal,filename)
-    fig = figure('Visible','off','Color','w'); hold on;
-    colors = lines(numel(amplitudes));
+    fig = figure('Visible','off','Color','w'); theme(fig,'light'); hold on;
     for j = 1:numel(amplitudes)
-        plot(t,responses(:,2*j-1),'-','Color',colors(j,:),'LineWidth',1.4,'DisplayName',sprintf('%+g nieliniowy',amplitudes(j)));
-        plot(t,responses(:,2*j),'--','Color',colors(j,:),'LineWidth',1.2,'DisplayName',sprintf('%+g liniowy',amplitudes(j)));
+        stairs(t,responses(:,2*j-1),'-','LineWidth',1,'DisplayName',sprintf('%+g nieliniowy',amplitudes(j)));
+        stairs(t,responses(:,2*j),'--','LineWidth',1,'DisplayName',sprintf('%+g liniowy',amplitudes(j)));
     end
-    xlabel('t [s]'); ylabel('h_2 [cm]'); title(['Skoki ' signal ' z punktu pracy']);
+    xlabel('t [s]'); ylabel('y [cm]'); title(['Skoki ' signal ' z punktu pracy']);
     grid on; legend('Location','eastoutside');
-    exportgraphics(fig,fullfile(obj.OutputDir,filename),'Resolution',160); close(fig);
+    exportgraphics(fig,fullfile(obj.OutputDir,filename),'Resolution',160,'BackgroundColor','white'); close(fig);
 end

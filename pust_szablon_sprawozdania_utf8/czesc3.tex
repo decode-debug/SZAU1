@@ -22,7 +22,7 @@ Przyjęto te same horyzonty co w regulatorach DMC i PDC: $N=50$ oraz $N_u=10$. Z
 \caption{Łączny błąd średniokwadratowy MSE w czterech próbach [$\mathrm{cm^2}$]: PDC oraz FGPC--SL ($N=50$, $N_u=10$).}
 \footnotesize
 \begin{tabular}{lrrrrrrr}\toprule
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($2$) & SL ($1$) & SL ($\num{0.5}$) & SL ($\num{0.2}$) & SL ($0$)\\\midrule
+$\Delta y_{\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($2$) & SL ($1$) & SL ($\num{0.5}$) & SL ($\num{0.2}$) & SL ($0$)\\\midrule
 $+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.288} & \num{0.318} & \num{0.288} & \num{0.260} & \num{0.230} & \num{8.094}\\
 $+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.228} & \num{1.210} & \num{1.286} & \num{1.161} & \num{1.044} & \num{0.914} & \num{5.353}\\
 $+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.336} & \num{4.226} & \num{4.444} & \num{4.077} & \num{3.731} & \num{3.345} & \num{5.642}\\
@@ -43,14 +43,14 @@ PDC                       & \num{3.608} & \num{0.927} & \num{502.7} & \num{15.0}
 PDC strojony              & \num{3.544} & \num{0.917} & \num{450.7} & \num{15.0} & \num{0.595}\\
 FGPC--SL ($\lambda=2$)    & \num{4.659} & \num{0.553} & \num{203.6} &  \num{5.7} & \num{0.267}\\
 FGPC--SL ($\lambda=1$)    & \num{4.348} & \num{0.456} & \num{237.7} &  \num{7.5} & \num{0.379}\\
-FGPC--SL ($\lambda=0{,}5$)& \num{4.052} & \num{0.370} & \num{303.4} & \num{10.3} & \num{0.511}\\
-FGPC--SL ($\lambda=0{,}2$)& \num{3.741} & \num{0.273} & \num{475.0} & \num{15.0} & \num{0.687}\\
+FGPC--SL ($\lambda=\num{0.5}$)& \num{4.052} & \num{0.370} & \num{303.4} & \num{10.3} & \num{0.511}\\
+FGPC--SL ($\lambda=\num{0.2}$)& \num{3.741} & \num{0.273} & \num{475.0} & \num{15.0} & \num{0.687}\\
 FGPC--SL ($\lambda=0$)    & \num{6.982} & \num{4.450} & \num{20102.2} & \num{15.0} & \num{5.738}\\\bottomrule
 \end{tabular}
 \label{tab:sl-metrics}
 \end{table}
 
-Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Całkowite usunięcie kary za przyrosty ($\lambda=0$) wywołuje jednak silne oscylacje sterowania na granicach ograniczeń i wyraźnie pogarsza jakość regulacji. Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{3.7}\% względem dostrojonego PDC, MSE po zakłóceniu maleje niemal 2,5-krotnie, a sterowanie jest znacznie łagodniejsze. Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie przeregulowanie.
+Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}, tab.~\ref{tab:sl-control} i \ref{tab:sl-metrics}). Całkowite usunięcie kary za przyrosty ($\lambda=0$) wywołuje jednak silne oscylacje sterowania na granicach ograniczeń i wyraźnie pogarsza jakość regulacji. Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{3.7}\% względem dostrojonego PDC, MSE po zakłóceniu maleje niemal 2,5-krotnie, a sterowanie jest znacznie łagodniejsze. Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie przeregulowanie.
 
 W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w punkcie $y(k)$ na cały horyzont nie uwzględnia spadku pojemności $3C_2h_2^2$ przy niskim poziomie, co powoduje krótkotrwałe odbicie około 1000~s (rys.~\ref{fig:sl-outputs} i \ref{fig:sl-controls}). Średni czas obliczeń \texttt{quadprog} nie przekracza \num{0.9}~ms na próbkę.
 
@@ -59,7 +59,7 @@ W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w pun
 \caption{Walidacja wariantów FGPC--SL na czterech próbach dodatkowych (MSE [$\mathrm{cm^2}$]).}
 \footnotesize
 \begin{tabular}{lrrrrr}\toprule
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$ & $\lambda=0$\\\midrule
+$\Delta y_{\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$ & $\lambda=0$\\\midrule
 $+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.567} & \num{0.524} & \num{0.483} & \num{0.437} & \num{5.461}\\
 $-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.627} & \num{0.576} & \num{0.529} & \num{0.477} & \num{0.516}\\
 $+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.161} & \num{2.012} & \num{1.869} & \num{1.704} & \num{4.673}\\

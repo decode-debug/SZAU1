@@ -11,12 +11,14 @@ function pdc(obj,tControl,traces,controlCases)
         stairs(ax,tControl,y(:,3),'LineWidth',1);
         stairs(ax,tControl,y(:,4),'LineStyle','-.','LineWidth',1);
         stairs(ax,tControl,ref,'LineStyle',':','LineWidth',1);
-        xlabel(ax,'t [s]'); ylabel(ax,'h_2 [cm]');
+        xlabel(ax,'t [s]'); ylabel(ax,'y [cm]');
+        xline(ax,400,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(ax,3800,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xlim(ax,[tControl(1),tControl(end)]);
         title(ax,sprintf('Zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,1),controlCases(j,2)));
         if j==1
-            lg = legend(ax,{'DMC cz. 1 (bez ogr.)','Liniowy DMC (ogr.)', ...
-                'Rozmyty PDC','Rozmyty PDC strojony','zadana'},'NumColumns',3);
+            lg = legend(ax,{'DMC cz. 1 (bez ogr.)','DMC ograniczony', ...
+                'PDC','PDC strojony','y_{zad}'},'NumColumns',3);
             lg.Layout.Tile = 'south';
         end
     end
@@ -24,7 +26,7 @@ function pdc(obj,tControl,traces,controlCases)
         'ContentType','vector','BackgroundColor','white');
     close(fig);
 
-    % Wykres sygnalu sterujacego F_1in dla tych samych 4 scenariuszy.
+    % Wykres sygnalu sterujacego u dla tych samych 4 scenariuszy.
     figU = figure('Visible','off','Color','w','Position',[100 100 1100 840]);
     theme(figU,'light');
     tilesU = tiledlayout(figU,2,2,'TileSpacing','compact','Padding','compact');
@@ -36,12 +38,14 @@ function pdc(obj,tControl,traces,controlCases)
         stairs(ax,tControl,uPlot(:,2),'LineStyle','--','LineWidth',1);
         stairs(ax,tControl,uPlot(:,3),'LineWidth',1);
         stairs(ax,tControl,uPlot(:,4),'LineStyle','-.','LineWidth',1);
-        xlabel(ax,'t [s]'); ylabel(ax,'F_{1in} [cm^3/s]');
+        xlabel(ax,'t [s]'); ylabel(ax,'u [cm^3/s]');
+        xline(ax,400,':','Color',[.45 .45 .45],'HandleVisibility','off');
+        xline(ax,3800,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xlim(ax,[tControl(1),tControl(end)]);
         title(ax,sprintf('Zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,1),controlCases(j,2)));
         if j==1
-            lg = legend(ax,{'DMC cz. 1 (bez ogr.)','Liniowy DMC (ogr.)', ...
-                'Rozmyty PDC','Rozmyty PDC strojony'},'NumColumns',4);
+            lg = legend(ax,{'DMC cz. 1 (bez ogr.)','DMC ograniczony', ...
+                'PDC','PDC strojony'},'NumColumns',4);
             lg.Layout.Tile = 'south';
         end
     end

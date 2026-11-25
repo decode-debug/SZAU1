@@ -5,7 +5,7 @@ Zaimplementowano numeryczny regulator rozmyty FGPC--NPL (z predykcją nieliniow�
 Jedyną różnicą jest sposób wyznaczania trajektorii swobodnej $Y^0(k)$: zamiast zamrażać wagi w chwili $k$, symuluje się pełny nieliniowy model rozmyty iteracyjnie na całym horyzoncie predykcji $p=1,\dots,N$ (przy stałym przyszłym sterowaniu $u^0(k+j)=u(k-1)$), aktualizując wagi reguł $\widetilde w_i\bigl(y^0(k+p-1|k)\bigr)$ w każdym kroku oraz dodając korekcję błędu modelu $d_k=y(k)-y^{\mathrm{mod}}(k)$. Pozwala to uwzględnić zmianę nieliniowej dynamiki zbiornika w trakcie odpowiedzi swobodnej.
 
 \section{Strojenie \texorpdfstring{$\lambda$}{lambda} i porównanie wszystkich regulatorów}
-Dla FGPC--NPL użyto tych samych nastaw $N=50$, $N_u=10$ i $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2};\ 0\}$ co dla FGPC--SL. Tab.~\ref{tab:npl-tuning} porównuje wpływ $\lambda$ w obu algorytmach, a tab.~\ref{tab:npl-summary} zbiera wszystkie regulatory z części~1--4.
+Dla FGPC--NPL użyto tych samych nastaw $N=50$, $N_u=10$ i $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2};\ 0\}$ co dla FGPC--SL (rys.~\ref{fig:npl-tuning}). Tab.~\ref{tab:npl-tuning} porównuje wpływ $\lambda$ w obu algorytmach, a tab.~\ref{tab:npl-summary} porównuje wybrane regulatory z części~1--4.
 
 \begin{figure}[H]
 \centering
@@ -40,13 +40,13 @@ Regulator & MSE zad. & MSE zakł. & Śr. MSE & Przereg. & $\sum|\Delta u|$\\
 DMC cz.~1 (bez ogr.)      & \num{3.579} & \num{1.164} & \num{2.241} & \num{1.715} & \num{686.0}\\
 DMC ograniczony           & \num{3.746} & \num{1.161} & \num{2.315} & \num{1.706} & \num{671.0}\\
 PDC strojony              & \num{3.544} & \num{0.917} & \num{2.089} & \num{0.595} & \num{450.7}\\
-FGPC--SL ($\lambda=0{,}5$)& \num{4.052} & \num{0.370} & \num{2.013} & \num{0.511} & \num{303.4}\\
-FGPC--NPL ($\lambda=0{,}5$)& \num{4.044} & \num{0.331} & \num{1.987} & \num{0.602} & \num{349.3}\\\bottomrule
+FGPC--SL ($\lambda=\num{0.5}$)& \num{4.052} & \num{0.370} & \num{2.013} & \num{0.511} & \num{303.4}\\
+FGPC--NPL ($\lambda=\num{0.5}$)& \num{4.044} & \num{0.331} & \num{1.987} & \num{0.602} & \num{349.3}\\\bottomrule
 \end{tabular}
 \label{tab:npl-summary}
 \end{table}
 
-Dla każdego dodatniego $\lambda$ regulator FGPC--NPL daje nieco niższy średni MSE niż SL (o \num{1.3}--\num{1.4}\%) i lepsze tłumienie zakłócenia $F_D$, natomiast przy $\lambda=0$ oba regulatory wpadają w gwałtowne oscylacje sterowania o pełnej amplitudzie ograniczeń (przy czym NPL tłumi je wyraźnie lepiej: MSE \num{3.675} wobec \num{5.580}~$\mathrm{cm^2}$ dla SL). Dla $\lambda=\num{0.5}$ średni MSE wynosi \num{1.987}~$\mathrm{cm^2}$ -- o \num{11.3}\% mniej niż w DMC z części~1 i o \num{4.9}\% mniej niż w dostrojonym PDC.
+Dla każdego dodatniego $\lambda$ regulator FGPC--NPL daje nieco niższy średni MSE niż SL (o \num{1.3}--\num{1.4}\%) i lepsze tłumienie zakłócenia $F_D$, natomiast przy $\lambda=0$ oba regulatory wpadają w gwałtowne oscylacje sterowania o pełnej amplitudzie ograniczeń (przy czym NPL tłumi je wyraźnie lepiej: MSE \num{3.675} wobec \num{5.580}~$\mathrm{cm^2}$ dla SL). Dla $\lambda=\num{0.5}$ średni MSE wynosi \num{1.987}~$\mathrm{cm^2}$ -- o \num{11.3}\% mniej niż w DMC z części~1 i o \num{4.9}\% mniej niż w dostrojonym PDC (rys.~\ref{fig:npl-y} i \ref{fig:npl-u}).
 
 \begin{table}[H]
 \centering
@@ -54,7 +54,7 @@ Dla każdego dodatniego $\lambda$ regulator FGPC--NPL daje nieco niższy średni
 \small
 \begin{tabular}{lrrrrrr}\toprule
  & \multicolumn{3}{c}{FGPC--SL ($\lambda=\num{0.5}$)} & \multicolumn{3}{c}{FGPC--NPL ($\lambda=\num{0.5}$)}\\\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-$\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & MSE zad. & MSE zakł. & Łącz. MSE & MSE zad. & MSE zakł. & Łącz. MSE\\\midrule
+$\Delta y_{\mathrm{zad}}$ / $\Delta F_D$ & MSE zad. & MSE zakł. & Cała próba & MSE zad. & MSE zakł. & Cała próba\\\midrule
 $+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.993} & \num{0.073} & \num{0.483} & \num{0.996} & \num{0.078} & \num{0.487}\\
 $-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.954} & \num{0.186} & \num{0.529} & \num{0.954} & \num{0.163} & \num{0.516}\\
 $+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{4.059} & \num{0.104} & \num{1.869} & \num{4.060} & \num{0.116} & \num{1.876}\\
@@ -64,7 +64,7 @@ $-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{3.770} & \num{0.255} & \num{1.823} & \n
 \label{tab:npl-validation}
 \end{table}
 
-Oba algorytmy osiągają praktycznie identyczny średni MSE (\num{1.176} dla SL wobec \num{1.175}~$\mathrm{cm^2}$ dla NPL). Oba wyraźnie przewyższają liniowy DMC i analityczny PDC: NPL lepiej radzi sobie z dużymi skokami w dół i tłumieniem zakłóceń w próbach projektowych, natomiast SL pracuje nieco spokojniej pod względem zmienności sterowania.
+W próbach walidacyjnych (tab.~\ref{tab:npl-validation}) oba algorytmy osiągają praktycznie identyczny średni MSE (\num{1.176} dla SL wobec \num{1.175}~$\mathrm{cm^2}$ dla NPL). Oba wyraźnie przewyższają liniowy DMC i analityczny PDC: NPL lepiej radzi sobie z dużymi skokami w dół i tłumieniem zakłóceń w próbach projektowych, natomiast SL pracuje nieco spokojniej pod względem zmienności sterowania.
 
 \begin{figure}[H]
 \centering

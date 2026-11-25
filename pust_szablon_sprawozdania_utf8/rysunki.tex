@@ -16,18 +16,18 @@ Na obu obiektach w $400\ \mathrm{s}$ zmieniano zadany poziom, a w $3800\ \mathrm
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{rysunki/czesc1/DMC_scenariusz_1.pdf}
-\caption{Próba 1: $\Delta y_{\mathrm{zad}}=+2\ \mathrm{cm}$, $\Delta F_D=+10\ \jednprzep$. Wyjście $y(k)$ i bezpośrednio pod nim sterowanie $u(k)$; pionowa linia oznacza skok $F_D$.}
+\caption{Próba 1: $\Delta y_{\mathrm{zad}}=+2\ \mathrm{cm}$, $\Delta F_D=+10\ \jednprzep$. Wyjście $y$ i bezpośrednio pod nim sterowanie $u$; pionowe linie oznaczają skoki zadania i $F_D$.}
 \label{fig:dmcY}
 \end{figure}
-Dla małych skoków przebiegi obu obiektów są zbliżone, zarówno dla wyjścia, jak i sterowania.
+Dla małych skoków przebiegi obu obiektów są zbliżone, zarówno dla wyjścia, jak i sterowania (rys.~\ref{fig:dmcY}).
 
 \clearpage
 \section{Skok zadania o 4 cm}
-Po dodatnim skoku zakłócenia regulator zmniejsza dopływ. Skutek korekcji dociera do obiektu po czasie transportu, dlatego poziom przejściowo rośnie.
+Po dodatnim skoku zakłócenia regulator zmniejsza dopływ (rys.~\ref{fig:dmcU}). Skutek korekcji dociera do obiektu po czasie transportu, dlatego poziom przejściowo rośnie.
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.94\textwidth]{rysunki/czesc1/DMC_scenariusz_2.pdf}
-\caption{Próba 2: $\Delta y_{\mathrm{zad}}=+4\ \mathrm{cm}$, $\Delta F_D=+20\ \jednprzep$. Wyjście i sterowanie na wspólnej osi czasu.}
+\caption{Próba 2: $\Delta y_{\mathrm{zad}}=+4\ \mathrm{cm}$, $\Delta F_D=+20\ \jednprzep$. Wyjście $y$ i sterowanie $u$ na wspólnej osi czasu.}
 \label{fig:dmcU}
 \end{figure}
 
@@ -36,20 +36,20 @@ Po dodatnim skoku zakłócenia regulator zmniejsza dopływ. Skutek korekcji doci
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{rysunki/czesc1/DMC_scenariusz_3.pdf}
-\caption{Próba 3: $\Delta y_{\mathrm{zad}}=+8\ \mathrm{cm}$, $\Delta F_D=+30\ \jednprzep$. Wyjście $y(k)$ oraz odpowiadające mu sterowanie $u(k)$.}
+\caption{Próba 3: $\Delta y_{\mathrm{zad}}=+8\ \mathrm{cm}$, $\Delta F_D=+30\ \jednprzep$. Wyjście $y$ oraz odpowiadające mu sterowanie $u$.}
 \label{fig:dmc4}
 \end{figure}
-Przy dużym dodatnim skoku obiekt nieliniowy silniej oscyluje. Widać również większe korekty sterowania niż dla obiektu liniowego. Maksymalna różnica wyjść sięga $\num{3.37}\ \mathrm{cm}$.
+Przy dużym dodatnim skoku obiekt nieliniowy silniej oscyluje (rys.~\ref{fig:dmc4}). Widać również większe korekty sterowania niż dla obiektu liniowego. Maksymalna różnica wyjść sięga $\num{3.37}\ \mathrm{cm}$.
 
 \clearpage
 \section{Duży ujemny skok zadania}
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{rysunki/czesc1/DMC_scenariusz_4.pdf}
-\caption{Próba 4: $\Delta y_{\mathrm{zad}}=-8\ \mathrm{cm}$, $\Delta F_D=-10\ \jednprzep$. Wyjście $y(k)$ i sterowanie $u(k)$.}
+\caption{Próba 4: $\Delta y_{\mathrm{zad}}=-8\ \mathrm{cm}$, $\Delta F_D=-10\ \jednprzep$. Wyjście $y$ i sterowanie $u$.}
 \label{fig:dmcUjemny}
 \end{figure}
-Obniżenie zadania wymaga zmniejszenia dopływu. Oscylacje poziomu na obiekcie nieliniowym wiążą się z oscylacjami sterowania.
+Obniżenie zadania wymaga zmniejszenia dopływu (rys.~\ref{fig:dmcUjemny}). Oscylacje poziomu na obiekcie nieliniowym wiążą się z oscylacjami sterowania.
 
 \clearpage
 \section{Ocena jakości regulacji}
@@ -60,7 +60,7 @@ Jakość regulacji obiektu nieliniowego oceniono błędem średniokwadratowym
 Dla zadania uśredniano próbki od $400$ do chwili poprzedzającej $3800\ \mathrm{s}$, a dla zakłócenia od $3800$ do $8000\ \mathrm{s}$.
 \begin{table}[H]
 \centering\small
-\caption{Wyniki regulacji obiektu nieliniowego}
+\caption{Wyniki regulacji obiektu nieliniowego.}
 \begin{tabular}{rrrr}
 \toprule
 $\Delta y_{\mathrm{zad}}$ & $\Delta F_D$ & $\mathrm{MSE}_{\mathrm{zad}}$ & $\mathrm{MSE}_D$\\
@@ -69,5 +69,6 @@ $\Delta y_{\mathrm{zad}}$ & $\Delta F_D$ & $\mathrm{MSE}_{\mathrm{zad}}$ & $\mat
 \tableinput{dane/DMC_wskazniki.tex}
 \bottomrule
 \end{tabular}
+\label{tab:dmc-wskazniki}
 \end{table}
-W badanych próbach sterowanie pozostało dodatnie (fizycznie realizowalne). Przy większych skokach rosną oscylacje i rozbieżności modeli. W dodatnich scenariuszach zwiększano jednocześnie zmianę zadania i zakłócenia, dlatego sam wzrost MSE nie pozwala oddzielić wpływu tych dwóch czynników.
+W badanych próbach (tab.~\ref{tab:dmc-wskazniki}) sterowanie pozostało dodatnie (fizycznie realizowalne). Przy większych skokach rosną oscylacje i rozbieżności modeli. W dodatnich scenariuszach zwiększano jednocześnie zmianę zadania i zakłócenia, dlatego sam wzrost MSE nie pozwala oddzielić wpływu tych dwóch czynników.

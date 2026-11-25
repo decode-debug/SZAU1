@@ -21,11 +21,11 @@ function plot_comparison(obj,t,traces,slTraces,cases,lambdaSL,selectedVariant,re
         ay = nexttile(ty); ay.Color = 'w';
         linesY = stairs(ay,t,outputs); hold(ay,'on');
         refLine = stairs(ay,t,traces(j).ref,'LineStyle',':','LineWidth',1);
-        ylabel(ay,'h_2 [cm]');
+        ylabel(ay,'y [cm]');
 
         au = nexttile(tu); au.Color = 'w';
         linesU = stairs(au,t,[controls;controls(end,:)]);
-        ylabel(au,'F_{1in} [cm^3/s]');
+        ylabel(au,'u [cm^3/s]');
 
         for m = 1:numel(names)
             set([linesY(m),linesU(m)],'LineStyle',styles{m},'LineWidth',1);
@@ -38,7 +38,7 @@ function plot_comparison(obj,t,traces,slTraces,cases,lambdaSL,selectedVariant,re
             xline(ax,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         end
         if j==1
-            ly = legend(ay,[linesY(:);refLine],[names;"zadana"],'NumColumns',3);
+            ly = legend(ay,[linesY(:);refLine],[names;"y_{zad}"],'NumColumns',3);
             lu = legend(au,linesU,names,'NumColumns',3);
             ly.Layout.Tile = 'south'; lu.Layout.Tile = 'south';
         end

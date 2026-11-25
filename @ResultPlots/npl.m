@@ -19,10 +19,10 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
             if signal=="y"
                 hL = stairs(ax,tControl,curves);
                 refL = stairs(ax,tControl,traces(j).ref,'LineStyle',':','LineWidth',1);
-                ylabel(ax,'h_2 [cm]');
+                ylabel(ax,'y [cm]');
             else
                 hL = stairs(ax,tControl,[curves;curves(end,:)]);
-                ylabel(ax,'F_{1in} [cm^3/s]');
+                ylabel(ax,'u [cm^3/s]');
             end
             for m = 1:numel(baseLabels)
                 set(hL(m),'LineStyle',styles{m},'LineWidth',1);
@@ -34,7 +34,7 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
             xlabel(ax,'t [s]');
             if j==1
                 if signal=="y"
-                    lg = legend(ax,[hL(:);refL],[baseLabels;"zadana"],'NumColumns',5);
+                    lg = legend(ax,[hL(:);refL],[baseLabels;"y_{zad}"],'NumColumns',5);
                 else
                     lg = legend(ax,hL,baseLabels,'NumColumns',4);
                 end
@@ -70,8 +70,8 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
         xline(ay,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xline(ay,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(ay,'on'); xlim(ay,[tControl(1),tControl(end)]);
-        ylabel(ay,'h_2 [cm]'); xlabel(ay,'t [s]');
-        title(ay,sprintf('Wyjście h_2 (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
+        ylabel(ay,'y [cm]'); xlabel(ay,'t [s]');
+        title(ay,sprintf('Wyjście y (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
 
         au = nexttile(tiles,col+2); hold(au,'on'); au.Color = 'w';
         for idx = 1:numel(showIdx)
@@ -82,11 +82,11 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
         xline(au,refStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         xline(au,distStart,':','Color',[.45 .45 .45],'HandleVisibility','off');
         grid(au,'on'); xlim(au,[tControl(1),tControl(end)]);
-        ylabel(au,'F_{1in} [cm^3/s]'); xlabel(au,'t [s]');
-        title(au,sprintf('Sterowanie F_{1in} (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
+        ylabel(au,'u [cm^3/s]'); xlabel(au,'t [s]');
+        title(au,sprintf('Sterowanie u (NPL): zadanie %+g cm, F_D %+g cm^3/s',controlCases(j,:)));
 
         if col==1
-            lg = legend(ay,[lLabels,{'zadana'}],'NumColumns',4);
+            lg = legend(ay,[lLabels,{'y_{zad}'}],'NumColumns',4);
             lg.Layout.Tile = 'south';
         end
     end
