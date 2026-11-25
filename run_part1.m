@@ -88,7 +88,7 @@ end
 %% DMC: male i duze skoki, dodatnie i ujemne
 % Kolumny: zmiana h2,zad [cm], zmiana FD [cm^3/s].
 scenarios = [ 2,  10; ...
-              4,  20; ... % poprzedni test
+              4,  20; ...
               8,  30; ...
              -8, -10];
 tc = (0:400)'*P.Ts;
@@ -129,7 +129,7 @@ dmcSummary = array2table(dmcResults,'VariableNames', ...
      'Maks_roznica_modeli_cm','Min_F1in'});
 disp(dmcSummary);
 
-% Dane do sprawozdania; zapis nie zmienia modelu ani algorytmu regulacji.
+% Zapis wynikow symulacji.
 distSummary = array2table(distResults,'VariableNames', ...
     {'Skok_FD','h2_nieliniowy','h2_liniowy','Blad_ustalony','Maks_blad'});
 writetable(stepSummary,fullfile(outdir,'porownanie_F1in.csv'));

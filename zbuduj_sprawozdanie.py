@@ -6,7 +6,7 @@ import tempfile
 def main():
     projekt = Path(__file__).resolve().parent
     zrodla = projekt / "pust_szablon_sprawozdania_utf8"
-    raport = projekt / "sprawozdanie_czesci_1_2_3_4.pdf"
+    raport = projekt / "sprawozdanie_Wrobel_Zielinski.pdf"
     with tempfile.TemporaryDirectory(dir=projekt) as katalog:
         polecenie = [
             "pdflatex",

@@ -1,5 +1,5 @@
 function [M,Mp] = dmc_matrices(s,N,Nu)
-% Macierze (4.100) i (4.101). Od probki D model przyjmuje stala rzedna s_D.
+% Macierze dynamiczne M i Mp regulatora DMC. Od probki D model przyjmuje stala rzedna s_D.
     s = s(:);
     D = numel(s);
     history = 1:D-1;

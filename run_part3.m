@@ -1,7 +1,6 @@
 %% SZAU, zadanie 1, czesc 3: numeryczny rozmyty regulator FGPC-SL
 % Najpierw uruchom run_part2, potem run_part3.
-% Algorytm zgodny ze skryptem SZAU (s. 162-163, wzory 4.103-4.105 i 4.107).
-% Wymaga Control System Toolbox i Optimization Toolbox (quadprog).
+% Wymaga Control System Toolbox i Optimization Toolbox (quadprog, lsqlin).
 clear; close all; clc;
 
 dataFile = fullfile('wyniki_czesc2','dane_czesc2.mat');
@@ -13,12 +12,11 @@ load(dataFile,'P','modelTuned','ctrl','controlCases','tControl', ...
 outdir = fullfile(fileparts(mfilename('fullpath')),'wyniki_czesc3');
 plots = ResultPlots(outdir);
 
-%% Nastawy numerycznego regulatora FGPC-SL (bez filtru wartosci zadanej!)
-% Badanie wplywu parametru lambda (jak w Przykladzie 4.18, Rys. 4.42-4.43).
+%% Nastawy numerycznego regulatora FGPC-SL
 N_sl = 50;
 Nu_sl = 10;
 lambdaSL = [2.0, 1.0, 0.5, 0.2, 0.0];
-selectedVariant = 3;  % lambda = 0.5: najlepszy kompromis jakosci i gladkosci sterowania
+selectedVariant = 3;  % wybrany wariant: lambda = 0.5
 options = optimoptions('quadprog','Algorithm','active-set','MaxIterations',1000,'Display','off');
 
 % Dodatkowe proby walidacyjne o posrednich amplitudach i przeciwnych znakach.

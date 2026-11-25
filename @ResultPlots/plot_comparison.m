@@ -6,7 +6,7 @@ function plot_comparison(obj,t,traces,slTraces,cases,lambdaSL,selectedVariant,re
     theme(figU,'light');
     tu = tiledlayout(figU,2,2,'TileSpacing','compact','Padding','compact');
 
-    % Porownanie: PDC, PDC strojony, FGPC-SL (lam=1), FGPC-SL (wybrany lam=0.5), FGPC-SL (lam=0.2).
+    % Porownanie PDC oraz FGPC-SL dla lambda = 1, 0.5, 0.2.
     slIdx = [2, selectedVariant, 4];
     names = ["PDC"; "PDC strojony"; ...
         sprintf("FGPC-SL (\\lambda = %g)",lambdaSL(slIdx(1))); ...

@@ -1,5 +1,5 @@
 function model = build_arx_model(P,centers)
-% Dyskretny dynamiczny model rozmyty Takagiego-Sugeno (wzory 4.38 i 4.41).
+% Dyskretny dynamiczny model rozmyty Takagiego-Sugeno.
 % Dla kazdego wezla h2_i wyznacza lokalna linearyzacje ukladu dwoch zbiornikow
 % i jej dokladna dyskretyzacje ZOH w postaci rownania roznicowego:
 %   y^i(k+1) = b1_i*y(k) + b2_i*y(k-1) + c1_i*q(k) + c2_i*q(k-1) + a0q_i,

@@ -1,6 +1,5 @@
 %% SZAU, zadanie 1, czesc 4: numeryczny rozmyty regulator FGPC-NPL
 % Najpierw uruchom run_part2 i run_part3, potem run_part4.
-% Algorytm zgodny ze skryptem SZAU (s. 168-169, wzory 4.103-4.105 i 4.118-4.125).
 clear; close all; clc;
 
 root = fileparts(mfilename('fullpath'));
@@ -14,10 +13,9 @@ plots = ResultPlots(outdir);
 options = optimoptions('quadprog','Algorithm','active-set','MaxIterations',1000,'Display','off');
 
 %% Symulacje FGPC-NPL dla tych samych nastaw N, Nu i zestawu lambda co FGPC-SL
-% Porownanie przy tej samej lambda oraz wplyw strojenia lambda (Przyklad 4.19, Rys. 4.44-4.45).
 N_npl = N_sl;
 Nu_npl = Nu_sl;
-lambdaNPL = lambdaSL;  % [2.0, 1.0, 0.5, 0.2]
+lambdaNPL = lambdaSL;
 nProject = numel(traces);
 nVariants = numel(lambdaNPL);
 allCases = [controlCases;validationCases];
@@ -47,9 +45,7 @@ end
 nplTraces = allNPL(1:nProject,:);
 nplValTraces = allNPL(nProject+1:end,:);
 
-%% Zbiorcze zestawienie wszystkich regulatorow z czesci 1-4
-% Wybrane warianty: DMC cz.1, DMC ogr., PDC, PDC strojony,
-% FGPC-SL (lam=1, lam=0.5, lam=0.2) oraz FGPC-NPL (lam=1, lam=0.5, lam=0.2).
+%% Zbiorcze zestawienie regulatorow z czesci 1-4
 names = [ ...
     "DMC cz. 1"; ...
     "DMC ograniczony"; ...
@@ -107,7 +103,7 @@ totals = table(names, ...
     'Maks_przereg_cm','Maks_cofniecie_cm','Maks_blad_FD_cm','Suma_zmian_u'});
 disp(totals);
 
-% Zestawienie wplywu lambda dla SL i NPL (wszystkie 4 wartosci lambdaSL).
+% Zestawienie wplywu lambda dla SL i NPL.
 sweepRows = zeros(nVariants,11);
 for v = 1:nVariants
     slR=0; slD=0; slA=0; slO=0; slDU=0;

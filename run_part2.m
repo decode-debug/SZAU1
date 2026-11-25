@@ -9,7 +9,7 @@ P = tank_parameters();
 outdir = fullfile(fileparts(mfilename('fullpath')),'wyniki_czesc2');
 plots = ResultPlots(outdir);
 
-%% Modele rozmyte TS (wzory 4.38 i 4.41): od 2 do 5 modeli lokalnych
+%% Modele rozmyte TS: od 2 do 5 modeli lokalnych
 % Zmienna przeslanek: mierzony poziom h2 (silnie zmienia pojemnosc 3*C2*h2^2
 % i odzwierciedla wplyw niemierzalnego zaklocenia FD).
 % Zakres odpowiada lacznemu doplywowi q = F1in + FD od 50 do 180 cm^3/s.
@@ -95,7 +95,7 @@ for s1 = shifts
         end
     end
 end
-% Optymalizacja ciagla trzech wewnetrznych wezlow w przestrzeni ciaglej.
+% Optymalizacja polozenia wezlow wewnetrznych (fmincon).
 objFun = @(cInner) model_ts_mse(P,modelInitial,[hRange(1),cInner(:)',hRange(2)],openSteps,nOpen,truth);
 A_ord = [1 -1 0; 0 1 -1];
 b_ord = [-1.5; -1.5];
@@ -156,7 +156,7 @@ plots.plot_memberships(levels,modelWeights,modelCounts,initialWeights);
 plots.plot_model_responses(modelOutputs(:,:,selectedIndex),tunedOutputs,openSteps,truth,tOpen);
 plots.plot_all_models(linearOutputs,modelOutputs,modelCounts,openSteps,truth,tOpen);
 
-%% Analityczny rozmyty DMC (PDC, wzory 4.72-4.75) z ograniczeniami sterowania
+%% Analityczny rozmyty DMC (PDC) z ograniczeniami sterowania
 % Te same nastawy bazowe co konwencjonalny DMC z czesci 1: D=200, N=50, Nu=10, lambda=0.05.
 % Ograniczenia sterowania: 0 <= u <= 200 cm^3/s oraz |du| <= 15 cm^3/s na probke.
 ctrl.D = 200;
@@ -278,7 +278,7 @@ totalsPart2 = accumarray(controlSummary.Regulator, ...
     controlSummary.MSE_laczny,[],@mean);
 fprintf('Sredni MSE [DMC cz.1, Liniowy ogr., PDC, PDC strojony] = %s cm^2\n', ...
     mat2str(totalsPart2.',5));
-fprintf('Regulator PDC po strojeniu (dzwonowe Gaussa): skala szerokosci = %.2f\n', ...
+fprintf('Regulator PDC po strojeniu (dzwonowe Gaussa): sigma = %.2f cm\n', ...
     sigmaTuned);
 fprintf('Wezly regulatora po strojeniu = %s cm; sredni MSE = %.4f cm^2\n', ...
     mat2str(controllerCenters,4),bestControlScore);
@@ -321,7 +321,7 @@ function y = simulate_plant_step(P,stepSize,n)
 end
 
 function y = simulate_arx_step(P,model,stepSize,n)
-    % Symulacja dyskretnego modelu TS (wzor 4.41) w petli otwartej.
+    % Symulacja dyskretnego modelu TS w petli otwartej.
     y = zeros(n+1,1);
     y(1) = P.h0(2);
     for k = 1:n
@@ -345,7 +345,7 @@ function dh = plant_rhs(P,h,u,d)
 end
 
 function controllers = design_dmc(P,model,ctrl)
-    % Lokalne analityczne regulatory DMC (wzory 4.72-4.73) dla kazdej reguly TS.
+    % Lokalne analityczne regulatory DMC dla kazdej reguly TS.
     S = local_step_responses(P,model,ctrl.D);
     for rule = 1:model.count
         [M,freeMatrix] = dmc_matrices(S(:,rule),ctrl.N,ctrl.Nu);
@@ -368,7 +368,7 @@ function score = pdc_mse(P,controllers,centers,sigmaScale,testData,ctrl,refMask,
 end
 
 function [y,u] = simulate_pdc(P,controllers,centers,sigmaScale,ref,dist,ctrl,limited)
-    % Analityczny rozmyty DMC (wzory 4.74-4.75) z rzutowaniem na ograniczenia.
+    % Analityczny rozmyty DMC (PDC) z rzutowaniem na ograniczenia.
     n = numel(ref)-1;
     y = zeros(n+1,1); y(1) = P.h0(2);
     u = zeros(n,1);

@@ -1,8 +1,8 @@
 function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbance,options,isNPL)
-% Numeryczny rozmyty regulator predykcyjny FGPC-SL (isNPL=false, wzory 4.103-4.105, 4.107)
-% oraz FGPC-NPL (isNPL=true, wzory 4.103-4.105, 4.118-4.125) ze skryptu SZAU.
+% Numeryczny rozmyty regulator predykcyjny FGPC-SL (isNPL=false)
+% oraz FGPC-NPL (isNPL=true).
 % Wykorzystuje dyskretny model Takagiego-Sugeno (rownania roznicowe w nastepnikach)
-% i optymalizacje kwadratowa quadprog z ograniczeniami sterowania u oraz du.
+% i optymalizacje kwadratowa z ograniczeniami sterowania u oraz du.
     n = numel(reference)-1;
     y = zeros(n+1,1);
     y(1) = P.h0(2);
@@ -24,13 +24,13 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
         if k==1, prevU = P.u0; else, prevU = u(k-1); end
         started = tic;
 
-        % (4.107): quasi-liniowy model lokalny w biezacym punkcie pracy y(k).
+        % Quasi-liniowy model lokalny w biezacym punkcie pracy y(k).
         w = ts_memberships(y(k),model.centers);
         b = model.b*w.';
         c = model.c*w.';
         a0 = model.a0*w.';
 
-        % Odpowiedz skokowa biezacego modelu liniowego -> macierz dynamiczna M_k (4.101).
+        % Odpowiedz skokowa biezacego modelu liniowego -> macierz dynamiczna M_k.
         s = zeros(N,1);
         for p = 1:N
             y1 = 0; y2 = 0;
@@ -51,7 +51,7 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
         u_km2_d = past_or_hold(u,k-2-delay,k-1,prevU,P.u0);
 
         if isNPL
-            % (4.118)-(4.119): wyjscie modelu rozmytego w chwili k i skladnik d_k.
+            % Wyjscie modelu rozmytego w chwili k i korekcja bledu modelu d_k.
             w0 = ts_memberships(ykm1,model.centers);
             b0 = model.b*w0.';
             c0 = model.c*w0.';
@@ -59,7 +59,7 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
             yMk = b0(1)*ykm1 + b0(2)*ykm2 + c0(1)*u_km1_d + c0(2)*u_km2_d + a00;
             dk = y(k) - yMk;
 
-            % (4.120)-(4.125): iteracyjna nieliniowa predykcja odpowiedzi swobodnej.
+            % Iteracyjna nieliniowa predykcja odpowiedzi swobodnej.
             free = zeros(N,1);
             y1 = y(k);
             y2 = ykm1;
@@ -76,7 +76,7 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
                 y1 = yNext;
             end
         else
-            % FGPC-SL (s. 163): odpowiedz swobodna z zamrozonym modelem liniowym (4.107).
+            % FGPC-SL: odpowiedz swobodna z zamrozonym modelem liniowym.
             yMk = b(1)*ykm1 + b(2)*ykm2 + c(1)*u_km1_d + c(2)*u_km2_d + a0;
             dk = y(k) - yMk;
             free = zeros(N,1);
@@ -92,7 +92,7 @@ function [y,u,decisionTime] = simulate_fgpc(P,model,ctrl,Nu,reference,disturbanc
             end
         end
 
-        % (4.103)-(4.105): zadanie optymalizacji liniowo-kwadratowej z ograniczeniami.
+        % Zadanie optymalizacji liniowo-kwadratowej z ograniczeniami.
         bineq = [(ctrl.uMax - prevU)*onesNu; (prevU - ctrl.uMin)*onesNu];
         if ctrl.lambda==0
             [moves,~,~,exitflag] = lsqlin(M,reference(k)-free,Aineq,bineq,[],[],lb,ub,[],lsqOpts);

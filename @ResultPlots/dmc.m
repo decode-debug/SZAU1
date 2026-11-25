@@ -25,7 +25,7 @@ function dmc(obj,tc,traces,scenarios)
         plot_dmc_scenario(tc,yNL,yLin,uNL,uLin,ref,deltaRef,deltaDist,j,outdir);
 
         if j==2
-            % Zachowaj dotychczasowy wykres dla pierwotnego testu.
+            % Dodatkowy wykres dla scenariusza +4 cm / +20 cm^3/s.
             plot_dmc_original(tc,yNL,uNL,ref,dist,outdir);
         end
     end
@@ -35,7 +35,7 @@ function dmc(obj,tc,traces,scenarios)
 end
 
 function plot_dmc_scenario(t,yNL,yLin,uNL,uLin,ref,deltaRef,deltaDist,j,outdir)
-    % Wyjscie i sterowanie sa nierozlaczna para dla kazdej proby.
+    % Wykres wyjscia i sterowania dla pojedynczego scenariusza.
     fig = figure('Visible','off','Color','w','Position',[100 100 1000 650]);
     tiledlayout(2,1);
     ay = nexttile;

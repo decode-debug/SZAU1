@@ -6,7 +6,7 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
     theme(fig,'light');
     tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
 
-    % Wybrane 3 reprezentatywne wartosci lambda (lagodne, wybrane, agresywne) dla czytelnosci.
+    % Wykres dla wybranych wartosci lambda (2, 0.5, 0.2).
     showIdx = [1, 3, 4];
     styles = {'--','-','-.'};
     labels = arrayfun(@(l) sprintf('FGPC-SL (\\lambda = %g)',l),lambdaSL(showIdx),'UniformOutput',false);
@@ -14,7 +14,7 @@ function plot_tuning(obj,t,traces,slTraces,cases,lambdaSL,refStart,distStart)
     picked = [jPos, jNeg];
     for col = 1:2
         j = picked(col);
-        % Gorny wiersz: wyjscie h_2
+        % Gorny wiersz: wyjscie y
         ay = nexttile(tiles,col); hold(ay,'on'); ay.Color = 'w';
         for idx = 1:numel(showIdx)
             v = showIdx(idx);

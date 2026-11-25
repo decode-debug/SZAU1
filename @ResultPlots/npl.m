@@ -1,5 +1,5 @@
 function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,controlCases,refStart,distStart)
-    % 1-2. Glowne porownanie wszystkich pokolen regulatorow: DMC cz. 1, PDC strojony, FGPC-SL i FGPC-NPL.
+    % Porownanie regulatorow: DMC cz. 1, PDC strojony, FGPC-SL i FGPC-NPL.
     lamSel = lambdaNPL(selectedVariant);
     baseLabels = [ ...
         "DMC cz. 1"; ...
@@ -46,14 +46,14 @@ function npl(obj,tControl,traces,slTraces,nplTraces,selectedVariant,lambdaNPL,co
         close(fig);
     end
 
-    % 3. Wplyw parametru lambda w FGPC-NPL (analogia do Rys. 4.45 ze skryptu) + porownanie z FGPC-SL.
+    % Wplyw parametru lambda w FGPC-NPL.
     [~,jPos] = max(controlCases(:,1));
     [~,jNeg] = min(controlCases(:,1));
     fig = figure('Visible','off','Color','w','Position',[100 100 1060 720]);
     theme(fig,'light');
     tiles = tiledlayout(fig,2,2,'TileSpacing','compact','Padding','compact');
 
-    % Wybrane 3 reprezentatywne wartosci lambda (lagodne, wybrane, agresywne) dla czytelnosci.
+    % Wykres dla wybranych wartosci lambda (2, 0.5, 0.2).
     showIdx = [1, 3, 4];
     lStyles = {'--','-','-.'};
     lLabels = arrayfun(@(l) sprintf('FGPC-NPL (\\lambda = %g)',l),lambdaNPL(showIdx),'UniformOutput',false);
