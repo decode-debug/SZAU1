@@ -12,8 +12,8 @@ plots = ResultPlots(outdir);
 %% Modele rozmyte TS (wzory 4.38 i 4.41): od 2 do 5 modeli lokalnych
 % Zmienna przeslanek: mierzony poziom h2 (silnie zmienia pojemnosc 3*C2*h2^2
 % i odzwierciedla wplyw niemierzalnego zaklocenia FD).
-% Zakres odpowiada zmianom F1in = 50..150 cm^3/s (+/-50%) przy FD = 20 cm^3/s.
-hRange = [(70/P.a2)^2, (170/P.a2)^2];
+% Zakres odpowiada lacznemu doplywowi q = F1in + FD od 50 do 180 cm^3/s.
+hRange = [(50/P.a2)^2, (180/P.a2)^2];
 modelCounts = 2:5;
 models = cell(size(modelCounts));
 for j = 1:numel(modelCounts)
@@ -67,14 +67,13 @@ selectedCount = 5;
 selectedIndex = find(modelCounts==selectedCount);
 modelInitial = models{selectedIndex};
 
-% Przesuwamy trzy wewnetrzne wezly funkcji przynaleznosci, pozostawiajac
-% konce zakresu i lokalne nastepniki stale.
+% Przesuwamy trzy wewnetrzne wezly funkcji przynaleznosci (najpierw siatka,
+% a nastepnie optymalizacja ciagla fmincon), pozostawiajac konce zakresu i
+% lokalne nastepniki stale.
 middle = modelInitial.centers(2:4);
 shifts = [-2 -1 0 1 2];
 bestRmse = inf;
 modelTuned = modelInitial;
-tunedOutputs = modelOutputs(:,:,selectedIndex);
-candidateOutputs = zeros(size(truth));
 for s1 = shifts
     for s2 = shifts
         for s3 = shifts
@@ -86,21 +85,36 @@ for s1 = shifts
             for j = 1:size(openSteps,1)
                 yTS = simulate_arx_step(P,candidateModel,openSteps(j,:),nOpen);
                 err = yTS-truth(:,j);
-                candidateOutputs(:,j) = yTS;
                 candidateMse(j) = mean(err.^2);
             end
             rmse = sqrt(mean(candidateMse));
             if rmse<bestRmse
                 bestRmse = rmse;
                 modelTuned = candidateModel;
-                tunedOutputs = candidateOutputs;
-                stepMse(:,end) = candidateMse;
             end
         end
     end
 end
-fprintf('Model TS 5: RMSE przed = %.4f cm, po = %.4f cm; wezly = %s cm\n', ...
-    modelRmse(selectedIndex),bestRmse,mat2str(modelTuned.centers,4));
+% Optymalizacja ciagla trzech wewnetrznych wezlow w przestrzeni ciaglej.
+objFun = @(cInner) model_ts_mse(P,modelInitial,[hRange(1),cInner(:)',hRange(2)],openSteps,nOpen,truth);
+A_ord = [1 -1 0; 0 1 -1];
+b_ord = [-1.5; -1.5];
+lb_c = (hRange(1)+1.5)*ones(1,3);
+ub_c = (hRange(2)-1.5)*ones(1,3);
+optTs = optimoptions('fmincon','Display','off','Algorithm','sqp');
+bestInner = fmincon(objFun,modelTuned.centers(2:4),A_ord,b_ord,[],[],lb_c,ub_c,[],optTs);
+modelTuned.centers = [hRange(1),bestInner(:)',hRange(2)];
+tunedOutputs = zeros(size(truth));
+tunedMse = zeros(size(openSteps,1),1);
+for j = 1:size(openSteps,1)
+    yTS = simulate_arx_step(P,modelTuned,openSteps(j,:),nOpen);
+    tunedOutputs(:,j) = yTS;
+    tunedMse(j) = mean((yTS-truth(:,j)).^2);
+end
+bestRmse = sqrt(mean(tunedMse));
+stepMse(:,end) = tunedMse;
+fprintf('Model TS 5: MSE przed = %.4f cm^2, po = %.4f cm^2; wezly = %s cm\n', ...
+    modelRmse(selectedIndex)^2,bestRmse^2,mat2str(modelTuned.centers,4));
 
 % Walidacja modelu na 4 dodatkowych skokach nieuzytych przy strojeniu.
 validationSteps = [-40 0; 40 0; 0 -7; 0 7];
@@ -143,9 +157,9 @@ plots.plot_model_responses(modelOutputs(:,:,selectedIndex),tunedOutputs,openStep
 plots.plot_all_models(linearOutputs,modelOutputs,modelCounts,openSteps,truth,tOpen);
 
 %% Analityczny rozmyty DMC (PDC, wzory 4.72-4.75) z ograniczeniami sterowania
-% Te same nastawy bazowe co konwencjonalny DMC z czesci 1: D=250, N=50, Nu=10, lambda=0.05.
+% Te same nastawy bazowe co konwencjonalny DMC z czesci 1: D=200, N=50, Nu=10, lambda=0.05.
 % Ograniczenia sterowania: 0 <= u <= 200 cm^3/s oraz |du| <= 15 cm^3/s na probke.
-ctrl.D = 250;
+ctrl.D = 200;
 ctrl.N = 50;
 ctrl.Nu = 10;
 ctrl.lambda = 0.05;
@@ -173,18 +187,18 @@ for j = 1:numel(testData)
     testData{j}.dist = P.d0+controlCases(j,2)*(tControl>=distStart);
 end
 
-% Strojenie funkcji przynaleznosci regulatora PDC (wykladnik gamma + przesuniecia wezlow).
-gammaInitial = 1;
-gammaCandidates = [0.5 0.75 1 1.25 1.5 2 3];
-gammaScores = zeros(size(gammaCandidates));
-for g = 1:numel(gammaCandidates)
-    gammaScores(g) = pdc_mse(P,fuzzyControllers,modelTuned.centers, ...
-        gammaCandidates(g),testData,ctrl,refMask,distMask);
+% Strojenie funkcji przynaleznosci regulatora PDC: funkcje dzwonowe (Gaussa)
+% o wspolnej szerokosci sigma [cm] oraz polozeniu wezlow wewnetrznych.
+sigmaCandidates = [2.0 2.5 3.0 3.5 4.0 4.5];
+sigmaScores = zeros(size(sigmaCandidates));
+for s = 1:numel(sigmaCandidates)
+    sigmaScores(s) = pdc_mse(P,fuzzyControllers,modelTuned.centers, ...
+        sigmaCandidates(s),testData,ctrl,refMask,distMask);
 end
-[~,bestGammaIndex] = min(gammaScores);
-gammaTuned = gammaCandidates(bestGammaIndex);
+[~,bestSigmaIndex] = min(sigmaScores);
+sigmaTuned = sigmaCandidates(bestSigmaIndex);
 controllerCenters = modelTuned.centers;
-bestControlScore = gammaScores(bestGammaIndex);
+bestControlScore = sigmaScores(bestSigmaIndex);
 
 % Przesuniecia wewnetrznych wezlow w regulatorze (stale lokalne regulatory).
 cShifts = [-2 0 2];
@@ -193,13 +207,34 @@ for d1 = cShifts
         for d3 = cShifts
             candCenters = modelTuned.centers;
             candCenters(2:4) = candCenters(2:4) + [d1,d2,d3];
-            if any(diff(candCenters)<=1.5), continue; end
-            score = pdc_mse(P,fuzzyControllers,candCenters,gammaTuned,testData,ctrl,refMask,distMask);
+            if any(diff(candCenters)<4.0), continue; end
+            score = pdc_mse(P,fuzzyControllers,candCenters,sigmaTuned,testData,ctrl,refMask,distMask);
             if score<bestControlScore
                 bestControlScore = score;
                 controllerCenters = candCenters;
             end
         end
+    end
+end
+
+% Ciagle dostrojenie (wezly wewnetrzne + szerokosc sigma) metoda fmincon.
+if exist('fmincon','file')==2
+    p0 = [controllerCenters(2:4), sigmaTuned];
+    lb = [controllerCenters(1)+4.0, controllerCenters(1)+8.0, controllerCenters(1)+12.0, 2.2];
+    ub = [controllerCenters(end)-12.0, controllerCenters(end)-8.0, controllerCenters(end)-4.0, 4.5];
+    A_ineq = [1, -1,  0, 0; ...
+              0,  1, -1, 0];
+    b_ineq = [-4.0; -4.0];
+    objCtrl = @(p) pdc_mse(P,fuzzyControllers, ...
+        [controllerCenters(1), p(1:3), controllerCenters(end)], ...
+        p(4),testData,ctrl,refMask,distMask);
+    optsCtrl = optimoptions('fmincon','Algorithm','sqp','Display','off', ...
+        'MaxIterations',60,'StepTolerance',1e-4,'OptimalityTolerance',1e-5);
+    [pOpt,scoreOpt] = fmincon(objCtrl,p0,A_ineq,b_ineq,[],[],lb,ub,[],optsCtrl);
+    if scoreOpt<bestControlScore
+        bestControlScore = scoreOpt;
+        controllerCenters(2:4) = pOpt(1:3);
+        sigmaTuned = pOpt(4);
     end
 end
 
@@ -210,12 +245,12 @@ row = 0;
 for j = 1:numel(testData)
     ref = testData{j}.ref;
     dist = testData{j}.dist;
-    [yPart1,uPart1] = simulate_pdc(P,linearControllers,[],1,ref,dist,ctrl,false);
-    [yLinear,uLinear] = simulate_pdc(P,linearControllers,[],1,ref,dist,ctrl,true);
+    [yPart1,uPart1] = simulate_pdc(P,linearControllers,[],0,ref,dist,ctrl,false);
+    [yLinear,uLinear] = simulate_pdc(P,linearControllers,[],0,ref,dist,ctrl,true);
     [yFuzzy,uFuzzy] = simulate_pdc(P,fuzzyControllers,modelTuned.centers, ...
-                                   gammaInitial,ref,dist,ctrl,true);
+                                   0,ref,dist,ctrl,true);
     [yTuned,uTuned] = simulate_pdc(P,fuzzyControllers,controllerCenters, ...
-                                   gammaTuned,ref,dist,ctrl,true);
+                                   sigmaTuned,ref,dist,ctrl,true);
 
     traces(j).ref = ref;
     traces(j).dist = dist;
@@ -243,14 +278,13 @@ totalsPart2 = accumarray(controlSummary.Regulator, ...
     controlSummary.MSE_laczny,[],@mean);
 fprintf('Sredni MSE [DMC cz.1, Liniowy ogr., PDC, PDC strojony] = %s cm^2\n', ...
     mat2str(totalsPart2.',5));
-fprintf('Regulator PDC: gamma przed = %.2f, po strojeniu = %.2f\n', ...
-    gammaInitial,gammaTuned);
+fprintf('Regulator PDC po strojeniu (dzwonowe Gaussa): skala szerokosci = %.2f\n', ...
+    sigmaTuned);
 fprintf('Wezly regulatora po strojeniu = %s cm; sredni MSE = %.4f cm^2\n', ...
     mat2str(controllerCenters,4),bestControlScore);
 
-controllerWeights = ts_memberships(levels,controllerCenters).^gammaTuned;
-controllerWeights = controllerWeights./sum(controllerWeights,2);
-plots.plot_control_memberships(levels,initialWeights,controllerWeights,gammaTuned);
+[~,controllerMu] = ts_bell_memberships(levels,controllerCenters,sigmaTuned);
+plots.plot_control_memberships(levels,initialWeights,controllerMu,sigmaTuned);
 
 writetable(modelSummary,fullfile(outdir,'jakosc_modeli.csv'));
 writetable(amplitudeSummary,fullfile(outdir,'jakosc_modeli_amplitudy.csv'));
@@ -259,9 +293,20 @@ save(fullfile(outdir,'dane_czesc2.mat'),'P','models','modelInitial', ...
      'modelTuned','modelSummary','amplitudeSummary','stepMse','nominalDrift', ...
      'openSteps','truth','validationSteps','validationRmse', ...
      'controlCases','controlSummary','traces','tControl','refStart','distStart', ...
-     'gammaCandidates','gammaScores','gammaTuned','controllerCenters','ctrl');
+     'sigmaCandidates','sigmaScores','sigmaTuned','controllerCenters','ctrl');
 
 %% Funkcje pomocnicze
+function mseVal = model_ts_mse(P,baseModel,centers,openSteps,nOpen,truth)
+    cand = baseModel;
+    cand.centers = centers;
+    mseSum = 0;
+    for j = 1:size(openSteps,1)
+        yTS = simulate_arx_step(P,cand,openSteps(j,:),nOpen);
+        mseSum = mseSum + mean((yTS-truth(:,j)).^2);
+    end
+    mseVal = mseSum / size(openSteps,1);
+end
+
 function y = simulate_plant_step(P,stepSize,n)
     h = P.h0;
     y = zeros(n+1,1);
@@ -310,19 +355,19 @@ function controllers = design_dmc(P,model,ctrl)
     end
 end
 
-function score = pdc_mse(P,controllers,centers,gamma,testData,ctrl,refMask,distMask)
+function score = pdc_mse(P,controllers,centers,sigmaScale,testData,ctrl,refMask,distMask)
     score = 0;
     allMask = refMask | distMask;
     for j = 1:numel(testData)
         trial = testData{j};
-        y = simulate_pdc(P,controllers,centers,gamma,trial.ref,trial.dist,ctrl,true);
+        y = simulate_pdc(P,controllers,centers,sigmaScale,trial.ref,trial.dist,ctrl,true);
         err = y-trial.ref;
         score = score + mean(err(allMask).^2);
     end
     score = score / numel(testData);
 end
 
-function [y,u] = simulate_pdc(P,controllers,centers,gamma,ref,dist,ctrl,limited)
+function [y,u] = simulate_pdc(P,controllers,centers,sigmaScale,ref,dist,ctrl,limited)
     % Analityczny rozmyty DMC (wzory 4.74-4.75) z rzutowaniem na ograniczenia.
     n = numel(ref)-1;
     y = zeros(n+1,1); y(1) = P.h0(2);
@@ -334,9 +379,10 @@ function [y,u] = simulate_pdc(P,controllers,centers,gamma,ref,dist,ctrl,limited)
         if k==1, previousU = P.u0; else, previousU = u(k-1); end
         if nRules==1
             weights = 1;
+        elseif sigmaScale>0
+            weights = ts_bell_memberships(y(k),centers,sigmaScale);
         else
-            weights = ts_memberships(y(k),centers).^gamma;
-            weights = weights/sum(weights);
+            weights = ts_memberships(y(k),centers);
         end
         du = 0;
         for rule = 1:nRules

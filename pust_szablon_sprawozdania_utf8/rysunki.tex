@@ -1,9 +1,12 @@
 \chapter{Regulacja DMC}
 \section{Algorytm i testy}
-Zaprojektowano analityczny regulator DMC na podstawie odpowiedzi skokowej modelu liniowego.
-W każdej próbce algorytm wyznacza przyszłe przyrosty sterowania minimalizujące błąd predykcji wyjścia i zmiany sterowania,
-a na obiekt podaje tylko pierwszy z nich. Dzięki uwzględnieniu historii sterowań regulator dobrze radzi sobie z opóźnieniem transportowym $200\ \mathrm{s}$.
-Przyjęto nastawy: $D=250$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$ oraz $T_s=20\ \mathrm{s}$.
+Zaprojektowano analityczny regulator DMC na podstawie odpowiedzi skokowej modelu liniowego, wyznaczający w każdej próbce wektor przyszłych przyrostów sterowania:
+\begin{equation}
+\Delta U=(M^{\mathsf T}M+\lambda I)^{-1}M^{\mathsf T}(Y_{\mathrm{zad}}-Y^0),
+\end{equation}
+z którego na obiekt podawany jest tylko pierwszy element. Dzięki uwzględnieniu historii sterowań regulator dobrze radzi sobie z opóźnieniem transportowym $200\ \mathrm{s}$.
+Przyjęto nastawy: $D=200$, $N=50$, $N_u=10$, $\lambda=\num{0.05}$ oraz $T_s=20\ \mathrm{s}$.
+Długie horyzonty ($D=200$ odpowiada $4000\ \mathrm{s}$ i pokrywa czas ustalania także w najwolniejszym, górnym zakresie poziomów $h_2$, a $N=50$ i $N_u=10$ dają wyraźny zapas ponad czasem opóźnienia) wybrano ze względu na powolną dynamikę obiektu oraz duże możliwości obliczeniowe (dla regulatora analitycznego wzmocnienia liczy się jednorazowo), natomiast niewielka waga $\lambda=\num{0.05}$ zapewnia szybką reakcję bez nadmiernych oscylacji w pobliżu punktu pracy.
 Okres próbkowania $T_s=20\ \mathrm{s}$ dobrano jako kompromis między dokładnością sterowania a jego złożonością obliczeniową,
 ponieważ przy zmniejszaniu $T_s$ rośnie liczba próbek na horyzoncie sterowania $N_u$, a złożoność obliczeniowa zadań optymalizacji w regulacji predykcyjnej rośnie sześciennie ($O(N_u^3)$).
 Jest to szczególnie istotne w przypadku regulatorów predykcyjnych, które wymagają rozwiązywania problemów optymalizacji w każdej próbce czasowej (online) dla algorytmów SL i NPL.

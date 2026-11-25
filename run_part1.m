@@ -68,7 +68,7 @@ plots.steps(t,stepTracesD,steps*P.d0/P.u0,'F_D','skoki_FD.png');
 %% Konwencjonalny analityczny DMC
 % Delta U = (M'' M + lambda I)^(-1) M'' (Yzad - Y0).
 % Pierwszy element wektora Delta U jest stosowany do obiektu.
-D=250; N=50; Nu=10; lambda=0.05;
+D=200; N=50; Nu=10; lambda=0.05;
 % step zwraca probki od t=0; s(i) odpowiada chwili i*Ts.
 response = step(P.sysd(:,1),(0:D+N)'*P.Ts);
 s = response(2:end);

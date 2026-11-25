@@ -1,31 +1,14 @@
 \chapter{Numeryczny rozmyty regulator FGPC--SL}
 \section{Algorytm i ograniczenia}
-Zastosowano numeryczny regulator rozmyty z kolejną linearyzacją FGPC--SL (materiały wykładowe \emph{Regulatory rozmyte}, s.~162--163, wzory (4.103)--(4.105) i (4.107)), oparty na dostrojonym modelu pięcioregułowym z rozdziału~4.
-
-W każdej próbce $k$ na podstawie bieżącego pomiaru $y(k)=h_2(k)$ uśrednia się parametry lokalnych równań różnicowych (wzór (4.107)):
-\begin{align}
- \widetilde b_m(k)&=\sum_{i=1}^5\widetilde w_i\bigl(y(k)\bigr)\,b_{m,i},\qquad
- \widetilde c_m(k)=\sum_{i=1}^5\widetilde w_i\bigl(y(k)\bigr)\,c_{m,i}\quad(m=1,2),\\
- \widetilde a_0(k)&=\sum_{i=1}^5\widetilde w_i\bigl(y(k)\bigr)\,a_{0,i}.
-\end{align}
-Z zamrożonego na horyzoncie predykcji modelu wyznacza się odpowiedź skokową $\widetilde s_p(k)$ (z opóźnieniem 10 próbek) i macierz dynamiczną $M_k$ o elementach $(M_k)_{pj}=\widetilde s_{p-j+1}(k)$ dla $p\geq j$. Trajektorię swobodną $Y^0(k)$ (dla $u^0(k+j)=u(k-1)$, $j\geq0$) oblicza się rekurencyjnie z korekcją błędu modelu $d_k$:
-\begin{align}
- y^{\mathrm{mod}}(k)&=\widetilde b_1(k)y(k-1)+\widetilde b_2(k)y(k-2)+\widetilde c_1(k)u(k-11)+\widetilde c_2(k)u(k-12)+\widetilde a_0(k),\\
- d_k&=y(k)-y^{\mathrm{mod}}(k),\\
- y^0(k+p|k)&=\widetilde b_1(k)y^0(k+p-1|k)+\widetilde b_2(k)y^0(k+p-2|k)\nonumber\\
- &\quad+\widetilde c_1(k)u^0(k+p-11)+\widetilde c_2(k)u^0(k+p-12)+\widetilde a_0(k)+d_k,
-\end{align}
-dla $p=1,\dots,N$, przy $y^0(k|k)=y(k)$ i $y^0(k-1|k)=y(k-1)$. Funkcja \texttt{quadprog} rozwiązuje w każdej próbce zadanie kwadratowe (wzory (4.103)--(4.105)):
-\begin{align}
- \min_{\Delta U}\quad J&=\lVert Y_{\mathrm{zad}}(k)-Y^0(k)-M_k\Delta U\rVert_2^2
-                         +\lambda\lVert\Delta U\rVert_2^2,\\
- -15\mathbf 1\leq\Delta U&\leq15\mathbf 1,\qquad
- 0\mathbf 1\leq u(k-1)\mathbf 1+L\Delta U\leq200\mathbf 1,
-\end{align}
-gdzie $L$ jest dolnotrójkątną macierzą jedynek, a $Y_{\mathrm{zad}}(k)=h_{2,\mathrm{zad}}(k)\mathbf 1$ (bez filtrowania wartości zadanej). Do obiektu podawany jest pierwszy przyrost z wektora $\Delta U$.
+Zastosowano numeryczny regulator rozmyty z kolejną linearyzacją (FGPC--SL), oparty na dostrojonym modelu pięcioregułowym z rozdziału~4. W każdej próbce $k$ na podstawie bieżącego pomiaru $y(k)=h_2(k)$ uśrednia się parametry modeli lokalnych z wagami $\widetilde w_i\bigl(y(k)\bigr)$, otrzymując zamrożony model liniowy na horyzoncie predykcji. Wyznacza się z niego bieżącą macierz dynamiczną $M_k$ oraz trajektorię swobodną $Y^0(k)$ z korekcją błędu modelu $d_k=y(k)-y^{\mathrm{mod}}(k)$, a funkcja \texttt{quadprog} rozwiązuje zadanie optymalizacji kwadratowej:
+\begin{equation}
+ \min_{\Delta U}\; J=\lVert Y_{\mathrm{zad}}(k)-Y^0(k)-M_k\Delta U\rVert_2^2
+                    +\lambda\lVert\Delta U\rVert_2^2,
+\end{equation}
+z jawnymi ograniczeniami $0\leq\uvar\leq200\ \jednprzep$ oraz $|\Delta\uvar|\leq15\ \jednprzep$ na próbkę w całym horyzoncie sterowania. Do obiektu podawany jest pierwszy przyrost z wyznaczonego wektora $\Delta U$.
 
 \section{Strojenie \texorpdfstring{$\lambda$}{lambda} i porównanie z PDC}
-Przyjęto $N=30$ (20 próbek za opóźnieniem transportowym) oraz $N_u=5$. Analogicznie do Przykładu~4.18 z materiałów wykładowych zbadano wpływ współczynnika $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2}\}$ na tych samych czterech próbach co w częściach~1 i 2.
+Przyjęto $N=30$ (20 próbek za opóźnieniem transportowym) oraz $N_u=5$. Zbadano wpływ współczynnika $\lambda\in\{2;\ 1;\ \num{0.5};\ \num{0.2}\}$ na tych samych czterech próbach co w częściach~1 i 2.
 
 \begin{table}[H]
 \centering
@@ -33,11 +16,11 @@ Przyjęto $N=30$ (20 próbek za opóźnieniem transportowym) oraz $N_u=5$. Analo
 \small
 \begin{tabular}{lrrrrrr}\toprule
 $\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & PDC & PDC str. & SL ($\lambda=2$) & SL ($\lambda=1$) & SL ($\lambda=\num{0.5}$) & SL ($\lambda=\num{0.2}$)\\\midrule
-$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.291} & \num{0.317} & \num{0.278} & \num{0.255} & \num{0.234}\\
-$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.230} & \num{1.213} & \num{1.277} & \num{1.106} & \num{1.009} & \num{0.927}\\
-$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.328} & \num{4.259} & \num{4.586} & \num{3.996} & \num{3.661} & \num{3.395}\\
-$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.644} & \num{2.640} & \num{3.483} & \num{3.185} & \num{3.006} & \num{2.857}\\\midrule
-Średnia & \num{2.124} & \num{2.101} & \num{2.416} & \num{2.141} & \num{1.983} & \num{1.853}\\\bottomrule
+$+2\ \mathrm{cm}/+10\ \jednprzep$ & \num{0.292} & \num{0.288} & \num{0.316} & \num{0.277} & \num{0.254} & \num{0.233}\\
+$+4\ \mathrm{cm}/+20\ \jednprzep$ & \num{1.228} & \num{1.210} & \num{1.283} & \num{1.111} & \num{1.012} & \num{0.928}\\
+$+8\ \mathrm{cm}/+30\ \jednprzep$ & \num{4.336} & \num{4.226} & \num{4.571} & \num{3.971} & \num{3.632} & \num{3.367}\\
+$-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.637} & \num{2.633} & \num{3.464} & \num{3.163} & \num{2.979} & \num{2.822}\\\midrule
+Średnia & \num{2.123} & \num{2.089} & \num{2.409} & \num{2.130} & \num{1.969} & \num{1.838}\\\bottomrule
 \end{tabular}
 \label{tab:sl-control}
 \end{table}
@@ -49,17 +32,17 @@ $-8\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.644} & \num{2.640} & \num{3.483} & \n
 \begin{tabular}{lrrrrrr}\toprule
 Regulator & MSE zad. & MSE zakł. & $\sum|\Delta u|$ & $\max|\Delta u|$ & Cofn. & Przereg.\\
  & [$\mathrm{cm^2}$] & [$\mathrm{cm^2}$] & [$\jednprzep$] & [$\jednprzep$] & [cm] & [cm]\\\midrule
-PDC                       & \num{3.595} & \num{0.938} & \num{490.6} & \num{15.0} & \num{1.296} & \num{0.232}\\
-PDC strojony              & \num{3.547} & \num{0.936} & \num{470.5} & \num{15.0} & \num{1.001} & \num{0.294}\\
-FGPC--SL ($\lambda=2$)    & \num{4.627} & \num{0.634} & \num{221.6} &  \num{5.5} & \num{0.553} & \num{0.506}\\
-FGPC--SL ($\lambda=1$)    & \num{4.251} & \num{0.442} & \num{272.1} &  \num{8.4} & \num{0.524} & \num{0.497}\\
-FGPC--SL ($\lambda=0{,}5$)& \num{4.016} & \num{0.344} & \num{325.9} & \num{11.5} & \num{0.504} & \num{0.501}\\
-FGPC--SL ($\lambda=0{,}2$)& \num{3.807} & \num{0.279} & \num{420.4} & \num{15.0} & \num{1.102} & \num{0.586}\\\bottomrule
+PDC                       & \num{3.608} & \num{0.927} & \num{502.7} & \num{15.0} & \num{1.563} & \num{0.306}\\
+PDC strojony              & \num{3.544} & \num{0.917} & \num{450.7} & \num{15.0} & \num{1.457} & \num{0.595}\\
+FGPC--SL ($\lambda=2$)    & \num{4.619} & \num{0.628} & \num{220.2} &  \num{5.5} & \num{0.528} & \num{0.496}\\
+FGPC--SL ($\lambda=1$)    & \num{4.238} & \num{0.432} & \num{274.8} &  \num{8.3} & \num{0.486} & \num{0.480}\\
+FGPC--SL ($\lambda=0{,}5$)& \num{4.000} & \num{0.333} & \num{337.3} & \num{11.5} & \num{0.480} & \num{0.476}\\
+FGPC--SL ($\lambda=0{,}2$)& \num{3.787} & \num{0.268} & \num{441.3} & \num{15.0} & \num{0.742} & \num{0.552}\\\bottomrule
 \end{tabular}
 \label{tab:sl-metrics}
 \end{table}
 
-Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{5.6}\% względem dostrojonego PDC (do \num{1.983}~$\mathrm{cm^2}$), MSE po zakłóceniu maleje niemal trzykrotnie (z \num{0.936} do \num{0.344}~$\mathrm{cm^2}$), a suma zmian sterowania jest o \num{30.7}\% mniejsza (\num{325.9} wobec \num{470.5}~$\jednprzep$). Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE do \num{1.853}~$\mathrm{cm^2}$, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie odbicie poziomu (cofnięcie \num{1.102}~cm).
+Zmniejszanie $\lambda$ przyspiesza regulację i poprawia tłumienie zakłócenia $F_D$ kosztem większej zmienności sterowania (rys.~\ref{fig:sl-tuning}). Jako główny wariant wybrano $\lambda=\num{0.5}$: średni MSE spada o \num{6.2}\% względem dostrojonego PDC (do \num{1.969}~$\mathrm{cm^2}$), MSE po zakłóceniu maleje niemal trzykrotnie (z \num{0.935} do \num{0.333}~$\mathrm{cm^2}$), a suma zmian sterowania jest o \num{21.1}\% mniejsza (\num{337.3} wobec \num{427.5}~$\jednprzep$). Dalsze zmniejszenie do $\lambda=\num{0.2}$ obniża średni MSE do \num{1.838}~$\mathrm{cm^2}$, ale przy skoku $-8\ \mathrm{cm}$ sterowanie dochodzi do ograniczenia $|\Delta u|=15\ \jednprzep$ i rośnie odbicie poziomu (cofnięcie \num{0.742}~cm).
 
 W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w punkcie startowym $y(k)$ na cały horyzont $N=30$ nie uwzględnia szybkiego spadku pojemności $3C_2h_2^2$ przy niskim poziomie, co wywołuje krótkotrwałe odbicie poziomu i sterowania około 1000~s (rys.~\ref{fig:sl-outputs} i \ref{fig:sl-controls}). Średni czas obliczeń \texttt{quadprog} nie przekracza \num{0.4}~ms na próbkę.
 
@@ -69,17 +52,17 @@ W próbie $-8\ \mathrm{cm}$ widać ograniczenie metody SL: zamrożenie wag w pun
 \small
 \begin{tabular}{lrrrr}\toprule
 $\Delta h_{2,\mathrm{zad}}$ / $\Delta F_D$ & $\lambda=2$ & $\lambda=1$ & $\lambda=\num{0.5}$ & $\lambda=\num{0.2}$\\\midrule
-$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.563} & \num{0.509} & \num{0.476} & \num{0.444}\\
-$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.618} & \num{0.556} & \num{0.518} & \num{0.481}\\
-$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.146} & \num{1.957} & \num{1.839} & \num{1.726}\\
-$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{2.111} & \num{1.922} & \num{1.806} & \num{1.698}\\\midrule
-Średni MSE                        & \num{1.359} & \num{1.236} & \num{1.159} & \num{1.087}\\
-Maks. cofnięcie / przereg. [cm]   & \num{0.276} / \num{0.272} & \num{0.275} / \num{0.273} & \num{0.286} / \num{0.284} & \num{0.693} / \num{0.350}\\\bottomrule
+$+3\ \mathrm{cm}/-8\ \jednprzep$  & \num{0.563} & \num{0.509} & \num{0.475} & \num{0.444}\\
+$-3\ \mathrm{cm}/+12\ \jednprzep$ & \num{0.622} & \num{0.559} & \num{0.520} & \num{0.483}\\
+$+6\ \mathrm{cm}/-10\ \jednprzep$ & \num{2.150} & \num{1.960} & \num{1.841} & \num{1.728}\\
+$-6\ \mathrm{cm}/+15\ \jednprzep$ & \num{2.107} & \num{1.916} & \num{1.798} & \num{1.688}\\\midrule
+Średni MSE                        & \num{1.360} & \num{1.236} & \num{1.158} & \num{1.086}\\
+Maks. cofnięcie / przereg. [cm]   & \num{0.265} / \num{0.257} & \num{0.256} / \num{0.254} & \num{0.263} / \num{0.262} & \num{0.466} / \num{0.319}\\\bottomrule
 \end{tabular}
 \label{tab:sl-validation}
 \end{table}
 
-Próby walidacyjne o przeciwnych znakach skoków (tab.~\ref{tab:sl-validation}) dają taki sam obraz: $\lambda=\num{0.5}$ utrzymuje cofnięcie i przeregulowanie poniżej \num{0.29}~cm, natomiast dla $\lambda=\num{0.2}$ cofnięcie w próbie $-6\ \mathrm{cm}$ wzrasta do \num{0.693}~cm.
+Próby walidacyjne o przeciwnych znakach skoków (tab.~\ref{tab:sl-validation}) dają taki sam obraz: $\lambda=\num{0.5}$ utrzymuje cofnięcie i przeregulowanie poniżej \num{0.27}~cm, natomiast dla $\lambda=\num{0.2}$ cofnięcie w próbie $-6\ \mathrm{cm}$ wzrasta do \num{0.466}~cm.
 
 \begin{figure}[H]
 \centering
